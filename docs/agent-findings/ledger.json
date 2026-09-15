@@ -54,9 +54,9 @@
       ],
       "dispositionReason": "Resolved by disabling the GitHub MCP server and enforcing the generated MCP manifest in the agentic workflow contract check.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -83,9 +83,9 @@
       ],
       "dispositionReason": "Resolved by disabling edit and bash tools and moving report creation into a schema-validated custom safe-output job.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -112,9 +112,9 @@
       ],
       "dispositionReason": "Resolved by documenting the ledger check and adding an ordered validation-sequence assertion that fails if the architecture entry is removed.",
       "proofOfFix": {
-        "commitSha": "e2973c7f2967a40cb849fe4c3477984273a23747",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run lint", "npm run format:check"],
-        "testPaths": ["scripts/check-repository-docs.mjs"]
+        "testPaths": ["scripts/check-repository-docs.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -141,9 +141,9 @@
       ],
       "dispositionReason": "Resolved by asserting the disabled CLI proxy in source while retaining the generated manifest assertion that safe outputs remain MCP-only.",
       "proofOfFix": {
-        "commitSha": "358c795d98333421245d00c4ed663ce2274989ec",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -170,9 +170,9 @@
       ],
       "dispositionReason": "Resolved by binding the source body instruction, compiled safe-output tool list, and compiled runtime-import target in one deterministic contract check.",
       "proofOfFix": {
-        "commitSha": "bb1ea75dd95cba114d6bf4637828b82d813230eb",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -199,9 +199,9 @@
       ],
       "dispositionReason": "Resolved by requiring one exact normalized terminal instruction block and exactly one report-tool reference in the workflow body.",
       "proofOfFix": {
-        "commitSha": "3c3c82c958fee3ce32f4ab6a294cad08dc543431",
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -214,7 +214,7 @@
       "area": "agent-findings",
       "path": "docs/agent-findings/ledger.json",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:31:21.436Z",
       "lastSeenAt": "2026-09-15T15:31:21.436Z",
       "recurrenceCount": 1,
@@ -226,8 +226,15 @@
           "evidenceDigest": "8ad7c5692d0a9fad1e1e8d58595213306d7d79b78069f67eccb65dc67c47893e"
         }
       ],
-      "dispositionReason": "Accepted because executable validators are not focused regression-test files and do not satisfy the ledger's documented proof standard.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by adding focused Vitest regression files and updating affected proof records to reference those tests.",
+      "proofOfFix": {
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts scripts/check-repository-docs.test.ts",
+          "npm run agent-findings:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts", "scripts/check-repository-docs.test.ts"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     },
@@ -239,7 +246,7 @@
       "area": "agentic-workflows",
       "path": "scripts/validate-agentic-workflows.mjs",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:31:21.436Z",
       "lastSeenAt": "2026-09-15T15:31:21.436Z",
       "recurrenceCount": 1,
@@ -251,8 +258,12 @@
           "evidenceDigest": "c2d7ea525d331604d4e1cd78ad105c1f26f2a7dba772006312e9e4f1013eea67"
         }
       ],
-      "dispositionReason": "Accepted because splitting every standalone delimiter conflates valid Markdown thematic breaks with frontmatter boundaries.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by parsing only the first two frontmatter delimiters and covering a thematic break in a focused regression test.",
+      "proofOfFix": {
+        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "checks": ["npx vitest run scripts/validate-agentic-workflows.test.ts", "npm run agentic-workflows:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
