@@ -33,6 +33,7 @@ Repository-wide changes run:
 ```powershell
 npm run data:check
 npm run docs:check
+npm run agent-findings:check
 npm test
 npm run lint
 npm run format:check

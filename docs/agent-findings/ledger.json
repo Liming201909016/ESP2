@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "kind": "esp-agent-findings-ledger",
+  "nextSequence": 1,
+  "findings": []
+}

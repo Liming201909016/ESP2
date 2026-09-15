@@ -104,6 +104,15 @@ with classifier and failed-log digests, reruns failed jobs once only for a known
 attempt's terminal outcome, and hands deterministic, unknown, or unavailable-log failures to humans. It does not execute
 code from the failed ref, rerun successful jobs, retry a second failure, deploy, or mutate application data.
 
+The [Agent Findings Ledger](agent-findings/README.md) stores only human-reviewed findings and proof-of-fix metadata.
+Agent Review artifacts never update the ledger automatically; ledger changes use the normal pull-request validation and
+ownership path.
+
+[`agent-review.yml`](../.github/workflows/agent-review.yml) is a manual, read-only Copilot review of one exact commit or
+same-repository pull request. It separates trusted review code from untrusted target code, disables target instructions,
+exposes only file-view/search tools, validates JSON output, and uploads provenance-bound artifacts without comments,
+commits, approvals, issues, deployments, or ledger changes.
+
 ## Change guidance
 
 - Change contracts before adapters and UI consumers when a public shape evolves.

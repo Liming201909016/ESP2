@@ -17,6 +17,7 @@ List the commands run and their results. Include links to relevant CI or runtime
 
 - [ ] `npm run data:check`
 - [ ] `npm run docs:check`
+- [ ] `npm run agent-findings:check`
 - [ ] `npm test`
 - [ ] `npm run lint`
 - [ ] `npm run format:check`
@@ -27,6 +28,7 @@ List the commands run and their results. Include links to relevant CI or runtime
 
 - [ ] No AI agent contributed to this change
 - [ ] AI agent contributed; its changes and evidence received human review
+- Agent Review run or finding IDs: `not applicable`
 
 ## Reviewer Notes
 

@@ -34,6 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run data:check
       - run: npm run docs:check
+      - run: npm run agent-findings:check
       - run: npm test
       - run: npm run lint
       - run: npm run format:check
