@@ -37,14 +37,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          evaluator="$GITHUB_WORKSPACE/.agents/skills/codeblend-ai-composite/ai-readiness-eval-linux-amd64"
-          test -f "$evaluator"
+          source_evaluator="$GITHUB_WORKSPACE/.agents/skills/codeblend-ai-composite/ai-readiness-eval-linux-amd64"
+          evaluator="$RUNNER_TEMP/ai-readiness-eval-linux-amd64"
+          log="$RUNNER_TEMP/codeblend-evaluation.log"
+          test -f "$source_evaluator"
+          cp "$source_evaluator" "$evaluator"
           chmod +x "$evaluator"
-          "$evaluator" eval "$GITHUB_WORKSPACE" 2>&1 | tee "$GITHUB_WORKSPACE/codeblend-evaluation.log"
+          "$evaluator" eval "$GITHUB_WORKSPACE" 2>&1 | tee "$log"
 
-          run_directory="$(sed -n 's/^artifacts: //p' "$GITHUB_WORKSPACE/codeblend-evaluation.log" | tail -n 1)"
+          run_directory="$(sed -n 's/^artifacts: //p' "$log" | tail -n 1)"
           test -n "$run_directory"
           test -f "$run_directory/composite.md"
+          cp "$log" "$GITHUB_WORKSPACE/codeblend-evaluation.log"
           cp -R "$run_directory" "$GITHUB_WORKSPACE/ai-readiness-report"
 
       - name: Upload evaluation artifacts
