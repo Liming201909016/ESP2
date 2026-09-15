@@ -127,7 +127,7 @@
       "area": "agentic-workflows",
       "path": "scripts/validate-agentic-workflows.mjs",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T14:43:53.330Z",
       "lastSeenAt": "2026-09-15T14:43:53.330Z",
       "recurrenceCount": 1,
@@ -139,8 +139,12 @@
           "evidenceDigest": "d12313f4141384167d9feca057ae493b5ed1b0d835e88c4b088ad6cf1ba35a30"
         }
       ],
-      "dispositionReason": "Accepted because the source contract asserted adjacent disabled tools but did not fail when CLI proxy access was re-enabled.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by asserting the disabled CLI proxy in source while retaining the generated manifest assertion that safe outputs remain MCP-only.",
+      "proofOfFix": {
+        "commitSha": "358c795d98333421245d00c4ed663ce2274989ec",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
