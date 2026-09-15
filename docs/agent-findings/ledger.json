@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 10,
+  "nextSequence": 11,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -264,6 +264,31 @@
         "checks": ["npx vitest run scripts/validate-agentic-workflows.test.ts", "npm run agentic-workflows:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0010",
+      "fingerprint": "2b3396725c3b7464b4c8c330896fb707e3d88e148df25b41edf99653e06e655b",
+      "title": "Regression tests import side-effectful validators",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T15:38:00.897Z",
+      "lastSeenAt": "2026-09-15T15:38:00.897Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34989572407",
+          "targetSha": "6b2d653b5309b27ac1c5961965c5c8cc747ef255",
+          "observedAt": "2026-09-15T15:38:00.897Z",
+          "evidenceDigest": "7c126b2038e928a0629a69826aa7fa3ffa4b3554c689b6975856460af4bd9312"
+        }
+      ],
+      "dispositionReason": "Accepted because importing side-effectful CLI validators makes focused tests depend on unrelated repository-wide state.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
