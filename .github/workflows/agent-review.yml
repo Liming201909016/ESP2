@@ -111,7 +111,7 @@ jobs:
             --allow-all-tools \
             --output-format json \
             --usage-output-file "$RUNNER_TEMP/agent-review-usage.json" \
-            --max-ai-credits 25 \
+            --max-ai-credits 30 \
             -p "$prompt" \
             --available-tools view rg glob > "$RUNNER_TEMP/copilot-events.jsonl"
 
