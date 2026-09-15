@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 11,
+  "nextSequence": 12,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -297,6 +297,31 @@
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts", "scripts/check-repository-docs.test.ts"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0011",
+      "fingerprint": "35009ed48e3a30dca43402888f9d78d8356b956d1888e27cd9eb9db98fb613f2",
+      "title": "Thematic-break test bypasses the parser under test",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T15:44:43.912Z",
+      "lastSeenAt": "2026-09-15T15:44:43.912Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34990240142",
+          "targetSha": "8b6d19fb241419e8c29c86470d046fdcc4bcd45e",
+          "observedAt": "2026-09-15T15:44:43.912Z",
+          "evidenceDigest": "ec4dd8c7692922fc2376c25e596a22ceaa732cf802574648be2de4a4e255e31e"
+        }
+      ],
+      "dispositionReason": "Accepted because inserting the thematic break after extraction does not exercise frontmatter parsing with that input.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
