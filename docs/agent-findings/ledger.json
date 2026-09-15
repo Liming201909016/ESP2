@@ -11,7 +11,7 @@
       "area": "agent-review",
       "path": "scripts/agent-review-contract.mjs",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T11:41:13.804Z",
       "lastSeenAt": "2026-09-15T11:41:13.804Z",
       "recurrenceCount": 1,
@@ -23,8 +23,12 @@
           "evidenceDigest": "9d195e81b5da69c2b686a6ce725003f20a1c0155b428f5d50390573c952f9681"
         }
       ],
-      "dispositionReason": "Accepted after the validated read-only review was corroborated against the workflow allowlist and trusted event-stream validator under the repository owner's continuous-optimization authorization.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by defining one canonical read-only tool list for prompt generation and event validation, with a regression test that verifies the workflow allowlist remains synchronized.",
+      "proofOfFix": {
+        "commitSha": "2988b25bd0cf32e8e53f257d7e8c61bf4db42c74",
+        "checks": ["npm test -- scripts/agent-review-contract.test.ts", "npm run lint", "npx tsc --noEmit"],
+        "testPaths": ["scripts/agent-review-contract.test.ts"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
