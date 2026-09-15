@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 6,
+  "nextSequence": 7,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -145,6 +145,31 @@
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/validate-agentic-workflows.mjs"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0006",
+      "fingerprint": "88c166a2cfe69dad394d02f110012055ae7f0c07014536c40200e030ec8c09da",
+      "title": "Audit contract does not pin final MCP tool instruction",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T15:18:15.374Z",
+      "lastSeenAt": "2026-09-15T15:18:15.374Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34987291867",
+          "targetSha": "038ec1606ce968cfad8f2db60481344208f172f3",
+          "observedAt": "2026-09-15T15:18:15.374Z",
+          "evidenceDigest": "9fc357c86132e139796d6a9c122d3181ed7da8ef76f696bbff14c7cca7f4fe01"
+        }
+      ],
+      "dispositionReason": "Accepted because manifest tool exposure alone does not prevent the workflow body from instructing a nonexistent final tool call.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
