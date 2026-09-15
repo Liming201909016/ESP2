@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, relative, resolve } from "node:path";
+import { validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const artifactRoot = resolve(root, "artifacts");
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+const architecture = readFileSync(resolve(root, "docs", "architecture.md"), "utf8");
+validateArchitectureValidationSequence(architecture);
 assert.match(
   readFileSync(resolve(root, ".gitignore"), "utf8"),
   /^\/artifacts\/$/m,

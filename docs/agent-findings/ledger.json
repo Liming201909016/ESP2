@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 6,
+  "nextSequence": 12,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -54,9 +54,9 @@
       ],
       "dispositionReason": "Resolved by disabling the GitHub MCP server and enforcing the generated MCP manifest in the agentic workflow contract check.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -83,9 +83,9 @@
       ],
       "dispositionReason": "Resolved by disabling edit and bash tools and moving report creation into a schema-validated custom safe-output job.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -110,11 +110,11 @@
           "evidenceDigest": "ec0943ab72164b11f2265115128608840708fc016066942dcb65e80526113d01"
         }
       ],
-      "dispositionReason": "Resolved by adding the findings ledger contract check to the architecture document's local validation sequence.",
+      "dispositionReason": "Resolved by documenting the ledger check and adding an ordered validation-sequence assertion that fails if the architecture entry is removed.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
-        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run format:check"],
-        "testPaths": ["scripts/check-repository-docs.mjs"]
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/check-repository-docs.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
@@ -141,9 +141,194 @@
       ],
       "dispositionReason": "Resolved by asserting the disabled CLI proxy in source while retaining the generated manifest assertion that safe outputs remain MCP-only.",
       "proofOfFix": {
-        "commitSha": "358c795d98333421245d00c4ed663ce2274989ec",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
-        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0006",
+      "fingerprint": "88c166a2cfe69dad394d02f110012055ae7f0c07014536c40200e030ec8c09da",
+      "title": "Audit contract does not pin final MCP tool instruction",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:18:15.374Z",
+      "lastSeenAt": "2026-09-15T15:18:15.374Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34987291867",
+          "targetSha": "038ec1606ce968cfad8f2db60481344208f172f3",
+          "observedAt": "2026-09-15T15:18:15.374Z",
+          "evidenceDigest": "9fc357c86132e139796d6a9c122d3181ed7da8ef76f696bbff14c7cca7f4fe01"
+        }
+      ],
+      "dispositionReason": "Resolved by binding the source body instruction, compiled safe-output tool list, and compiled runtime-import target in one deterministic contract check.",
+      "proofOfFix": {
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0007",
+      "fingerprint": "02873338df823482e6ad011037f0664814d7de23a771b5b2b86de112bdc6d447",
+      "title": "Final MCP action assertion is not terminal or unique",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:23:55.883Z",
+      "lastSeenAt": "2026-09-15T15:23:55.883Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34987977340",
+          "targetSha": "41242d60f0c368c8f6cc06fbb35f70843eec59e3",
+          "observedAt": "2026-09-15T15:23:55.883Z",
+          "evidenceDigest": "16c7e1e866744cdea52752fa0c3d2f07af385d509e608f12926371e4c8bd2be9"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring one exact normalized terminal instruction block and exactly one report-tool reference in the workflow body.",
+      "proofOfFix": {
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0008",
+      "fingerprint": "2618fa4a46f04c0c6e716d07196257f03a2a90b85c108424a1a886fd1d4c0946",
+      "title": "Ledger proof paths name validators instead of tests",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:31:21.436Z",
+      "lastSeenAt": "2026-09-15T15:31:21.436Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34988678651",
+          "targetSha": "6a176e47adb66a45b66b07a1fd2eb390a08d49c1",
+          "observedAt": "2026-09-15T15:31:21.436Z",
+          "evidenceDigest": "8ad7c5692d0a9fad1e1e8d58595213306d7d79b78069f67eccb65dc67c47893e"
+        }
+      ],
+      "dispositionReason": "Resolved by adding focused Vitest regression files and updating affected proof records to reference those tests.",
+      "proofOfFix": {
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts scripts/check-repository-docs.test.ts",
+          "npm run agent-findings:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts", "scripts/check-repository-docs.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0009",
+      "fingerprint": "8561bfdbfe0d3b21e06ba8f214eca49ace792d6282439173fc15ac9e84086398",
+      "title": "Workflow parser rejects Markdown thematic breaks",
+      "severity": "low",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:31:21.436Z",
+      "lastSeenAt": "2026-09-15T15:31:21.436Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34988678651",
+          "targetSha": "6a176e47adb66a45b66b07a1fd2eb390a08d49c1",
+          "observedAt": "2026-09-15T15:31:21.436Z",
+          "evidenceDigest": "c2d7ea525d331604d4e1cd78ad105c1f26f2a7dba772006312e9e4f1013eea67"
+        }
+      ],
+      "dispositionReason": "Resolved by parsing only the first two frontmatter delimiters and covering a thematic break in a focused regression test.",
+      "proofOfFix": {
+        "commitSha": "6382dfa159a6a3264bd7aafda28ad0b7b5ee4785",
+        "checks": ["npx vitest run scripts/validate-agentic-workflows.test.ts", "npm run agentic-workflows:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0010",
+      "fingerprint": "2b3396725c3b7464b4c8c330896fb707e3d88e148df25b41edf99653e06e655b",
+      "title": "Regression tests import side-effectful validators",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:38:00.897Z",
+      "lastSeenAt": "2026-09-15T15:38:00.897Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34989572407",
+          "targetSha": "6b2d653b5309b27ac1c5961965c5c8cc747ef255",
+          "observedAt": "2026-09-15T15:38:00.897Z",
+          "evidenceDigest": "7c126b2038e928a0629a69826aa7fa3ffa4b3554c689b6975856460af4bd9312"
+        }
+      ],
+      "dispositionReason": "Resolved by moving the tested contracts into pure modules and keeping repository-wide checks in separate CLI validators.",
+      "proofOfFix": {
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts scripts/check-repository-docs.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run docs:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts", "scripts/check-repository-docs.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0011",
+      "fingerprint": "35009ed48e3a30dca43402888f9d78d8356b956d1888e27cd9eb9db98fb613f2",
+      "title": "Thematic-break test bypasses the parser under test",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T15:44:43.912Z",
+      "lastSeenAt": "2026-09-15T15:44:43.912Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34990240142",
+          "targetSha": "8b6d19fb241419e8c29c86470d046fdcc4bcd45e",
+          "observedAt": "2026-09-15T15:44:43.912Z",
+          "evidenceDigest": "ec4dd8c7692922fc2376c25e596a22ceaa732cf802574648be2de4a4e255e31e"
+        }
+      ],
+      "dispositionReason": "Resolved by inserting the thematic break into the complete workflow source before extraction and asserting the parser preserves it.",
+      "proofOfFix": {
+        "commitSha": "6382dfa159a6a3264bd7aafda28ad0b7b5ee4785",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
