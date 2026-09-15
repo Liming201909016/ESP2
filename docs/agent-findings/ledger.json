@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 2,
+  "nextSequence": 6,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -28,6 +28,122 @@
         "commitSha": "2988b25bd0cf32e8e53f257d7e8c61bf4db42c74",
         "checks": ["npm test -- scripts/agent-review-contract.test.ts", "npm run lint", "npx tsc --noEmit"],
         "testPaths": ["scripts/agent-review-contract.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0002",
+      "fingerprint": "db8249e31451b21372e643250b3c6e964009b0af7f5f230a674daf00121953e0",
+      "title": "Findings audit exposes network-backed GitHub tools",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "5a9a90f02ab76540f55253080ff7fbdba4c1e943d725f5c835303846fb60809f"
+        }
+      ],
+      "dispositionReason": "Resolved by disabling the GitHub MCP server and enforcing the generated MCP manifest in the agentic workflow contract check.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0003",
+      "fingerprint": "134b7c905a484c4f329396b2f24f117cd866d69f4d956541d76da734c8bea1b6",
+      "title": "Findings audit grants unrestricted workspace editing",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "63f73f44456dd07b66bd9c0eb59381ce43e120e9e48b79ed1243c312004eb991"
+        }
+      ],
+      "dispositionReason": "Resolved by disabling edit and bash tools and moving report creation into a schema-validated custom safe-output job.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0004",
+      "fingerprint": "cbf258ff1c141cdf1ca23261a5a0399e098648a940a912bdd699f277ceff895b",
+      "title": "Architecture validation sequence omits findings ledger check",
+      "severity": "low",
+      "area": "documentation",
+      "path": "docs/architecture.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "ec0943ab72164b11f2265115128608840708fc016066942dcb65e80526113d01"
+        }
+      ],
+      "dispositionReason": "Resolved by adding the findings ledger contract check to the architecture document's local validation sequence.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run format:check"],
+        "testPaths": ["scripts/check-repository-docs.mjs"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0005",
+      "fingerprint": "05e1c60438e0594c9b07462f5fd449d1262f422c1829f14470f6c08a82a0d2d3",
+      "title": "Agentic workflow contract omits CLI proxy assertion",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T14:43:53.330Z",
+      "lastSeenAt": "2026-09-15T14:43:53.330Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34983450185",
+          "targetSha": "252178de38246c0b02e229a36ec2ac473a848b96",
+          "observedAt": "2026-09-15T14:43:53.330Z",
+          "evidenceDigest": "d12313f4141384167d9feca057ae493b5ed1b0d835e88c4b088ad6cf1ba35a30"
+        }
+      ],
+      "dispositionReason": "Resolved by asserting the disabled CLI proxy in source while retaining the generated manifest assertion that safe outputs remain MCP-only.",
+      "proofOfFix": {
+        "commitSha": "358c795d98333421245d00c4ed663ce2274989ec",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
