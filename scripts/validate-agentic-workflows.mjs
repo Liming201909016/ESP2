@@ -8,9 +8,6 @@ const sourcePath = path.join(root, ".github", "workflows", "agent-findings-audit
 const lockPath = path.join(root, ".github", "workflows", "agent-findings-audit.lock.yml");
 const source = fs.readFileSync(sourcePath, "utf8");
 const lock = fs.readFileSync(lockPath, "utf8");
-const sourceSections = source.split(/^---\s*$/mu);
-assert.equal(sourceSections.length, 3, "findings audit must contain one frontmatter block and one workflow body");
-const workflowBody = sourceSections[2];
 const normalizeWhitespace = (value) => value.trim().replace(/\s+/gu, " ");
 const expectedFinalInstruction = normalizeWhitespace(`
 Your final action MUST be one MCP tool call. Invoke \`submit_findings_audit_report\` from the \`safeoutputs\` MCP server
@@ -19,7 +16,28 @@ MCP tool call, not a skill or file operation. Do not look up tool documentation,
 \`noop\` after successful submission. If the report cannot be prepared, call \`noop\` exactly once with the reason and do not
 fabricate a report.
 `);
-const normalizedWorkflowBody = normalizeWhitespace(workflowBody);
+
+export function extractWorkflowBody(workflowSource) {
+  const delimiters = [...workflowSource.matchAll(/^---\s*$/gmu)];
+  assert.ok(delimiters.length >= 2 && delimiters[0].index === 0, "findings audit must contain leading frontmatter");
+  const closingDelimiter = delimiters[1];
+  return workflowSource.slice(closingDelimiter.index + closingDelimiter[0].length);
+}
+
+export function validateFinalInstruction(workflowBody) {
+  const normalizedWorkflowBody = normalizeWhitespace(workflowBody);
+  assert.ok(
+    normalizedWorkflowBody.endsWith(expectedFinalInstruction),
+    "findings audit body must require the exposed report tool as its final action",
+  );
+  assert.equal(
+    workflowBody.match(/submit_findings_audit_report/gu)?.length,
+    1,
+    "findings audit body must name the report tool exactly once",
+  );
+}
+
+const workflowBody = extractWorkflowBody(source);
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
 assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash");
@@ -28,15 +46,7 @@ assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitH
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
 assert.match(source, /^\s*gh-aw-detection: false\s*$/m, "findings audit must use the supported inline detector");
 assert.match(source, /^\s*max-turns: 40\s*$/m, "findings audit must retain its bounded completion budget");
-assert.ok(
-  normalizedWorkflowBody.endsWith(expectedFinalInstruction),
-  "findings audit body must require the exposed report tool as its final action",
-);
-assert.equal(
-  workflowBody.match(/submit_findings_audit_report/gu)?.length,
-  1,
-  "findings audit body must name the report tool exactly once",
-);
+validateFinalInstruction(workflowBody);
 
 const manifestPrefix = "# gh-aw-manifest: ";
 const manifestLine = lock.split(/\r?\n/u).find((line) => line.startsWith(manifestPrefix));

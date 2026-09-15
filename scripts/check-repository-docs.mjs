@@ -16,12 +16,16 @@ const requiredValidationCommands = [
   "npm run build",
   "npm run test:e2e",
 ];
-let previousCommandIndex = -1;
-for (const command of requiredValidationCommands) {
-  const commandIndex = architecture.indexOf(command);
-  assert.ok(commandIndex > previousCommandIndex, `docs/architecture.md: missing or out-of-order ${command}`);
-  previousCommandIndex = commandIndex;
+
+export function validateArchitectureValidationSequence(content) {
+  let previousCommandIndex = -1;
+  for (const command of requiredValidationCommands) {
+    const commandIndex = content.indexOf(command);
+    assert.ok(commandIndex > previousCommandIndex, `docs/architecture.md: missing or out-of-order ${command}`);
+    previousCommandIndex = commandIndex;
+  }
 }
+validateArchitectureValidationSequence(architecture);
 assert.match(
   readFileSync(resolve(root, ".gitignore"), "utf8"),
   /^\/artifacts\/$/m,
