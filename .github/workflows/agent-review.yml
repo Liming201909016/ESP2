@@ -120,7 +120,7 @@ jobs:
           WORKFLOW_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          cli_version="$(copilot --version | sed -nE 's/^GitHub Copilot CLI ([0-9.]+).*/\1/p' | head -n 1)"
+          cli_version="$(copilot --version | sed -nE 's/^GitHub Copilot CLI ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' | head -n 1)"
           [[ "$cli_version" == "1.0.83" ]]
           node trusted/scripts/agent-review-contract.mjs finalize \
             --context "$GITHUB_WORKSPACE/target/.agent-review-context/review-context.json" \
