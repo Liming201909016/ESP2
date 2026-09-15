@@ -8,6 +8,9 @@ const sourcePath = path.join(root, ".github", "workflows", "agent-findings-audit
 const lockPath = path.join(root, ".github", "workflows", "agent-findings-audit.lock.yml");
 const source = fs.readFileSync(sourcePath, "utf8");
 const lock = fs.readFileSync(lockPath, "utf8");
+const sourceSections = source.split(/^---\s*$/mu);
+assert.equal(sourceSections.length, 3, "findings audit must contain one frontmatter block and one workflow body");
+const workflowBody = sourceSections[2];
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
 assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash");
@@ -16,6 +19,11 @@ assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitH
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
 assert.match(source, /^\s*gh-aw-detection: false\s*$/m, "findings audit must use the supported inline detector");
 assert.match(source, /^\s*max-turns: 40\s*$/m, "findings audit must retain its bounded completion budget");
+assert.match(
+  workflowBody,
+  /final action MUST be one MCP tool call[\s\S]*`submit_findings_audit_report`/u,
+  "findings audit body must require the exposed report tool as its final action",
+);
 
 const manifestPrefix = "# gh-aw-manifest: ";
 const manifestLine = lock.split(/\r?\n/u).find((line) => line.startsWith(manifestPrefix));
@@ -27,6 +35,12 @@ assert.deepEqual(manifest.mcp_servers, [
     tools: ["noop", "submit_findings_audit_report"],
   },
 ]);
+assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
+assert.match(
+  lock,
+  /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,
+  "compiled prompt must import the validated workflow source body",
+);
 
 assert.doesNotMatch(
   lock,
