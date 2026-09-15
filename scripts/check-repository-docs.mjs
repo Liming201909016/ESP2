@@ -5,6 +5,23 @@ import { dirname, extname, relative, resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const artifactRoot = resolve(root, "artifacts");
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+const architecture = readFileSync(resolve(root, "docs", "architecture.md"), "utf8");
+const requiredValidationCommands = [
+  "npm run data:check",
+  "npm run docs:check",
+  "npm run agent-findings:check",
+  "npm test",
+  "npm run lint",
+  "npm run format:check",
+  "npm run build",
+  "npm run test:e2e",
+];
+let previousCommandIndex = -1;
+for (const command of requiredValidationCommands) {
+  const commandIndex = architecture.indexOf(command);
+  assert.ok(commandIndex > previousCommandIndex, `docs/architecture.md: missing or out-of-order ${command}`);
+  previousCommandIndex = commandIndex;
+}
 assert.match(
   readFileSync(resolve(root, ".gitignore"), "utf8"),
   /^\/artifacts\/$/m,

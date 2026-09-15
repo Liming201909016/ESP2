@@ -12,6 +12,8 @@ engine:
   id: copilot
   model: gpt-5.4
 strict: true
+features:
+  gh-aw-detection: false
 network: defaults
 timeout-minutes: 20
 max-turns: 40
@@ -28,7 +30,7 @@ safe-outputs:
   missing-tool: false
   missing-data: false
   jobs:
-    archive-findings-audit:
+    submit-findings-audit-report:
       description: Archive one bounded findings audit report as a run artifact
       runs-on: ubuntu-latest
       permissions: {}
@@ -46,7 +48,7 @@ safe-outputs:
               const fs = require("fs");
               const path = require("path");
               const output = JSON.parse(fs.readFileSync(process.env.GH_AW_AGENT_OUTPUT, "utf8"));
-              const reports = output.items.filter((item) => item.type === "archive_findings_audit");
+              const reports = output.items.filter((item) => item.type === "submit_findings_audit_report");
               if (reports.length !== 1) {
                 core.setFailed(`Expected exactly one audit report, received ${reports.length}`);
                 return;
@@ -97,7 +99,8 @@ Prepare one Markdown report with:
 - a clear statement that a human must decide every ledger change;
 - `No discrepancies found` when all available evidence is consistent.
 
-As soon as the report is prepared, invoke the `archive_findings_audit` tool on the `safeoutputs` MCP server exactly once
-with the complete report in its `report` field. This is an MCP tool call, not a skill. Do not look up tool documentation,
-call a skill with that name, or call `noop` after successful archival. If the report cannot be prepared, call `noop`
-exactly once with the reason and do not fabricate a report.
+Your final action MUST be one MCP tool call. Invoke `submit_findings_audit_report` from the `safeoutputs` MCP server
+exactly once with the complete report in its `report` field. Do not print the report as a final chat response. This is an
+MCP tool call, not a skill or file operation. Do not look up tool documentation, call a skill with that name, or call
+`noop` after successful submission. If the report cannot be prepared, call `noop` exactly once with the reason and do not
+fabricate a report.
