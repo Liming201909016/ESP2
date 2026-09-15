@@ -1,6 +1,218 @@
-# Enterprise Skill Platform
+# Enterprise Skill Platform (ESP)
 
-Hackathon delivery plan: [Microsoft Global Hackathon 2026 backlog](HACKATHON-BACKLOG.md), covering English/Chinese support, navigation, Security Review, governed capability integration, Copilot reuse, validation and submission deliverables. This plan does not authorize deployment or change previously deferred scopes.
+### Connect Employee Intent to Enterprise Capabilities
+
+**Employees think in intents. Enterprises store capabilities. ESP bridges the gap.**
+
+Enterprise Skill Platform explores a capability-centric operating model for enterprise AI: discover the capability behind a request, apply its governance controls, execute through approved adapters, preserve evidence, evaluate the outcome, and retain human accountability.
+
+**Build Once. Govern Once. Evaluate Continuously. Reuse Everywhere.**
+
+[Azure DEV Demo](https://app-esp-dev-ygxkqw7r.azurewebsites.net/) · [Demo Story and Acceptance](HACKATHON-DEMO.md) · [Delivery Backlog](HACKATHON-BACKLOG.md) · [Quick Start](#quick-start)
+
+> **Prototype status:** ESP is a hackathon prototype using synthetic, non-sensitive data. The deployed experience is a Web application with an explicit shared DEV identity, not an integrated Microsoft 365 Copilot experience or a production authorization boundary. The architecture below separates the intended operating model from the capabilities demonstrated today.
+
+## Why ESP?
+
+### Capabilities Exist. Employees Cannot Find Them.
+
+An employee needs visitor parking for a customer. The policy, booking form, approval workflow, service owner and correct URL may already exist, but the employee still needs to discover which system to use.
+
+The employee asks for an outcome: **"I need visitor parking for a customer."** The organization presents applications, documents, portals, workflows and links.
+
+The problem is not necessarily missing functionality. It is capability discovery. More agents and assistants can add another layer to navigate unless enterprise capabilities become discoverable through intent. Visitor parking illustrates the problem; it is not an implemented ESP workflow.
+
+### Reuse the Capability, Not Just the Agent
+
+HR, Finance, Legal, Security and Operations may build separate agents while repeatedly implementing knowledge retrieval, policy analysis, evidence extraction, compliance validation, risk assessment and reporting. Each implementation can develop its own prompts, integrations, quality checks and governance rules.
+
+ESP proposes a different unit of reuse:
+
+| Agent-centric pattern | Capability-centric model |
+| --- | --- |
+| A capability is embedded in each agent | A governed capability has an explicit contract |
+| Each consumer maintains its own implementation | Multiple consumers invoke an approved implementation |
+| Policies and evaluations vary across teams | Policy, evidence and evaluation requirements travel with the capability |
+| Experience stays within a project or team | Validated experience becomes a reusable organizational asset |
+
+**One Governed Skill = Many Consumers.**
+
+The organizational goal is to learn once and benefit many times. Reuse does not remove consumer-specific security or governance responsibilities; it makes shared requirements and ownership easier to inspect and enforce.
+
+## The Operating Model
+
+**Intent → Skill Discovery → Governed Skill → Reusable Plugin → Enterprise Action → Evidence → Evaluation → Accountability**
+
+| Concept | Responsibility |
+| --- | --- |
+| Intent | Express the requested business outcome; intent alone is not permission to act |
+| Skill | Define a capability's inputs, outputs, version, permissions, policy and evaluation contract |
+| Plugin | Bind a capability to an approved implementation, knowledge source, API or service |
+| Workflow | Coordinate explicit capability dependencies and report actual invocation outcomes |
+| Evidence | Retain source identifiers, excerpts, versions and the basis for findings |
+| Evaluation | Check outcomes against stated criteria and disclose failures or insufficient evidence |
+| Accountability | Preserve human reasons, actor identifiers, decisions and execution/audit history |
+
+In the target model, a trusted consumer submits intent and context. ESP discovers an eligible capability, checks authorization and policy, invokes approved adapters, and returns an inspectable outcome. Writes that require confirmation or approval remain gated. A selected capability is not automatically an executed action, and a passing automated check is not human approval.
+
+## Target Architecture
+
+The diagram describes the **intended architecture**, not a list of completed integrations. Microsoft 365 Copilot, Copilot Studio, Teams, MCP and external business-system adapters are prospective integration points. The current implementation uses Web and CLI/HTTP consumers with a fixed set of capabilities and adapters.
+
+```mermaid
+flowchart TB
+  Employees["Employees: business intent"] --> Consumers["Trusted consumers: Copilots, agents, Web, applications and APIs"]
+  Context["Context and signals: identity, role, policy and business data"] -.-> Intent
+  subgraph ESP["Enterprise Skill Platform"]
+    direction LR
+    Intent["1. Intent understanding"] --> Discovery["2. Skill discovery"]
+    Discovery --> Skills["3. Governed Skills"]
+    Skills --> Plugins["4. Reusable Plugins"]
+    Governance["Cross-cutting governance: access control, evidence, evaluation, human approval, audit and versioning"]
+    Governance -.-> Intent
+    Governance -.-> Discovery
+    Governance -.-> Skills
+    Governance -.-> Plugins
+  end
+  Consumers --> Intent
+  Plugins --> Systems["Enterprise capabilities: knowledge, business applications, APIs, workflows and data"]
+  Systems --> Outcomes["Answers, actions, reports and decisions"]
+  Outcomes --> Evidence["Evidence and results: citations, traces, evaluations and decision records"]
+  Evidence -.-> Governance
+```
+
+### Relationship to MCP and Agent Platforms
+
+ESP is not intended to replace an agent authoring or runtime platform. It focuses on the discovery, governance, evaluation, ownership and reuse of the capabilities those experiences consume.
+
+- **Agent platforms:** create and operate consumer experiences. Copilot Studio is a potential integration point for ESP, not a dependency already connected to this prototype.
+- **MCP:** can provide a tool/resource interoperability mechanism for an adapter. It does not, by itself, establish ESP's business authorization, evidence requirements or human approval rules. No MCP adapter is currently implemented here.
+- **ESP:** explores how capabilities can be operated as reusable enterprise products across consumers, rather than hidden implementation details inside individual agents.
+
+## Hackathon MVP: Security Review
+
+The primary scenario is a **synthetic Docker Desktop introduction security review** for `SIM-SW-202609-0031`. Security Review demonstrates the operating model; it is not the boundary of the platform. Existing HR, Finance, Procurement, security-guidance and IT-ticket capabilities provide supporting scenarios.
+
+Start with this supported request:
+
+> Security review of Docker Desktop
+
+1. Discover the fixed review workflow and inspect the capability and adapter plan.
+2. Select a synthetic material pack and explicitly create a review.
+3. Inspect licensing, data-processing and installer/image-source findings with their original evidence and versions.
+4. Record a human decision and reason. Approval remains blocked when the control requirements are not met.
+5. Open the bilingual HTML report or export the original JSON; inspect the recorded history and audit evidence.
+
+| Material pack | Demonstrated behavior |
+| --- | --- |
+| Complete | Automated checks pass; an explicit human decision is still required |
+| Missing | Evidence gaps block approval; request information and create a linked follow-up |
+| High risk | Failing controls block approval; a human can reject or request information |
+| Conflicting | Conflicting evidence remains visible; no automatic newest-source-wins resolution |
+
+The review domain defines five capability stages: **Intake, Evidence Extraction, Control Check, Risk & Remediation Analysis, and Report Generation**. Four adapters cover **Evidence, Controls, Review Records and Reports**. These are currently domain-local implementations, not five globally registered, independently invocable Skills or four independently packaged Plugins. Report rendering is on demand, not a fabricated persisted execution stage.
+
+### Implemented vs. Planned
+
+| Area | Implemented in the prototype | Remaining target |
+| --- | --- | --- |
+| Consumer experience | English-default Web UI, Chinese switch, CLI using the same review HTTP API | Actual Copilot consumer and cross-consumer confirmation flow |
+| Discovery | Permission-filtered seven-Skill catalog; bounded intent routing; fixed review discovery | Unified discovery of independently governed review capabilities |
+| Execution | Two global Plugins, bounded parallel reads, fixed ticket-guidance workflow and review workflow | Global review adapter registration and independent capability reuse |
+| Governance | Permission checks, input validation, ticket confirmation/approval, review decisions and audit-before-mutation | Production identity separation and broader lifecycle governance |
+| Evidence and reports | Source-grounded knowledge answers, original review evidence, version labels, bilingual reports | Broader ingestion and retained-version evolution across capabilities |
+| Evaluation | Deterministic review controls, knowledge evaluators and evaluation/import/proposal UI | Trusted continuous evaluation and approved improvement promotion |
+| Persistence | Azure Blob review/audit records and PostgreSQL business state; bounded restart/concurrency verification | Wider reliability, retention and operational acceptance |
+| Navigation | Employee Workspace, Capability Operations and Demo Center menu groups | Unified My Requests/My Tasks and complete workspace experiences |
+
+### Verification and Boundaries
+
+The deployed September 15 build passed **1127 tests across 70 files**, lint, build/types and data consistency checks. Live verification exercised four synthetic review branches, blocked three invalid approvals and confirmed identical review records, reports, ETags and 12 audit pairs after an application restart. Concurrent identical submissions reused one review. These results establish a bounded demonstration, not a production reliability guarantee.
+
+- The DEV requester and reviewer share an identity. Review approval grants no real installation, licensing, purchase or production permission.
+- Original source text, business records and human reasons are preserved; bilingual controls do not imply that all underlying content has been translated.
+- The current reuse proof is the shared Web/CLI review service, not independent global Skill reuse or completed Copilot integration.
+- "Evaluate continuously" and independent capability evolution are design goals. Automatic model evaluation schedules, training and improvement publication are not enabled.
+- The historical knowledge evaluation remains **57/58**, with **QA-041 unresolved**. It was not rerun for the latest deployment and is not a new-release score.
+- Full accessibility, independent version evolution and broader release-quality acceptance remain open. Audit storage is not claimed to be WORM.
+
+## Business and Strategic Value
+
+ESP's value hypothesis is to reduce repeated capability engineering while improving discoverability, consistency and accountability. Benefits must be measured; this prototype does not claim proven ROI, production adoption or quantified cost savings.
+
+| Stakeholder | Proposed value | Useful measures |
+| --- | --- | --- |
+| Employees | Express outcomes instead of navigating systems | Task completion, time to find the right capability, clarification rate |
+| Enterprise teams | Reuse approved implementations and evidence requirements | Duplicate implementations retired, independent consumer count, maintenance effort |
+| Governance and operations | Inspect capability ownership, policy coverage and outcome quality | Evidence completeness, gate coverage, failure rate, decision traceability |
+| Microsoft ecosystem | Complement consumer and agent platforms with capability-oriented operations | Reuse across supported experiences and verified integration coverage |
+| ISD and Unified Services | Leave reusable capability assets behind each engagement | Cross-project reuse, handoff completeness and demonstrated customer outcomes |
+
+A capability-centered Services engagement can follow:
+
+**Business Intent → Existing Capability Assessment → Gap Identification → Governed Skill Engineering → Knowledge and Plugin Integration → Evidence and Evaluation → Operational Handoff → Reuse**
+
+Deliverables can include capability contracts, approved adapters, ownership models, evaluation criteria, policy controls, versioning requirements and operational runbooks. This is a proposed delivery approach, not a claim of an official Microsoft product, program or endorsement.
+
+The strategic hypothesis is that enterprise AI maturity should be measured not only by the number of agents created, but also by the quality, governance coverage and reuse of the capabilities they consume. ESP does not claim that other platforms lack these features or that the model replaces agent governance.
+
+## Quick Start
+
+Requires **Node.js 24** and npm. From a cloned checkout:
+
+```bash
+git clone https://github.com/Liming201909016/ESP2.git
+cd ESP2
+npm ci
+node scripts/dev-security-review.mjs
+```
+
+Open **http://127.0.0.1:3100/** and select **Security Review**. The local launcher uses fixed synthetic evidence and development-only memory storage for reviews and their audit records. This review flow does not require a model or cloud credentials. Restarting the local process clears its reviews. Other knowledge, ticket and management operations require their configured backends; the launcher does not provision those services.
+
+```bash
+npm test -- --silent
+npm run lint
+npm run build
+npm run data:check
+```
+
+The production-mode server rejects memory review storage. Cloud use requires the explicitly configured Azure environment, approved identity/access settings and durable services. Never put credentials or real enterprise records into the repository.
+
+### Technology and Code Map
+
+The implementation uses Next.js 16, React 19, TypeScript and Zod, with Azure App Service, Blob Storage, AI Search, a Foundry model integration and PostgreSQL for the deployed environment.
+
+| Location | Purpose |
+| --- | --- |
+| [src/app](src/app) | Web experiences and governed HTTP API routes |
+| [src/lib/esp](src/lib/esp) | Skill/Plugin contracts, routing, policy, audit, evidence and review logic |
+| [src/data](src/data) | Synthetic knowledge and business data |
+| [scripts](scripts) | Evaluators, local launcher, packaging and controlled release tooling |
+| [infra](infra) | Azure infrastructure and private-network templates |
+| [.github/workflows](.github/workflows) | Validation and gated release workflows |
+
+## Roadmap and Documentation
+
+The [delivery backlog](HACKATHON-BACKLOG.md) tracks the Microsoft Global Hackathon 2026 project plan. Official event rules, timing and named owners still require confirmation. The [demo story and acceptance matrix](HACKATHON-DEMO.md) distinguish current proof from planned integration.
+
+Priority work includes complete business-oriented workspaces, global review capability registration, actual Copilot reuse, compatible capability version evolution, QA-041 resolution, broader accessibility/quality acceptance and submission materials. Publication of capabilities, data migrations and cloud changes remain explicit, bounded operations.
+
+**Vision: One Copilot. Thousands of Capabilities. Learn Once. Benefit Many Times.**
+
+This is the direction of the platform, not the scale demonstrated by the prototype.
+
+<details>
+<summary><strong>Implementation Notes, Release Evidence and Operational History</strong></summary>
+
+The notes below retain implementation and deployment history. Artifact links under the ignored local artifacts directory refer to operator-held verification files and are not available in a fresh GitHub checkout. They are not public evidence downloads. The current deployment summary and its limitations remain readable below without those files.
+
+## Pending Local Review Fixes
+
+The review panel now rejects superseded detail responses and binds decision drafts to the selected review ID and ETag. History pagination has a synchronous in-flight guard, request cancellation, stale-response rejection and ID deduplication. Refresh and pagination controls reflect their own loading state. Three DOM interaction regressions reuse the existing review generator to exercise delayed details, repeated pagination and a late page arriving after a target change; Testing Library and Happy DOM are development-only dependencies.
+
+Failed review decisions now retain a `security_review` reference in the audit result after reading the target through the current owner's store. The audit start is still persisted before that read or any decision. Error responses may include minimal `reviewRecord` metadata (`id`, `policyVersion`) for this verified target; missing or foreign targets do not receive this reference. Existing historical audit entries are not modified or backfilled.
+
+Validation: **1131 tests / 71 files**, full lint and production build/types passed. These fixes are local and uncommitted; they are not included in the deployed release below. No cloud writes, deployment or GitHub push was performed for this fix.
 
 ## Current Azure DEV Release
 
@@ -1197,3 +1409,5 @@ Exclude only `/api/health` from App Service Authentication so monitoring remains
 - `POST /api/connectors/blob-knowledge/{sourceId}`: strict `{ "action": "sync", "manifestEtag": "...", "contentEtag": "...", "fingerprint": "...", "stateEtag": null | "..." }`. Imports or reuses the exact snapshot without publishing. Connector responses use `Cache-Control: private, no-store`; recorded sync failures retain detail alongside the error.
 
 Execution states are `not_routed`, `waiting_confirmation`, `waiting_approval`, `needs_input`, `not_found`, `no_evidence`, `unavailable`, `completed`, and `failed`; parallel aggregates additionally use `partial` and `no_result`. For high-impact creation, `confirmed: true` submits an approval instead of creating a ticket; retain a UUID `submissionId` for submission retries. Single-request dependency failures return HTTP 502 rather than being reported as absent business data; parallel tasks retain their individual failures under the aggregate status described above. Source pages are available at `/knowledge/{sourceId}` for the published DEV corpus.
+
+</details>
