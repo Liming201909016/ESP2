@@ -156,7 +156,7 @@
       "area": "agentic-workflows",
       "path": "scripts/validate-agentic-workflows.mjs",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:18:15.374Z",
       "lastSeenAt": "2026-09-15T15:18:15.374Z",
       "recurrenceCount": 1,
@@ -168,8 +168,12 @@
           "evidenceDigest": "9fc357c86132e139796d6a9c122d3181ed7da8ef76f696bbff14c7cca7f4fe01"
         }
       ],
-      "dispositionReason": "Accepted because manifest tool exposure alone does not prevent the workflow body from instructing a nonexistent final tool call.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by binding the source body instruction, compiled safe-output tool list, and compiled runtime-import target in one deterministic contract check.",
+      "proofOfFix": {
+        "commitSha": "bb1ea75dd95cba114d6bf4637828b82d813230eb",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
