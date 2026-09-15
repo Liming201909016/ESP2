@@ -30,6 +30,7 @@ jobs:
           category: /language:javascript-typescript
           output: codeql-results
           upload: never
+          upload-database: false
       - name: Enforce zero CodeQL findings
         run: node scripts/check-sarif.mjs codeql-results
       - name: Upload SARIF
@@ -52,6 +53,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Scan Git history
-        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ github.token }}
