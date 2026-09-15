@@ -2,11 +2,10 @@ import assert from "node:assert/strict";
 
 const normalizeWhitespace = (value) => value.trim().replace(/\s+/gu, " ");
 const expectedFinalInstruction = normalizeWhitespace(`
-Your final action MUST be one MCP tool call. Invoke \`submit_findings_audit_report\` from the \`safeoutputs\` MCP server
-exactly once with the complete report in its \`report\` field. Do not print the report as a final chat response. This is an
-MCP tool call, not a skill or file operation. Do not look up tool documentation, call a skill with that name, or call
-\`noop\` after successful submission. If the report cannot be prepared, call \`noop\` exactly once with the reason and do not
-fabricate a report.
+Your final action MUST be one shell-tool invocation of the allowlisted \`safeoutputs\` wrapper:
+\`safeoutputs submit_findings_audit_report --report "<complete Markdown report>"\`. Invoke it exactly once. Do not print the
+report as a final chat response, call a skill, run any other command, or invoke \`noop\` after successful submission. If the
+report cannot be prepared, invoke \`safeoutputs noop --message "<reason>"\` exactly once and do not fabricate a report.
 `);
 
 export function extractWorkflowBody(workflowSource) {

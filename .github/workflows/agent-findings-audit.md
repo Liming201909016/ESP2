@@ -20,8 +20,8 @@ max-turns: 40
 max-ai-credits: 100
 tools:
   edit: false
-  bash: false
-  cli-proxy: false
+  bash: [safeoutputs]
+  cli-proxy: true
   github: false
 safe-outputs:
   report-failed-jobs: false
@@ -99,8 +99,7 @@ Prepare one Markdown report with:
 - a clear statement that a human must decide every ledger change;
 - `No discrepancies found` when all available evidence is consistent.
 
-Your final action MUST be one MCP tool call. Invoke `submit_findings_audit_report` from the `safeoutputs` MCP server
-exactly once with the complete report in its `report` field. Do not print the report as a final chat response. This is an
-MCP tool call, not a skill or file operation. Do not look up tool documentation, call a skill with that name, or call
-`noop` after successful submission. If the report cannot be prepared, call `noop` exactly once with the reason and do not
-fabricate a report.
+Your final action MUST be one shell-tool invocation of the allowlisted `safeoutputs` wrapper:
+`safeoutputs submit_findings_audit_report --report "<complete Markdown report>"`. Invoke it exactly once. Do not print the
+report as a final chat response, call a skill, run any other command, or invoke `noop` after successful submission. If the
+report cannot be prepared, invoke `safeoutputs noop --message "<reason>"` exactly once and do not fabricate a report.

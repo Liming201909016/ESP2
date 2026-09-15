@@ -12,8 +12,8 @@ const lock = fs.readFileSync(lockPath, "utf8");
 const workflowBody = extractWorkflowBody(source);
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
-assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash");
-assert.match(source, /^\s*cli-proxy: false\s*$/m, "findings audit must disable CLI proxy tools");
+assert.match(source, /^\s*bash: \[safeoutputs\]\s*$/m, "findings audit must allow only the safeoutputs wrapper");
+assert.match(source, /^\s*cli-proxy: true\s*$/m, "findings audit must expose safe outputs through the CLI proxy");
 assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitHub MCP tools");
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
 assert.match(source, /^\s*gh-aw-detection: false\s*$/m, "findings audit must use the supported inline detector");
@@ -31,6 +31,8 @@ assert.deepEqual(manifest.mcp_servers, [
   },
 ]);
 assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
+assert.match(lock, /--allow-tool [^\n]*shell\(safeoutputs\)/u, "compiled workflow must allow the safeoutputs command");
+assert.doesNotMatch(lock, /shell\(:\*\)/u, "compiled workflow must not allow unrestricted shell commands");
 assert.match(
   lock,
   /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,
