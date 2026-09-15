@@ -1,0 +1,128 @@
+name: Release DEV
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rollback_run_id:
+        description: Successful Release DEV run ID to restore; leave empty for a new build
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: esp-dev-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_dispatch' || inputs.rollback_run_id == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run data:check
+      - run: npm test -- --silent
+      - run: npm run lint
+      - run: npm run build
+      - name: Package the tested commit
+        shell: pwsh
+        run: |
+          $package = ./scripts/package-standalone.ps1 -ReleaseDirectory artifacts/release -SourceCommit $env:GITHUB_SHA -BuildRunId $env:GITHUB_RUN_ID
+          node scripts/release-package.mjs startup $package.StagePath
+          if ($LASTEXITCODE -ne 0) { throw 'Packaged standalone startup failed.' }
+      - run: node scripts/release-package.mjs verify artifacts/release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: esp-release
+          path: artifacts/release/
+          if-no-files-found: error
+          retention-days: 30
+
+  deploy:
+    needs: build
+    if: >-
+      !cancelled() && github.ref == 'refs/heads/main' && vars.ESP_DEV_DEPLOY_ENABLED == 'true' &&
+      (needs.build.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.rollback_run_id != ''))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: dev
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      ESP_DEV_DEPLOY_ENABLED: ${{ vars.ESP_DEV_DEPLOY_ENABLED }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Identify trusted candidate and running baseline
+        id: provenance
+        uses: actions/github-script@v7
+        env:
+          ESP_ROLLBACK_RUN_ID: ${{ inputs.rollback_run_id }}
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const { join } = require('node:path');
+            const { releaseMarkerSchema, validateArtifactRun } = await import(pathToFileURL(join(process.env.GITHUB_WORKSPACE, 'scripts/release-contract.mjs')).href);
+            const selected = process.env.ESP_ROLLBACK_RUN_ID || String(context.runId);
+            if (!/^[1-9]\d{0,19}$/.test(selected) || !Number.isSafeInteger(Number(selected))) throw new Error('INVALID_RELEASE_RUN_ID');
+            const activeResponse = await fetch('https://app-esp-dev-ygxkqw7r.azurewebsites.net/api/release', { redirect: 'manual', signal: AbortSignal.timeout(45000), cache: 'no-store' });
+            if (activeResponse.status !== 200) throw new Error('CURRENT_RELEASE_UNTRACKED: register a verified baseline before enabling automated deployment');
+            const active = releaseMarkerSchema.parse(await activeResponse.json());
+            if (!active.buildRunId || active.sourceCommit === 'local' || !Number.isSafeInteger(Number(active.buildRunId))) throw new Error('RUNNING_BASELINE_HAS_NO_CI_PROVENANCE');
+            const current = (await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: context.runId })).data;
+            for (const [name, runId] of [['candidate', selected], ['baseline', active.buildRunId]]) {
+              const run = (await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: Number(runId) })).data;
+              const trusted = validateArtifactRun(run, { repository: `${context.repo.owner}/${context.repo.repo}`, workflowId: current.workflow_id, currentRunId: name === 'candidate' && !process.env.ESP_ROLLBACK_RUN_ID ? String(context.runId) : '' });
+              if (name === 'baseline' && trusted.sourceCommit !== active.sourceCommit) throw new Error('RUNNING_BASELINE_COMMIT_MISMATCH');
+              core.setOutput(`${name}_run_id`, trusted.runId);
+              core.setOutput(`${name}_commit`, trusted.sourceCommit);
+            }
+      - uses: actions/download-artifact@v4
+        with:
+          name: esp-release
+          path: artifacts/candidate
+          run-id: ${{ steps.provenance.outputs.candidate_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: esp-release
+          path: artifacts/baseline
+          run-id: ${{ steps.provenance.outputs.baseline_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: node scripts/release-package.mjs verify artifacts/candidate
+      - run: node scripts/release-package.mjs verify artifacts/baseline
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy and verify, restoring the baseline on confirmed failure
+        env:
+          ESP_CANDIDATE_RUN_ID: ${{ steps.provenance.outputs.candidate_run_id }}
+          ESP_CANDIDATE_COMMIT: ${{ steps.provenance.outputs.candidate_commit }}
+          ESP_BASELINE_RUN_ID: ${{ steps.provenance.outputs.baseline_run_id }}
+          ESP_BASELINE_COMMIT: ${{ steps.provenance.outputs.baseline_commit }}
+        run: node scripts/deploy-release.mjs --mode execute --candidate artifacts/candidate --baseline artifacts/baseline --report artifacts/deployment-result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: esp-deployment-result
+          path: artifacts/deployment-result.json
+          if-no-files-found: warn
+          retention-days: 30

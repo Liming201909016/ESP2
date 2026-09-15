@@ -1,0 +1,94 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Deployed ESP base URL
+        required: true
+        default: https://app-esp-dev-ygxkqw7r.azurewebsites.net
+      dev_bypass:
+        description: Target uses the explicit shared DEV identity
+        type: boolean
+        default: true
+      knowledge_evaluation:
+        description: Run the full read-only knowledge evaluation and retain a metadata report
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run data:check
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-bicep@v2
+      - run: bicep build infra/main.bicep
+      - run: bicep build infra/admin-rbac.bicep
+      - run: bicep build infra/private-network.bicep
+      - run: bicep build infra/keyvault-private-network.bicep
+      - run: bicep build infra/data-private-network.bicep
+      - run: bicep build-params infra/dev.data-private-network.bicepparam
+      - run: bicep build infra/monitoring.bicep
+      - run: bicep build-params infra/dev.monitoring.bicepparam
+
+  deployed-smoke:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Check the selected access mode
+        env:
+          ESP_TARGET_URL: ${{ inputs.target_url }}
+          ESP_DEV_BYPASS: ${{ inputs.dev_bypass }}
+        run: |
+          if [ "$ESP_DEV_BYPASS" = "true" ]; then
+            npm run test:smoke -- "$ESP_TARGET_URL" --dev-bypass
+          else
+            npm run test:smoke -- "$ESP_TARGET_URL"
+          fi
+
+  knowledge-evaluation:
+    if: github.event_name == 'workflow_dispatch' && inputs.knowledge_evaluation && inputs.dev_bypass
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Evaluate current DEV sources
+        env:
+          ESP_TARGET_URL: ${{ inputs.target_url }}
+        run: node scripts/evaluate-knowledge.mjs "$ESP_TARGET_URL" --report artifacts/knowledge-evaluation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: knowledge-evaluation
+          path: artifacts/knowledge-evaluation.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "sim-hr-rotation",
+    "title": "星舟轮岗交接办法（模拟）",
+    "skillId": "search-company-policy",
+    "documentNumber": "SIM-HR-BLOB-001",
+    "owner": "人力资源模拟组",
+    "effectiveDate": "2026-09-11",
+    "dataKind": "policy",
+    "filename": "rotation.md",
+    "simulated": true,
+    "content": "# 星舟轮岗交接办法（模拟）\n\n【模拟数据】适用于虚构组织澄川数科的星舟轮岗演示项目，不代表实际员工安排。\n\n星舟项目轮岗人员须在轮岗开始前7个工作日提交交接清单，由原部门和接收部门共同确认。轮岗周期固定为6周，每周五提交一份学习记录。轮岗不改变劳动合同、薪资或年假额度。"
+  },
+  {
+    "id": "sim-fin-harbor",
+    "title": "云港接驳交通补贴办法（模拟）",
+    "skillId": "search-expense-policy",
+    "documentNumber": "SIM-FIN-BLOB-001",
+    "owner": "财务共享模拟组",
+    "effectiveDate": "2026-09-11",
+    "dataKind": "policy",
+    "filename": "harbor.md",
+    "simulated": true,
+    "content": "# 云港接驳交通补贴办法（模拟）\n\n【模拟数据】仅适用于虚构组织澄川数科的云港测试园区，不替代其他差旅标准。\n\n云港园区接驳交通补贴为每人每日43元人民币，需要提交当日出勤记录和接驳凭证。不与同一行程的打车费用重复报销。申请应在行程结束后8个工作日内提交，由模拟成本中心负责人核对。"
+  },
+  {
+    "id": "sim-pur-lab-loan",
+    "title": "实验设备借测归还规范（模拟）",
+    "skillId": "search-procurement-guide",
+    "documentNumber": "SIM-PUR-BLOB-001",
+    "owner": "采购与实验室模拟组",
+    "effectiveDate": "2026-09-11",
+    "dataKind": "policy",
+    "filename": "lab-loan.md",
+    "simulated": true,
+    "content": "# 实验设备借测归还规范（模拟）\n\n【模拟数据】仅用于澄川数科虚构实验室的采购连接器案例。\n\n星桥实验设备借测期最长为12个自然日。申请需登记设备序列号、保管人和测试计划，经实验室负责人批准后领取。到期前2个工作日申请延期，延期最多一次且不得超过5个自然日。归还时由资产管理员核对附件和测试数据清理记录；借测不构成采购订单或付款承诺。"
+  },
+  {
+    "id": "sim-sec-sandbox",
+    "title": "青原沙箱数据清理规程（模拟）",
+    "skillId": "search-security-guidance",
+    "documentNumber": "SIM-SEC-BLOB-001",
+    "owner": "信息安全模拟组",
+    "effectiveDate": "2026-09-11",
+    "dataKind": "policy",
+    "filename": "sandbox.md",
+    "simulated": true,
+    "content": "# 青原沙箱数据清理规程（模拟）\n\n【模拟数据】仅限虚构组织澄川数科的青原沙箱，不描述真实生产系统。\n\n青原沙箱只接收合成测试数据，单批数据保留上限为9个自然日。测试结束后应在24小时内清理导出文件，并保留清理任务编号。真实客户记录、访问令牌和数据库密码不得复制到沙箱。异常残留由信息安全模拟组登记核查，不宣称连接器已自动完成清理。"
+  },
+  {
+    "id": "sim-it-license-snapshot",
+    "title": "云绘设计工具许可快照（模拟）",
+    "skillId": "search-software-catalog",
+    "documentNumber": "SIM-IT-BLOB-001",
+    "owner": "IT 服务模拟组",
+    "effectiveDate": "2026-09-11",
+    "dataKind": "snapshot",
+    "filename": "licenses.txt",
+    "simulated": true,
+    "content": "【模拟固定快照】澄川数科（虚构组织）云绘设计工具许可盘点，快照日期2026-09-11。\n\n云绘设计工具为虚构软件，许可总数24席，已分配17席，空闲7席。新申请由部门负责人确认用途，IT 服务模拟组按申请时间排队分配。此处是静态盘点数据，不是实时许可系统；提交 DEV 工单不会自动扣减或分配席位。"
+  }
+]
