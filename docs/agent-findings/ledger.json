@@ -185,7 +185,7 @@
       "area": "agentic-workflows",
       "path": "scripts/validate-agentic-workflows.mjs",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:23:55.883Z",
       "lastSeenAt": "2026-09-15T15:23:55.883Z",
       "recurrenceCount": 1,
@@ -197,8 +197,12 @@
           "evidenceDigest": "16c7e1e866744cdea52752fa0c3d2f07af385d509e608f12926371e4c8bd2be9"
         }
       ],
-      "dispositionReason": "Accepted because an ordered substring check permits contradictory or additional instructions after the claimed final MCP action.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by requiring one exact normalized terminal instruction block and exactly one report-tool reference in the workflow body.",
+      "proofOfFix": {
+        "commitSha": "3c3c82c958fee3ce32f4ab6a294cad08dc543431",
+        "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
