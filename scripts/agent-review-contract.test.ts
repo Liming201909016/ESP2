@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
+  agentReviewToolNames,
   buildAgentReviewReport,
+  createReviewPrompt,
   extractCopilotReview,
   parseModelReview,
   renderAgentReviewMarkdown,
@@ -118,5 +121,13 @@ describe("agent review contract", () => {
       .map((event) => JSON.stringify(event))
       .join("\n");
     expect(() => extractCopilotReview(stream)).toThrow("non-read-only tool");
+  });
+
+  it("keeps prompt, validator, and workflow read-only tools synchronized", () => {
+    const prompt = createReviewPrompt("trusted reviewer", "trusted contract");
+    const workflow = readFileSync(".github/workflows/agent-review.yml", "utf8");
+    for (const tool of agentReviewToolNames) expect(prompt).toContain(`\`${tool}\``);
+    expect(prompt).not.toContain("`grep`");
+    expect(workflow).toContain(`--available-tools ${agentReviewToolNames.join(" ")}`);
   });
 });
