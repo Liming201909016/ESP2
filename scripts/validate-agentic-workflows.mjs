@@ -11,6 +11,7 @@ const lock = fs.readFileSync(lockPath, "utf8");
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
 assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash");
+assert.match(source, /^\s*cli-proxy: false\s*$/m, "findings audit must disable CLI proxy tools");
 assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitHub MCP tools");
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
 
