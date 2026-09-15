@@ -260,7 +260,7 @@
       ],
       "dispositionReason": "Resolved by parsing only the first two frontmatter delimiters and covering a thematic break in a focused regression test.",
       "proofOfFix": {
-        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "commitSha": "6382dfa159a6a3264bd7aafda28ad0b7b5ee4785",
         "checks": ["npx vitest run scripts/validate-agentic-workflows.test.ts", "npm run agentic-workflows:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -308,7 +308,7 @@
       "area": "agent-findings",
       "path": "docs/agent-findings/ledger.json",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:44:43.912Z",
       "lastSeenAt": "2026-09-15T15:44:43.912Z",
       "recurrenceCount": 1,
@@ -320,8 +320,16 @@
           "evidenceDigest": "ec4dd8c7692922fc2376c25e596a22ceaa732cf802574648be2de4a4e255e31e"
         }
       ],
-      "dispositionReason": "Accepted because inserting the thematic break after extraction does not exercise frontmatter parsing with that input.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by inserting the thematic break into the complete workflow source before extraction and asserting the parser preserves it.",
+      "proofOfFix": {
+        "commitSha": "6382dfa159a6a3264bd7aafda28ad0b7b5ee4785",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
