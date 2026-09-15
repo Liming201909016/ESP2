@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 16,
+  "nextSequence": 18,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -461,6 +461,68 @@
           "gh aw validate agent-findings-audit --strict"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0016",
+      "fingerprint": "a0ac6bf31e91fd2d5bd71445da21e0fa77e9a18903717fd21808db7a8ce0bfd6",
+      "title": "Validator ignores additional Copilot harness invocations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:27:34.637Z",
+      "lastSeenAt": "2026-09-15T16:27:34.637Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34994967344",
+          "targetSha": "391263f48e18179cd6ceb612ee9989881e9fe594",
+          "observedAt": "2026-09-15T16:27:34.637Z",
+          "evidenceDigest": "7402b97d45b4f2cf6252d368b63cd62fef6874802a00e78910de21fc1a923ae8"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exactly one SDK agent harness and one isolated detector harness, validating each role, and rejecting any additional harness invocation.",
+      "proofOfFix": {
+        "commitSha": "af36a05ba2e5d3858a59941170b2ebac0b2d5231",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run agent-findings:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0017",
+      "fingerprint": "30661d12bf8e6a4df474fb689a0c75d8a72afab1179660c31d87565ba29e9c94",
+      "title": "Ledger proof overstates validator enforcement",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:27:34.637Z",
+      "lastSeenAt": "2026-09-15T16:27:34.637Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34994967344",
+          "targetSha": "391263f48e18179cd6ceb612ee9989881e9fe594",
+          "observedAt": "2026-09-15T16:27:34.637Z",
+          "evidenceDigest": "8b63e8d1551489663d8cf3c989e7cd1267a41b1e10d36a788b29c1c2c4e17488"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0013 to describe its superseded CLI control and link the later SDK no-shell findings that replaced it.",
+      "proofOfFix": {
+        "commitSha": "af36a05ba2e5d3858a59941170b2ebac0b2d5231",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
