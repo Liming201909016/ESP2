@@ -40,7 +40,7 @@
       "area": "agentic-workflows",
       "path": ".github/workflows/agent-findings-audit.md",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T14:36:58.844Z",
       "lastSeenAt": "2026-09-15T14:36:58.844Z",
       "recurrenceCount": 1,
@@ -52,8 +52,12 @@
           "evidenceDigest": "5a9a90f02ab76540f55253080ff7fbdba4c1e943d725f5c835303846fb60809f"
         }
       ],
-      "dispositionReason": "Accepted because the compiled workflow exposed mutable GitHub API evidence even though the audit contract requires commit-visible local evidence only.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by disabling the GitHub MCP server and enforcing the generated MCP manifest in the agentic workflow contract check.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     },
@@ -65,7 +69,7 @@
       "area": "agentic-workflows",
       "path": ".github/workflows/agent-findings-audit.md",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T14:36:58.844Z",
       "lastSeenAt": "2026-09-15T14:36:58.844Z",
       "recurrenceCount": 1,
@@ -77,8 +81,12 @@
           "evidenceDigest": "63f73f44456dd07b66bd9c0eb59381ce43e120e9e48b79ed1243c312004eb991"
         }
       ],
-      "dispositionReason": "Accepted because prompt-only restrictions cannot prevent the edit tool from changing tracked evidence before the report is produced.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by disabling edit and bash tools and moving report creation into a schema-validated custom safe-output job.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
+        "testPaths": ["scripts/validate-agentic-workflows.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     },
@@ -90,7 +98,7 @@
       "area": "documentation",
       "path": "docs/architecture.md",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T14:36:58.844Z",
       "lastSeenAt": "2026-09-15T14:36:58.844Z",
       "recurrenceCount": 1,
@@ -102,8 +110,12 @@
           "evidenceDigest": "ec0943ab72164b11f2265115128608840708fc016066942dcb65e80526113d01"
         }
       ],
-      "dispositionReason": "Accepted because the documented local validation contract must match the required Validate workflow and engineering specification.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by adding the findings ledger contract check to the architecture document's local validation sequence.",
+      "proofOfFix": {
+        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
+        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run format:check"],
+        "testPaths": ["scripts/check-repository-docs.mjs"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
