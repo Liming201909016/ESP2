@@ -90,9 +90,9 @@ npm run test:e2e
 repository configuration, environment review, provenance checks, and rollback validation. A source merge does not
 authorize a deployment.
 
-The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled
-and retains its SARIF as a workflow artifact; reviewers must inspect that artifact instead of relying on the Security
-tab.
+The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled,
+fails deterministically when SARIF contains findings or is missing, and retains the SARIF artifact for review instead of
+relying on the Security tab.
 
 [`codeblend-ai-readiness-evaluation.yml`](../.github/workflows/codeblend-ai-readiness-evaluation.yml) runs the vendored
 CodeBlend evaluator only through manual dispatch. It uploads the generated reports and does not create issues, edit
