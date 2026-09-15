@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 12,
+  "nextSequence": 14,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -327,6 +327,72 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0012",
+      "fingerprint": "eaf40085419b86cef897326da717a55bee478d3c984a4e29177fb5d07590be30",
+      "title": "Audit report content is passed through a shell argument",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:09:23.004Z",
+      "lastSeenAt": "2026-09-15T16:09:23.004Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993002716",
+          "targetSha": "5c19ef6af13cf3888d8afaa9491b2c88ebd44aa0",
+          "observedAt": "2026-09-15T16:09:23.004Z",
+          "evidenceDigest": "280ef6e9cfb2d864b96a0b82300f5a9966d1f173c196486afbde9a45822c396c"
+        }
+      ],
+      "dispositionReason": "Resolved by moving the complete report out of command arguments and using gh-aw's single-quoted heredoc plus jq -Rs JSON stdin transport.",
+      "proofOfFix": {
+        "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw compile agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0013",
+      "fingerprint": "3071600f02ede03d2a6b4eed5d1b1baaca98552615e7dbe8ad5e8c18c85e138b",
+      "title": "Validator misses broader compiled shell permissions",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:09:23.004Z",
+      "lastSeenAt": "2026-09-15T16:09:23.004Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993002716",
+          "targetSha": "5c19ef6af13cf3888d8afaa9491b2c88ebd44aa0",
+          "observedAt": "2026-09-15T16:09:23.004Z",
+          "evidenceDigest": "cac3fb2db846f6673f688e01dac49674cc1bcd114ecf1421ab2132d472daaac9"
+        }
+      ],
+      "dispositionReason": "Resolved by parsing the Copilot harness command and requiring exact equality with the approved fixed read-only shell set plus the safeoutputs wrapper.",
+      "proofOfFix": {
+        "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw compile agent-findings-audit --strict"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
