@@ -386,7 +386,7 @@
           "evidenceDigest": "cac3fb2db846f6673f688e01dac49674cc1bcd114ecf1421ab2132d472daaac9"
         }
       ],
-      "dispositionReason": "Resolved by parsing the Copilot harness command and requiring exact equality with the approved fixed read-only shell set plus the safeoutputs wrapper.",
+      "dispositionReason": "Initially resolved by pinning the compiled CLI shell set; later review found that boundary still write-capable, so ESP-AF-0014 and ESP-AF-0015 superseded it with SDK direct tools and no agent shell access.",
       "proofOfFix": {
         "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
         "checks": [

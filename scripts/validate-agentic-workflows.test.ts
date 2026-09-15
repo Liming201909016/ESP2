@@ -38,11 +38,13 @@ describe("agentic workflow contract", () => {
     expect(body).not.toContain("jq -Rs");
   });
 
-  it("rejects shell exposure in the compiled SDK permissions", () => {
+  it("validates every compiled harness and rejects broader agent tools", () => {
     expect(() => validateCompiledReadOnlyTools(lock)).not.toThrow();
-    const broadenedLock = lock.replace("copilot_harness.cjs", "copilot_harness.cjs shell(curl)");
+    const broadenedLock = lock.replace("copilot_sdk_driver.cjs", "copilot_sdk_driver.cjs shell(curl)");
     expect(() => validateCompiledReadOnlyTools(broadenedLock)).toThrow("must not expose shell");
     const bashEnabledLock = lock.replace('"bash":false', '"bash":true');
     expect(() => validateCompiledReadOnlyTools(bashEnabledLock)).toThrow();
+    const thirdHarnessLock = `${lock}\ncopilot_harness.cjs --allow-all-tools\n`;
+    expect(() => validateCompiledReadOnlyTools(thirdHarnessLock)).toThrow("exactly one agent and one detector");
   });
 });

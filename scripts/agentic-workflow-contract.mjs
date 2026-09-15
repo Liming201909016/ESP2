@@ -29,9 +29,38 @@ export function validateFinalInstruction(workflowBody) {
 }
 
 export function validateCompiledReadOnlyTools(compiledWorkflow) {
-  const harnessLine = compiledWorkflow.split(/\r?\n/u).find((line) => line.includes("copilot_harness.cjs"));
-  assert.ok(harnessLine, "compiled workflow must contain the Copilot harness command");
-  assert.doesNotMatch(harnessLine, /shell\(/u, "compiled workflow must not expose shell tools");
+  const harnessLines = compiledWorkflow.split(/\r?\n/u).filter((line) => line.includes("copilot_harness.cjs"));
+  assert.equal(harnessLines.length, 2, "compiled workflow must contain exactly one agent and one detector harness");
+  const sdkHarness = harnessLines.find((line) => line.includes("copilot_sdk_driver.cjs"));
+  assert.ok(sdkHarness, "compiled workflow must contain the SDK agent harness");
+  assert.doesNotMatch(sdkHarness, /shell\(|--allow-all-tools/u, "SDK agent harness must not expose shell tools");
+
+  const detectorHarness = harnessLines.find((line) => !line.includes("copilot_sdk_driver.cjs"));
+  assert.ok(detectorHarness, "compiled workflow must contain the isolated detector harness");
+  assert.match(detectorHarness, /--allow-all-tools/u, "detector harness contract changed unexpectedly");
+
+  const detectorStart = compiledWorkflow.indexOf("\n  detection:\n");
+  const nextJob = [...compiledWorkflow.matchAll(/^  [a-zA-Z0-9_-]+:\s*$/gmu)].find(
+    (match) => match.index > detectorStart + 1,
+  );
+  const detectorEnd = nextJob?.index ?? -1;
+  assert.ok(
+    detectorStart >= 0 && detectorEnd > detectorStart,
+    "compiled workflow must contain an isolated detection job",
+  );
+  const detectorJob = compiledWorkflow.slice(detectorStart, detectorEnd);
+  assert.ok(detectorJob.includes(detectorHarness), "non-SDK harness must remain inside the detection job");
+  assert.match(detectorJob, /GH_AW_PHASE: detection/u, "detector harness must declare the detection phase");
+  assert.match(
+    detectorJob,
+    /- name: Checkout repository for patch context\s+if: needs\.agent\.outputs\.has_patch == 'true'/u,
+    "detector checkout must remain conditional on a declared agent patch",
+  );
+  assert.doesNotMatch(
+    detectorJob,
+    /^\s+(?:contents|issues|pull-requests|checks|deployments): write\s*$/mu,
+    "detector job must not receive repository write permissions",
+  );
 
   const configPrefix = "GH_AW_COPILOT_SDK_TOOL_CONFIG: ";
   const configLine = compiledWorkflow
