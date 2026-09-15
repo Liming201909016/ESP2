@@ -2,39 +2,11 @@ import assert from "node:assert/strict";
 
 const normalizeWhitespace = (value) => value.trim().replace(/\s+/gu, " ");
 const expectedFinalInstruction = normalizeWhitespace(`
-Your final action MUST be one shell-tool invocation that uses this data-safe pattern exactly once:
-
-\`\`\`bash
-cat <<'ESP_AUDIT_REPORT_9F4C2A71' > /tmp/gh-aw/findings-audit-report.md
-<complete Markdown report>
-ESP_AUDIT_REPORT_9F4C2A71
-jq -Rs '{report: .}' /tmp/gh-aw/findings-audit-report.md | safeoutputs submit_findings_audit_report .
-\`\`\`
-
-The report MUST NOT contain \`ESP_AUDIT_REPORT_9F4C2A71\` on a line by itself. The single-quoted heredoc prevents shell
-expansion, and \`jq -Rs\` carries the report as one JSON string; never interpolate report text into a command argument. Do
-not print the report as a final chat response, call a skill, run any other command, or invoke \`noop\` after successful
-submission. If the report cannot be prepared, invoke \`safeoutputs noop --message "audit report could not be prepared"\`
-exactly once and do not fabricate a report.
+Your final action MUST be one direct structured tool call. Invoke \`submit_findings_audit_report\` exactly once with the
+complete report in its \`report\` field. Do not use bash, a \`safeoutputs\` CLI command, a skill, or a file operation to submit
+the report, and do not print it as a final chat response or call \`noop\` after successful submission. If the report cannot
+be prepared, call \`noop\` exactly once with the reason and do not fabricate a report.
 `);
-
-const approvedShellAllowances = [
-  "cat",
-  "date",
-  "echo",
-  "grep",
-  "head",
-  "ls",
-  "printf",
-  "pwd",
-  "safeoutputs",
-  "safeoutputs:*",
-  "sort",
-  "tail",
-  "uniq",
-  "wc",
-  "yq",
-];
 
 export function extractWorkflowBody(workflowSource) {
   const delimiters = [...workflowSource.matchAll(/^---\s*$/gmu)];
@@ -56,9 +28,28 @@ export function validateFinalInstruction(workflowBody) {
   );
 }
 
-export function validateCompiledShellAllowances(compiledWorkflow) {
+export function validateCompiledReadOnlyTools(compiledWorkflow) {
   const harnessLine = compiledWorkflow.split(/\r?\n/u).find((line) => line.includes("copilot_harness.cjs"));
   assert.ok(harnessLine, "compiled workflow must contain the Copilot harness command");
-  const actual = [...harnessLine.matchAll(/shell\(([^)]+)\)/gu)].map((match) => match[1]);
-  assert.deepEqual(actual, approvedShellAllowances, "compiled workflow shell allowances must match the approved set");
+  assert.doesNotMatch(harnessLine, /shell\(/u, "compiled workflow must not expose shell tools");
+
+  const configPrefix = "GH_AW_COPILOT_SDK_TOOL_CONFIG: ";
+  const configLine = compiledWorkflow
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .find((line) => line.startsWith(configPrefix));
+  assert.ok(configLine, "compiled workflow must configure SDK tool permissions");
+  const quotedConfig = configLine.slice(configPrefix.length);
+  assert.match(quotedConfig, /^'.*'$/u, "SDK tool permissions must be a quoted JSON object");
+  const config = JSON.parse(quotedConfig.slice(1, -1));
+  assert.deepEqual(config.capabilities, {
+    bash: false,
+    edit: false,
+    webFetch: false,
+    webSearch: false,
+    mcp: true,
+    cliProxy: false,
+  });
+  assert.deepEqual(config.permissions.allowedTools, ["read", "safeoutputs"]);
+  assert.deepEqual(config.explicitlyDisabledTools, ["bash", "cli-proxy", "edit", "github"]);
 }

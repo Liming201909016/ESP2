@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   extractWorkflowBody,
-  validateCompiledShellAllowances,
+  validateCompiledReadOnlyTools,
   validateFinalInstruction,
 } from "./agentic-workflow-contract.mjs";
 
@@ -31,16 +31,18 @@ describe("agentic workflow contract", () => {
     expect(() => validateFinalInstruction(body)).toThrow("exactly once");
   });
 
-  it("keeps shell-sensitive report text out of command arguments", () => {
+  it("requires direct structured report submission without shell", () => {
     const body = extractWorkflowBody(source);
-    expect(body).toContain("cat <<'ESP_AUDIT_REPORT_9F4C2A71'");
-    expect(body).toContain("jq -Rs '{report: .}'");
-    expect(body).not.toContain('--report "<complete Markdown report>"');
+    expect(body).toContain("one direct structured tool call");
+    expect(body).not.toContain("safeoutputs submit_findings_audit_report");
+    expect(body).not.toContain("jq -Rs");
   });
 
-  it("rejects an extra compiled shell allowance", () => {
-    expect(() => validateCompiledShellAllowances(lock)).not.toThrow();
+  it("rejects shell exposure in the compiled SDK permissions", () => {
+    expect(() => validateCompiledReadOnlyTools(lock)).not.toThrow();
     const broadenedLock = lock.replace("copilot_harness.cjs", "copilot_harness.cjs shell(curl)");
-    expect(() => validateCompiledShellAllowances(broadenedLock)).toThrow("approved set");
+    expect(() => validateCompiledReadOnlyTools(broadenedLock)).toThrow("must not expose shell");
+    const bashEnabledLock = lock.replace('"bash":false', '"bash":true');
+    expect(() => validateCompiledReadOnlyTools(bashEnabledLock)).toThrow();
   });
 });

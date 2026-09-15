@@ -11,6 +11,7 @@ permissions:
 engine:
   id: copilot
   model: gpt-5.4
+  copilot-sdk: true
 strict: true
 features:
   gh-aw-detection: false
@@ -20,8 +21,8 @@ max-turns: 40
 max-ai-credits: 100
 tools:
   edit: false
-  bash: [safeoutputs]
-  cli-proxy: true
+  bash: false
+  cli-proxy: false
   github: false
 safe-outputs:
   report-failed-jobs: false
@@ -99,17 +100,7 @@ Prepare one Markdown report with:
 - a clear statement that a human must decide every ledger change;
 - `No discrepancies found` when all available evidence is consistent.
 
-Your final action MUST be one shell-tool invocation that uses this data-safe pattern exactly once:
-
-```bash
-cat <<'ESP_AUDIT_REPORT_9F4C2A71' > /tmp/gh-aw/findings-audit-report.md
-<complete Markdown report>
-ESP_AUDIT_REPORT_9F4C2A71
-jq -Rs '{report: .}' /tmp/gh-aw/findings-audit-report.md | safeoutputs submit_findings_audit_report .
-```
-
-The report MUST NOT contain `ESP_AUDIT_REPORT_9F4C2A71` on a line by itself. The single-quoted heredoc prevents shell
-expansion, and `jq -Rs` carries the report as one JSON string; never interpolate report text into a command argument. Do
-not print the report as a final chat response, call a skill, run any other command, or invoke `noop` after successful
-submission. If the report cannot be prepared, invoke `safeoutputs noop --message "audit report could not be prepared"`
-exactly once and do not fabricate a report.
+Your final action MUST be one direct structured tool call. Invoke `submit_findings_audit_report` exactly once with the
+complete report in its `report` field. Do not use bash, a `safeoutputs` CLI command, a skill, or a file operation to submit
+the report, and do not print it as a final chat response or call `noop` after successful submission. If the report cannot
+be prepared, call `noop` exactly once with the reason and do not fabricate a report.
