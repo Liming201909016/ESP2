@@ -98,9 +98,11 @@ relying on the Security tab.
 CodeBlend evaluator only through manual dispatch. It uploads the generated reports and does not create issues, edit
 source files, deploy, or run on a schedule.
 
-[`ci-recovery.yml`](../.github/workflows/ci-recovery.yml) contains validation failures by requesting one failed-jobs
-rerun for a same-repository `Validate` or `Security` run. It does not check out code, rerun successful jobs, retry a
-second failure, deploy, or mutate application data.
+[`ci-recovery.yml`](../.github/workflows/ci-recovery.yml) classifies failed same-repository `Validate` or `Security`
+runs using a strict hosted-runner failure allowlist from the trusted default branch. It emits a bounded decision artifact
+with classifier and failed-log digests, reruns failed jobs once only for a known transient signal, records the second
+attempt's terminal outcome, and hands deterministic, unknown, or unavailable-log failures to humans. It does not execute
+code from the failed ref, rerun successful jobs, retry a second failure, deploy, or mutate application data.
 
 ## Change guidance
 

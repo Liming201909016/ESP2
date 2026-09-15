@@ -6,19 +6,59 @@ on:
     types: [completed]
 
 permissions:
-  actions: write
   contents: read
 
 jobs:
   rerun-failed-jobs:
-    name: Rerun failed jobs once
+    name: Classify and contain failure
     if: >-
       github.event.workflow_run.conclusion == 'failure' &&
       github.event.workflow_run.run_attempt == 1 &&
       github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     steps:
+      - name: Check out trusted recovery classifier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: scripts/classify-ci-recovery.mjs
+          sparse-checkout-cone-mode: false
+      - name: Capture failed-job logs
+        id: logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set +e
+          gh run view "$RUN_ID" --repo "${{ github.repository }}" --log-failed > "$RUNNER_TEMP/failed.log"
+          status=$?
+          set -e
+          if [[ $status -eq 0 ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            : > "$RUNNER_TEMP/failed.log"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Classify recovery decision
+        id: classify
+        run: |
+          classifier_sha="$(git rev-parse HEAD)"
+          node scripts/classify-ci-recovery.mjs \
+            --workflow "${{ github.event.workflow_run.name }}" \
+            --run-id "${{ github.event.workflow_run.id }}" \
+            --attempt "${{ github.event.workflow_run.run_attempt }}" \
+            --head-sha "${{ github.event.workflow_run.head_sha }}" \
+            --classifier-sha "$classifier_sha" \
+            --logs-available "${{ steps.logs.outputs.available }}" \
+            --log "$RUNNER_TEMP/failed.log" \
+            --output "$RUNNER_TEMP/ci-recovery-decision.json" \
+            --github-output "$GITHUB_OUTPUT"
       - name: Request one failed-jobs rerun
+        if: steps.classify.outputs.rerun == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -26,3 +66,54 @@ jobs:
           set -euo pipefail
           gh api --method POST "repos/${{ github.repository }}/actions/runs/$RUN_ID/rerun-failed-jobs"
           echo "Requested one failed-jobs rerun for workflow run $RUN_ID." >> "$GITHUB_STEP_SUMMARY"
+      - name: Record human handoff
+        if: steps.classify.outputs.rerun != 'true'
+        run: echo "Failure was not classified as transient; no rerun was requested." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload recovery decision
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-recovery-${{ github.event.workflow_run.id }}-attempt-${{ github.event.workflow_run.run_attempt }}
+          path: ${{ runner.temp }}/ci-recovery-decision.json
+          if-no-files-found: error
+          retention-days: 30
+
+  record-terminal-attempt:
+    name: Record terminal recovery outcome
+    if: >-
+      github.event.workflow_run.run_attempt > 1 &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Write terminal outcome
+        env:
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+        run: |
+          node - <<'NODE'
+          const { writeFileSync } = require("node:fs");
+          const record = {
+            schemaVersion: 1,
+            workflow: process.env.WORKFLOW_NAME,
+            runId: process.env.RUN_ID,
+            attempt: Number(process.env.RUN_ATTEMPT),
+            headSha: process.env.HEAD_SHA,
+            conclusion: process.env.CONCLUSION,
+            action: "terminal_outcome",
+            generatedAt: new Date().toISOString(),
+          };
+          writeFileSync(process.env.RUNNER_TEMP + "/ci-recovery-terminal.json", JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
+          NODE
+      - name: Upload terminal outcome
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-recovery-terminal-${{ github.event.workflow_run.id }}-attempt-${{ github.event.workflow_run.run_attempt }}
+          path: ${{ runner.temp }}/ci-recovery-terminal.json
+          if-no-files-found: error
+          retention-days: 30
