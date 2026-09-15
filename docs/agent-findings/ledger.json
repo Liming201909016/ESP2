@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 14,
+  "nextSequence": 16,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -393,6 +393,72 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "gh aw compile agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0014",
+      "fingerprint": "6a6f3272e080111dabbcb40e9646d9d1b5b60cbbd09a9b30b42cfedf079ccc44",
+      "title": "Read-only audit exposes write-capable shell primitives",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:16:46.313Z",
+      "lastSeenAt": "2026-09-15T16:16:46.313Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993749558",
+          "targetSha": "46cff48ae5c7e4b90e70d63715a105f28664ceb8",
+          "observedAt": "2026-09-15T16:16:46.313Z",
+          "evidenceDigest": "fe358292ecf2f67f50c4af9b873f28dfe4e97d14ca03f8dd0b30fd682e627988"
+        }
+      ],
+      "dispositionReason": "Resolved by removing bash and CLI proxy access and moving direct safe-output invocation into the Copilot SDK's structured MCP tool boundary.",
+      "proofOfFix": {
+        "commitSha": "bf80273b2b5935b260b2e6b85f031a443a0a0744",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw validate agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0015",
+      "fingerprint": "cccb38f94aa8b7c0f3565e5095f2344fab23ba876bc663146e3723f7047a1c95",
+      "title": "Validator ratifies overbroad shell permissions",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:16:46.313Z",
+      "lastSeenAt": "2026-09-15T16:16:46.313Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993749558",
+          "targetSha": "46cff48ae5c7e4b90e70d63715a105f28664ceb8",
+          "observedAt": "2026-09-15T16:16:46.313Z",
+          "evidenceDigest": "b94c018a8684da7200a5debf311357aa05fbff0411644b5019f02856f6309725"
+        }
+      ],
+      "dispositionReason": "Resolved by parsing the compiled SDK permission JSON and requiring bash/edit/CLI proxy to be disabled with only read and safeoutputs allowed.",
+      "proofOfFix": {
+        "commitSha": "bf80273b2b5935b260b2e6b85f031a443a0a0744",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw validate agent-findings-audit --strict"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
