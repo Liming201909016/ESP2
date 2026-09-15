@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 5,
+  "nextSequence": 6,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -116,6 +116,31 @@
         "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run format:check"],
         "testPaths": ["scripts/check-repository-docs.mjs"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0005",
+      "fingerprint": "05e1c60438e0594c9b07462f5fd449d1262f422c1829f14470f6c08a82a0d2d3",
+      "title": "Agentic workflow contract omits CLI proxy assertion",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T14:43:53.330Z",
+      "lastSeenAt": "2026-09-15T14:43:53.330Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34983450185",
+          "targetSha": "252178de38246c0b02e229a36ec2ac473a848b96",
+          "observedAt": "2026-09-15T14:43:53.330Z",
+          "evidenceDigest": "d12313f4141384167d9feca057ae493b5ed1b0d835e88c4b088ad6cf1ba35a30"
+        }
+      ],
+      "dispositionReason": "Accepted because the source contract asserted adjacent disabled tools but did not fail when CLI proxy access was re-enabled.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
