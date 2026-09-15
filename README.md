@@ -1,5 +1,7 @@
 # Enterprise Skill Platform (ESP)
 
+**Internal Hackathon 2026 Project**
+
 ### Connect Employee Intent to Enterprise Capabilities
 
 **Employees think in intents. Enterprises store capabilities. ESP bridges the gap.**
@@ -12,7 +14,20 @@ The proposed enterprise asset is not another assistant. It is a portfolio of tru
 
 [Azure DEV Demo](https://app-esp-dev-ygxkqw7r.azurewebsites.net/) · [Demo Story and Acceptance](HACKATHON-DEMO.md) · [Delivery Backlog](HACKATHON-BACKLOG.md) · [Quick Start](#quick-start)
 
-> **Prototype status:** ESP is a hackathon prototype using synthetic, non-sensitive data. The deployed experience is a Web application with an explicit shared DEV identity, not an integrated Microsoft 365 Copilot experience or a production authorization boundary. The architecture below separates the intended operating model from the capabilities demonstrated today.
+> **Project context:** ESP is a project for the internal Hackathon 2026, intended for internal reviewers, colleagues and potential collaborators. It is an experimental prototype using synthetic, non-sensitive data, not a released Microsoft product or an enterprise-ready offering. The deployed experience is a Web application with an explicit shared DEV identity, not an integrated Microsoft 365 Copilot experience or a production authorization boundary. The architecture below separates the intended operating model from the capabilities demonstrated today.
+
+## The Hackathon Proposal
+
+**What if the reusable unit of enterprise AI were a governed business capability, rather than an implementation embedded in each agent?**
+
+ESP uses the hackathon to explore that question through a working Security Review scenario. The project combines an architectural idea, an inspectable prototype and a proposed path to enterprise adoption. The goal is to make the idea concrete enough for internal discussion, technical evaluation and future collaboration, not to imply that the entire target platform is already built.
+
+- **Idea to assess:** discover, govern and evaluate capabilities independently of the experiences that consume them.
+- **Prototype to inspect:** intent submission, fixed review discovery, evidence-based control checks, explicit human decisions, bilingual reports and durable audit records.
+- **Next proof to build:** independently reusable review Skills and an actual Copilot consumer using the same governed contracts.
+- **Enterprise hypothesis to test:** reduce duplicated engineering and service-navigation effort while improving evidence, consistency and accountability.
+
+These are the project's proposed discussion points, not official event judging criteria. Event rules, submission requirements and permitted sharing remain subject to organizer guidance. An internal-event label does not itself restrict access to the repository or the DEV application.
 
 ## Why ESP?
 
@@ -328,7 +343,7 @@ The implementation uses Next.js 16, React 19, TypeScript and Zod, with Azure App
 
 ## Roadmap and Documentation
 
-The [delivery backlog](HACKATHON-BACKLOG.md) tracks the Microsoft Global Hackathon 2026 project plan. Official event rules, timing and named owners still require confirmation. The [demo story and acceptance matrix](HACKATHON-DEMO.md) distinguish current proof from planned integration.
+The [delivery backlog](HACKATHON-BACKLOG.md) tracks this internal Hackathon 2026 project plan. Official event rules, timing, sharing requirements and named owners still require confirmation. The [demo story and acceptance matrix](HACKATHON-DEMO.md) distinguish current proof from planned integration.
 
 Priority work includes complete business-oriented workspaces, global review capability registration, actual Copilot reuse, compatible capability version evolution, QA-041 resolution, broader accessibility/quality acceptance and submission materials. Publication of capabilities, data migrations and cloud changes remain explicit, bounded operations.
 

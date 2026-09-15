@@ -1,6 +1,6 @@
-# ESP - Microsoft Global Hackathon 2026 Backlog
+# ESP - Internal Hackathon 2026 Backlog
 
-Planning baseline: 2026-09-14. This is the project's delivery plan, not an official event requirement or judging rubric. Submission dates, time limits, eligibility, required assets and disclosure requirements must be confirmed with the organizers.
+Planning baseline: 2026-09-14. The project owner confirmed on 2026-09-15 that ESP is an internal Hackathon 2026 project. This is the project's delivery plan, not an official event requirement or judging rubric. Submission dates, time limits, eligibility, required assets and disclosure/sharing requirements must be confirmed with the organizers. This context does not change repository visibility or DEV application access controls.
 
 ## Outcome And Scope
 

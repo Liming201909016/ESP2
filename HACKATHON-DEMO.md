@@ -1,7 +1,7 @@
 # ESP Hackathon Demo - Story And Acceptance
 
 Story version: 1.0.0. Planning date: 2026-09-14.
-Audience: Microsoft Global Hackathon 2026 reviewers. English is the confirmed default experience; Chinese remains selectable.
+Audience: internal Hackathon 2026 reviewers, colleagues and potential collaborators. English is the confirmed default experience; Chinese remains selectable. Present ESP as an experimental project and enterprise operating-model proposal, not a released product. Event rules and permitted sharing remain subject to organizer confirmation.
 
 ## Decisions And Open Inputs
 
