@@ -346,6 +346,7 @@ Open **http://127.0.0.1:3100/** and select **Security Review**. The local launch
 ```bash
 npm test -- --silent
 npm run lint
+npm run format:check
 npm run build
 npm run data:check
 ```
@@ -364,10 +365,11 @@ The implementation uses Next.js 16, React 19, TypeScript and Zod, with Azure App
 | [scripts](scripts) | Evaluators, local launcher, packaging and controlled release tooling |
 | [infra](infra) | Azure infrastructure and private-network templates |
 | [.github/workflows](.github/workflows) | Validation and gated release workflows |
+| [docs/architecture.md](docs/architecture.md) | Current component boundaries, request lifecycle, trust boundaries and validation path |
 
 ## Roadmap and Documentation
 
-The [delivery backlog](HACKATHON-BACKLOG.md) tracks this internal Hackathon 2026 project plan. Official event rules, timing, sharing requirements and named owners still require confirmation. The [demo story and acceptance matrix](HACKATHON-DEMO.md) distinguish current proof from planned integration.
+The [architecture guide](docs/architecture.md) describes current implementation boundaries and validation paths. The [delivery backlog](HACKATHON-BACKLOG.md) tracks this internal Hackathon 2026 project plan. Official event rules, timing, sharing requirements and named owners still require confirmation. The [demo story and acceptance matrix](HACKATHON-DEMO.md) distinguish current proof from planned integration.
 
 Priority work includes complete business-oriented workspaces, global review capability registration, actual Copilot reuse, compatible capability version evolution, QA-041 resolution, broader accessibility/quality acceptance and submission materials. Publication of capabilities, data migrations and cloud changes remain explicit, bounded operations.
 

@@ -1,0 +1,10 @@
+pre-commit:
+  commands:
+    fast-check:
+      run: npm run check:fast
+#
+#     - script: "hello.js"
+#       runner: node
+#
+#     - script: "hello.go"
+#       runner: go run

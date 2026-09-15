@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { checkDemoResult, demoBlockers, demoCases, demoRequest, demoVersion, loadDemoPreflight } from "../src/lib/esp/demo.ts";
+import { checkDemoResult, demoBlockers, demoCases, demoRequest, demoVersion, loadDemoPreflight } from "../src/lib/esp/index.ts";
 
 export async function evaluateDemo(baseUrl, options = {}, request = (url, init) => fetch(url, init)) {
   const target = new URL(baseUrl);

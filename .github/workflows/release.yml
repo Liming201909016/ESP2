@@ -9,7 +9,7 @@ on:
         description: Successful Release DEV run ID to restore; leave empty for a new build
         required: false
         type: string
-        default: ''
+        default: ""
 
 permissions:
   contents: read
@@ -24,8 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
@@ -41,7 +41,7 @@ jobs:
           node scripts/release-package.mjs startup $package.StagePath
           if ($LASTEXITCODE -ne 0) { throw 'Packaged standalone startup failed.' }
       - run: node scripts/release-package.mjs verify artifacts/release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: esp-release
           path: artifacts/release/
@@ -63,15 +63,15 @@ jobs:
     env:
       ESP_DEV_DEPLOY_ENABLED: ${{ vars.ESP_DEV_DEPLOY_ENABLED }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - name: Identify trusted candidate and running baseline
         id: provenance
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           ESP_ROLLBACK_RUN_ID: ${{ inputs.rollback_run_id }}
         with:
@@ -93,13 +93,13 @@ jobs:
               core.setOutput(`${name}_run_id`, trusted.runId);
               core.setOutput(`${name}_commit`, trusted.sourceCommit);
             }
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: esp-release
           path: artifacts/candidate
           run-id: ${{ steps.provenance.outputs.candidate_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: esp-release
           path: artifacts/baseline
@@ -107,7 +107,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - run: node scripts/release-package.mjs verify artifacts/candidate
       - run: node scripts/release-package.mjs verify artifacts/baseline
-      - uses: azure/login@v2
+      - uses: Azure/login@8216e11d8cd9b42fe925c852af8e76311ff067ac # v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
@@ -119,7 +119,7 @@ jobs:
           ESP_BASELINE_RUN_ID: ${{ steps.provenance.outputs.baseline_run_id }}
           ESP_BASELINE_COMMIT: ${{ steps.provenance.outputs.baseline_commit }}
         run: node scripts/deploy-release.mjs --mode execute --candidate artifacts/candidate --baseline artifacts/baseline --report artifacts/deployment-result.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: esp-deployment-result
