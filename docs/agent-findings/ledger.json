@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 8,
+  "nextSequence": 10,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -203,6 +203,56 @@
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/validate-agentic-workflows.mjs"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0008",
+      "fingerprint": "2618fa4a46f04c0c6e716d07196257f03a2a90b85c108424a1a886fd1d4c0946",
+      "title": "Ledger proof paths name validators instead of tests",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T15:31:21.436Z",
+      "lastSeenAt": "2026-09-15T15:31:21.436Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34988678651",
+          "targetSha": "6a176e47adb66a45b66b07a1fd2eb390a08d49c1",
+          "observedAt": "2026-09-15T15:31:21.436Z",
+          "evidenceDigest": "8ad7c5692d0a9fad1e1e8d58595213306d7d79b78069f67eccb65dc67c47893e"
+        }
+      ],
+      "dispositionReason": "Accepted because executable validators are not focused regression-test files and do not satisfy the ledger's documented proof standard.",
+      "proofOfFix": null,
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0009",
+      "fingerprint": "8561bfdbfe0d3b21e06ba8f214eca49ace792d6282439173fc15ac9e84086398",
+      "title": "Workflow parser rejects Markdown thematic breaks",
+      "severity": "low",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T15:31:21.436Z",
+      "lastSeenAt": "2026-09-15T15:31:21.436Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34988678651",
+          "targetSha": "6a176e47adb66a45b66b07a1fd2eb390a08d49c1",
+          "observedAt": "2026-09-15T15:31:21.436Z",
+          "evidenceDigest": "c2d7ea525d331604d4e1cd78ad105c1f26f2a7dba772006312e9e4f1013eea67"
+        }
+      ],
+      "dispositionReason": "Accepted because splitting every standalone delimiter conflates valid Markdown thematic breaks with frontmatter boundaries.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
