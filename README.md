@@ -6,6 +6,8 @@
 
 Enterprise Skill Platform explores a capability-centric operating model for enterprise AI: discover the capability behind a request, apply its governance controls, execute through approved adapters, preserve evidence, evaluate the outcome, and retain human accountability.
 
+The proposed enterprise asset is not another assistant. It is a portfolio of trusted capabilities that can outlive a particular interface, agent, project or model. Employees gain an outcome-oriented entry point; business teams retain ownership of their processes; engineering teams reuse implementations; and governance teams gain a consistent way to inspect how actions were authorized and supported by evidence.
+
 **Build Once. Govern Once. Evaluate Continuously. Reuse Everywhere.**
 
 [Azure DEV Demo](https://app-esp-dev-ygxkqw7r.azurewebsites.net/) · [Demo Story and Acceptance](HACKATHON-DEMO.md) · [Delivery Backlog](HACKATHON-BACKLOG.md) · [Quick Start](#quick-start)
@@ -54,6 +56,61 @@ The organizational goal is to learn once and benefit many times. Reuse does not 
 | Accountability | Preserve human reasons, actor identifiers, decisions and execution/audit history |
 
 In the target model, a trusted consumer submits intent and context. ESP discovers an eligible capability, checks authorization and policy, invokes approved adapters, and returns an inspectable outcome. Writes that require confirmation or approval remain gated. A selected capability is not automatically an executed action, and a passing automated check is not human approval.
+
+## Solution Design and Rationale
+
+### Make the Capability a Product
+
+A reusable Skill should be more than a prompt or a tool name. In the target design, it is a maintained business contract: what outcome it supports, who may invoke it, what evidence it needs, which implementation it uses, how its quality is assessed and who owns failures or changes.
+
+| Design decision | Why it matters in an enterprise |
+| --- | --- |
+| Separate the consumer, Skill contract and Plugin implementation | A new interface need not duplicate business logic; an implementation can change within an agreed compatibility contract |
+| Discover eligible capabilities, not merely semantically similar tools | A plausible match is not sufficient: identity, business scope, input requirements and policy must also permit the action |
+| Keep discovery separate from execution | Finding a capability should not silently submit a request, grant access or create a business record |
+| Use explicit plans and typed boundaries | Multi-step work can expose dependencies, validation failures and skipped steps instead of presenting an opaque agent answer |
+| Treat evidence as an output contract | Consumers receive inspectable sources and provenance, not just a fluent answer or an unexplained risk score |
+| Keep decisions and effects distinct | Recommendation, automated check, human approval and actual execution remain separately identifiable |
+| Evaluate and version capabilities independently | A change can be assessed against its own consumers and criteria before promotion, rather than forcing every agent to be rebuilt |
+
+These are architectural commitments and adoption criteria. Their complete enterprise implementation, including independent lifecycle management, remains future work.
+
+### Two Connected Layers: Delivery and Capability Operations
+
+**The delivery layer** handles the employee's request: understand intent, establish caller context, discover an eligible Skill, validate inputs, apply controls, invoke approved operations and return the result with evidence. If the system cannot safely choose a capability, it should clarify, decline or hand off instead of guessing.
+
+**The capability-operations layer** manages the reusable asset: registration, ownership, contract review, evaluation, release approval, consumer dependencies, version compatibility, retirement and incident response. It answers questions such as: Who owns this capability? Which consumers use it? Which evidence supports its quality? Who must review a policy or implementation change?
+
+The layers meet at a versioned contract. A caller cannot bypass authorization by finding a lower-level Plugin, and a catalog entry is not considered operational merely because it has a name and description.
+
+### Reuse Mechanisms, Preserve Business Boundaries
+
+Security review, supplier onboarding and procurement may all need evidence extraction, control checking and reporting. The proposed reuse is in those mechanisms and their explicit contracts, not in applying one department's rules to every request.
+
+For example, a future supplier-onboarding workflow could reuse an evidence-extraction capability and a report-generation capability already used by security review, while selecting procurement-specific rules, approved supplier data and the appropriate decision owner. A second consumer would invoke those same capability versions rather than copy their logic. Reuse would be demonstrated through invocation records and compatible outputs, not by counting two buttons that call one monolithic workflow.
+
+Tenant, department, region, purpose, data residency and resource permissions may constrain each invocation. Shared code must not imply shared access to records, identical approval authority or indiscriminate cross-team retrieval.
+
+### Fit Existing Systems Instead of Replacing Them
+
+ESP's target role is to connect intent to existing enterprise services, not to become a new system of record for every process. A suitable adapter could expose a governed read, start an existing workflow, create a bound action preview or return the correct approved service link. The owning business application would remain authoritative for its records and business transitions.
+
+This supports incremental adoption: start with discoverability and read-only guidance, then add reversible or approval-gated actions where ownership, access and recovery behavior are established. Not every capability needs an LLM, not every request needs orchestration, and not every outcome should be automated.
+
+### Federated Ownership, Shared Standards
+
+The long-term operating model is federated: business domains own their capabilities and policies, while the platform supplies shared registration, invocation, evidence and evaluation requirements. This avoids making one central team the author of every enterprise process.
+
+| Role | Proposed responsibility |
+| --- | --- |
+| Business capability owner | Define intended outcomes, scope, success criteria and business exceptions |
+| Skill maintainer | Maintain contracts, approved implementations, regression coverage and compatibility |
+| Data and service owner | Control source access, data quality, retention and system-of-record integration |
+| Governance or risk reviewer | Approve required controls, decision boundaries and release conditions |
+| Platform operator | Operate invocation infrastructure, diagnostics, budgets and incident response |
+| Consumer team | Integrate the governed interface and preserve confirmation and evidence semantics |
+
+These are proposed responsibilities, not roles already assigned to this project. Production adoption would also require real identity separation, support agreements and an accountable escalation path.
 
 ## Target Architecture
 
@@ -136,6 +193,26 @@ The deployed September 15 build passed **1127 tests across 70 files**, lint, bui
 - The historical knowledge evaluation remains **57/58**, with **QA-041 unresolved**. It was not rerun for the latest deployment and is not a new-release score.
 - Full accessibility, independent version evolution and broader release-quality acceptance remain open. Audit storage is not claimed to be WORM.
 
+## Future Enterprise Applications
+
+The following are **illustrative expansion scenarios**, not deployed end-to-end integrations. They show how the same architectural approach could support different outcomes while retaining domain-specific policies and permissions.
+
+| Employee intent | Proposed capability composition | Potential enterprise value |
+| --- | --- | --- |
+| "Arrange visitor parking for my customer." | Discover the service, retrieve applicable policy, identify the correct form and owner, optionally invoke an approved booking workflow | Reduce time spent finding services without replacing the facilities system |
+| "Prepare onboarding for a new employee." | Retrieve role-specific requirements, identify equipment and access requests, coordinate permitted workflows and human approvals | Reduce handoff gaps across HR, IT and facilities; keep sensitive employee data scoped |
+| "Can we introduce this software?" | Extract evidence, check license/security/data controls, identify gaps, request a decision and generate a report | Standardize the review process and make exceptions explainable; this extends the current synthetic review story |
+| "Assess this supplier before procurement." | Collect authorized supplier evidence, run procurement and risk checks, route exceptions and produce a review package | Reuse evidence/reporting mechanisms while retaining procurement-specific accountability |
+| "Help me prepare and claim this business trip." | Retrieve location-specific policy, check expense evidence, explain discrepancies and hand off to the expense system | Reduce preventable submission errors without allowing the assistant to invent policy or approve expenses |
+| "Resolve this employee's IT issue." | Read an accessible ticket, retrieve approved guidance, suggest next steps and submit separately confirmed actions | Improve continuity between service knowledge and operational work while preserving execution controls |
+| "Assemble the evidence for this control review." | Retrieve permitted records, map evidence to defined controls, flag gaps and assemble a traceable report | Reduce repeated evidence assembly; retain human judgment and avoid claiming compliance certification |
+
+### One Employee Journey, Multiple Accountable Capabilities
+
+Consider a future request: **"Prepare a customer workshop at our office."** It may involve visitor registration, parking, meeting space, equipment and approved information-sharing guidance. ESP should first clarify missing details and propose the applicable capabilities. Each action would retain its own owner, authorization, confirmation and completion state.
+
+An unavailable parking service should not be hidden behind an overall "done" message. A room booking should not imply permission to share confidential material. The employee-facing result should show completed actions, unresolved work, evidence and the next accountable owner. This is the intended benefit of composable capabilities: a simpler experience without erasing business boundaries.
+
 ## Business and Strategic Value
 
 ESP's value hypothesis is to reduce repeated capability engineering while improving discoverability, consistency and accountability. Benefits must be measured; this prototype does not claim proven ROI, production adoption or quantified cost savings.
@@ -155,6 +232,64 @@ A capability-centered Services engagement can follow:
 Deliverables can include capability contracts, approved adapters, ownership models, evaluation criteria, policy controls, versioning requirements and operational runbooks. This is a proposed delivery approach, not a claim of an official Microsoft product, program or endorsement.
 
 The strategic hypothesis is that enterprise AI maturity should be measured not only by the number of agents created, but also by the quality, governance coverage and reuse of the capabilities they consume. ESP does not claim that other platforms lack these features or that the model replaces agent governance.
+
+### How Value Could Compound
+
+**For employees: less system navigation.** The value is not simply a faster answer. It is reaching the appropriate service, understanding the applicable rule and knowing what actually happened without learning the enterprise's application topology.
+
+**For engineering teams: lower marginal effort for the next consumer.** Once a capability has a maintained contract and a governed implementation, a new agent or application can integrate that contract instead of rebuilding the entire capability. Integration, domain adaptation and consumer-specific testing still have costs; reuse is not free.
+
+**For governance teams: assess shared controls once, enforce them on every invocation.** Reviewable capability contracts can reduce duplicated control engineering while preserving caller-specific checks. A shared implementation also increases the impact of a defect, so rollout controls, consumer dependency mapping and rollback readiness are part of the value proposition, not optional extras.
+
+**For business leaders: invest in a capability portfolio.** Visibility into usage, ownership, quality and dependencies could help identify duplicate work, unmet business needs and capabilities worth improving. A catalog count alone is not evidence of value; unused or unreliable capabilities should not be treated as successful assets.
+
+**For organizational learning: turn validated lessons into reusable practice.** Execution findings can inform a reviewed change to evidence handling, policy interpretation or implementation. That change can then benefit multiple consumers. Employee content should not automatically become a shared asset or training input: privacy, permission, provenance and approval requirements still apply.
+
+### Improvement Without Uncontrolled Self-Modification
+
+The proposed learning loop is:
+
+**Observed Outcome → Evidence-Based Evaluation → Owner Review → Improvement Proposal → Regression and Compatibility Checks → Approved Version → Monitored Reuse**
+
+The purpose is governed improvement, not automatic training or silent publication. Historical reports must retain the evidence and versions that produced them. A candidate change should be rejected when it improves one metric while violating a hard safety gate or breaking another consumer. Evaluation frequency and cost budgets should be agreed explicitly rather than inferred from the phrase "continuous evaluation."
+
+### Measure Outcomes Before Claiming Savings
+
+A future pilot should define its baseline, scope, observation period and success criteria before implementation. Compare equivalent tasks and include unsuccessful requests, exception handling, human review, integration effort and ongoing operation costs.
+
+| Value hypothesis | Measurement approach | Important guardrail |
+| --- | --- | --- |
+| Employees reach the right capability sooner | Compare median and tail time-to-service and task completion for the same scenarios | A fast wrong answer or unnecessary action is not a success |
+| Teams avoid duplicate engineering | Track independently consuming applications and the implementations actually retired or avoided | Do not count renamed copies as reuse or assume all historic development cost is saved |
+| Shared controls improve consistency | Measure required evidence coverage, policy-gate failures and human-adjudicated correctness | A passing automated check alone is not proof of compliance |
+| Changes become easier to manage | Track change lead time, affected consumers, regressions and recovery time | Shared capabilities can increase blast radius without version controls |
+| Operational effort decreases | Compare human handling time and rework, net of platform, model, review and support costs | Time released is not automatically a cash saving |
+
+No numerical improvement is claimed yet. These measures are a framework for testing ESP's business case, not results produced by the hackathon demo.
+
+## Enterprise Adoption Path
+
+Adoption should progress through evidence-backed gates, not a promise to automate every process at once.
+
+| Stage | Deliverable | Exit evidence |
+| --- | --- | --- |
+| 1. Discover and prioritize | Inventory existing capabilities, identify duplication and choose one bounded scenario | Named business owner, baseline, data classification and agreed acceptance criteria |
+| 2. Prove a governed vertical slice | Connect one consumer to an approved capability with evidence and explicit decision boundaries | End-to-end tests, real access controls for the intended environment, failure handling and operational ownership |
+| 3. Demonstrate independent reuse | Connect a second consumer or business workflow to the same capability contract | Same implementation/version used without copied logic; equivalent governance and consumer-specific authorization |
+| 4. Operate a domain portfolio | Introduce reviewed registration, compatibility checks, release controls and dependency visibility | Measured usage/quality, support procedures, change-impact review and a tested recovery path |
+| 5. Expand across the enterprise | Enable domain-owned capabilities under shared platform standards | Approved tenant/region boundaries, cost controls, retention policies and measurable cross-domain benefit |
+
+The current Security Review prototype provides evidence for a bounded vertical slice and whole-workflow Web/CLI reuse. It does not establish production readiness or completion of these enterprise adoption stages. The next architectural proof is independent capability reuse through the same governance boundary, including a real Copilot consumer.
+
+### What ESP Should Not Become
+
+- A central agent that absorbs every department's business logic and authority.
+- A tool catalog that equates discoverability with permission to execute.
+- A duplicate system of record competing with the applications that own business data.
+- A metrics dashboard that treats agent count, fluent answers or demo success as business value.
+- An automatic improvement loop that changes rules or publishes capabilities without accountable review.
+
+**The future enterprise value is a growing body of trusted, reusable capability, not a growing collection of disconnected assistants.**
 
 ## Quick Start
 
