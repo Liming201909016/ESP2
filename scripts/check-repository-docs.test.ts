@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { validateArchitectureValidationSequence } from "./check-repository-docs.mjs";
+import { validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
 
 const architecture = readFileSync(resolve(import.meta.dirname, "../docs/architecture.md"), "utf8");
 

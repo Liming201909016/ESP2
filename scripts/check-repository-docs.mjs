@@ -1,30 +1,12 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, relative, resolve } from "node:path";
+import { validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const artifactRoot = resolve(root, "artifacts");
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const architecture = readFileSync(resolve(root, "docs", "architecture.md"), "utf8");
-const requiredValidationCommands = [
-  "npm run data:check",
-  "npm run docs:check",
-  "npm run agent-findings:check",
-  "npm test",
-  "npm run lint",
-  "npm run format:check",
-  "npm run build",
-  "npm run test:e2e",
-];
-
-export function validateArchitectureValidationSequence(content) {
-  let previousCommandIndex = -1;
-  for (const command of requiredValidationCommands) {
-    const commandIndex = content.indexOf(command);
-    assert.ok(commandIndex > previousCommandIndex, `docs/architecture.md: missing or out-of-order ${command}`);
-    previousCommandIndex = commandIndex;
-  }
-}
 validateArchitectureValidationSequence(architecture);
 assert.match(
   readFileSync(resolve(root, ".gitignore"), "utf8"),

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { extractWorkflowBody, validateFinalInstruction } from "./validate-agentic-workflows.mjs";
+import { extractWorkflowBody, validateFinalInstruction } from "./agentic-workflow-contract.mjs";
 
 const source = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.md"), "utf8");
 
