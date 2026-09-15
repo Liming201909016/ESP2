@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extractWorkflowBody, validateFinalInstruction } from "./agentic-workflow-contract.mjs";
+import {
+  extractWorkflowBody,
+  validateCompiledShellAllowances,
+  validateFinalInstruction,
+} from "./agentic-workflow-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcePath = path.join(root, ".github", "workflows", "agent-findings-audit.md");
@@ -12,7 +16,7 @@ const lock = fs.readFileSync(lockPath, "utf8");
 const workflowBody = extractWorkflowBody(source);
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
-assert.match(source, /^\s*bash: \[safeoutputs\]\s*$/m, "findings audit must allow only the safeoutputs wrapper");
+assert.match(source, /^\s*bash: \[safeoutputs\]\s*$/m, "findings audit must add only the safeoutputs wrapper");
 assert.match(source, /^\s*cli-proxy: true\s*$/m, "findings audit must expose safe outputs through the CLI proxy");
 assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitHub MCP tools");
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
@@ -31,8 +35,7 @@ assert.deepEqual(manifest.mcp_servers, [
   },
 ]);
 assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
-assert.match(lock, /--allow-tool [^\n]*shell\(safeoutputs\)/u, "compiled workflow must allow the safeoutputs command");
-assert.doesNotMatch(lock, /shell\(:\*\)/u, "compiled workflow must not allow unrestricted shell commands");
+validateCompiledShellAllowances(lock);
 assert.match(
   lock,
   /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,
