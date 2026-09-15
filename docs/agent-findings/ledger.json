@@ -1,6 +1,32 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 1,
-  "findings": []
+  "nextSequence": 2,
+  "findings": [
+    {
+      "id": "ESP-AF-0001",
+      "fingerprint": "e27e5508f79a2b79336e47103c736be4ce5f800945002285f591596606580d0c",
+      "title": "Prepared review prompt names a nonexistent tool",
+      "severity": "medium",
+      "area": "agent-review",
+      "path": "scripts/agent-review-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T11:41:13.804Z",
+      "lastSeenAt": "2026-09-15T11:41:13.804Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34964462536",
+          "targetSha": "67b9ee2661bf40b078576014d80fc6a4e81c735a",
+          "observedAt": "2026-09-15T11:41:13.804Z",
+          "evidenceDigest": "9d195e81b5da69c2b686a6ce725003f20a1c0155b428f5d50390573c952f9681"
+        }
+      ],
+      "dispositionReason": "Accepted after the validated read-only review was corroborated against the workflow allowlist and trusted event-stream validator under the repository owner's continuous-optimization authorization.",
+      "proofOfFix": null,
+      "promotedControl": null,
+      "riskExpiresAt": null
+    }
+  ]
 }
