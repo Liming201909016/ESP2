@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const { begin, finish, selectedStore } = vi.hoisted(() => ({ begin: vi.fn(), finish: vi.fn(), selectedStore: { current: null as unknown } }));
 vi.mock("../../../lib/esp/audit-store", () => ({ auditWriter: { begin, finish }, getAudit: vi.fn() }));
 vi.mock("../../../lib/esp/security-review-store", async (original) => ({ ...await original<typeof import("../../../lib/esp/security-review-store")>(), securityReviewStore: () => selectedStore.current }));
-import { createMemorySecurityReviewStore } from "../../../lib/esp/security-review-store";
+import { createMemorySecurityReviewStore, type SecurityReviewStore } from "../../../lib/esp/security-review-store";
 import { GET, POST } from "./route";
 const command = { action: "start", query: "请对 Docker Desktop 进行安全审查", caseId: "complete", submissionId: "11111111-1111-4111-8111-111111111111" };
 function request(body: unknown) { return new Request("http://localhost/api/security-reviews", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); }
@@ -12,6 +12,31 @@ beforeEach(() => {
 });
 afterEach(() => { vi.resetAllMocks(); vi.unstubAllEnvs(); });
 describe("governed security review API", () => {
+  it("associates failed decisions only with owner-verified review targets", async () => {
+    const created = await (await POST(request({ ...command, caseId: "missing" }))).json();
+    const id = created.reviewRecord.id;
+    const decision = { action: "approve", id, etag: created.etag, reason: "Synthetic verification" };
+    for (const [input, code] of [[decision, "REVIEW_BLOCKED"], [{ ...decision, etag: "stale" }, "REVIEW_CONFLICT"]] as const) {
+      const response = await POST(request(input));
+      expect(response.status).toBe(409);
+      expect((await response.json()).error).toBe(code);
+      expect(finish).toHaveBeenLastCalledWith(expect.objectContaining({ errorCode: code, references: expect.arrayContaining([{ type: "security_review", id, version: "1.0.0" }]) }), "development:local");
+    }
+    const finalized = await (await POST(request({ ...decision, action: "reject" }))).json();
+    expect((await POST(request({ ...decision, etag: finalized.etag }))).status).toBe(409);
+    expect(finish).toHaveBeenLastCalledWith(expect.objectContaining({ errorCode: "REVIEW_FINALIZED", references: expect.arrayContaining([{ type: "security_review", id, version: "1.0.0" }]) }), "development:local");
+    const store = selectedStore.current as SecurityReviewStore;
+    const foreignId = `sr-${"f".repeat(32)}`;
+    await store.put({ ...created.reviewRecord, id: foreignId, createdBy: "another-owner", history: created.reviewRecord.history.map((event: Record<string, unknown>) => ({ ...event, actor: "another-owner" })) }, null);
+    for (const targetId of [foreignId, `sr-${"e".repeat(32)}`]) {
+      expect((await POST(request({ ...decision, id: targetId }))).status).toBe(404);
+      expect(finish.mock.calls.at(-1)?.[0].references.some((reference: { type: string }) => reference.type === "security_review")).toBe(false);
+    }
+    const get = vi.spyOn(store, "get"); get.mockClear();
+    begin.mockRejectedValueOnce(new Error("Unavailable"));
+    expect((await POST(request(decision))).status).toBe(503);
+    expect(get).not.toHaveBeenCalled();
+  });
   it("uses the same bounded English contract for discovery and direct start", async () => {
     const query = "Could you assess the security of Docker Desktop?";
     const discovery = await (await POST(request({ action: "discover", query }))).json();

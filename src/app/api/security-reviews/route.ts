@@ -50,15 +50,22 @@ export async function POST(request: Request) {
   catch { return NextResponse.json({ error: "INVALID_REQUEST" }, { status: 400, headers }); }
   if (memoryReviewEnabled() && request.headers.has("x-esp-parent-audit-id")) return NextResponse.json({ error: "LOCAL_AUDIT_PARENT_UNSUPPORTED" }, { status: 400, headers });
   return auditedResponse(request, { identity, kind: "skill_request", action: `security.review.${command.action}`, mutation: command.action !== "discover", requiredPermissions: ["knowledge.read"], references: [...reviewCapabilities.map((skill) => ({ type: "skill" as const, id: skill.id, version: skill.version })), ...reviewPlugins.map((plugin) => ({ type: "plugin" as const, id: plugin.id, version: "1.0.0" })), { type: "policy", id: "sim-software-security-controls", version: "1.0.0" }] }, async (context) => {
+    let target: { id: string; policyVersion: string } | undefined;
     try {
       if (command.action === "discover") {
         const discovery = discoverSecurityReview(command.query);
         return NextResponse.json({ discovery, executionStatus: discovery ? "waiting_confirmation" : "not_routed" }, { headers });
       }
-      const entry = await executeSecurityReviewCommand(command, identity.subject!, context.requestId);
+      const store = securityReviewStore();
+      if (command.action !== "start") {
+        const current = await store.get(identity.subject!, command.id);
+        if (!current) throw new SecurityReviewError("REVIEW_NOT_FOUND", 404);
+        target = { id: current.record.id, policyVersion: current.record.policyVersion };
+      }
+      const entry = await executeSecurityReviewCommand(command, identity.subject!, context.requestId, store);
       return NextResponse.json({ reviewRecord: entry.record, etag: entry.etag, report: renderSecurityReport(entry.record), executionStatus: "completed", trace: [{ step: `security.review.${entry.record.status}`, at: new Date().toISOString() }] }, { headers });
     } catch (error) {
-      return NextResponse.json({ error: error instanceof SecurityReviewError || error instanceof StateMaintenanceError ? error.code : "REVIEW_WRITE_UNCONFIRMED", executionStatus: "failed" }, { status: error instanceof SecurityReviewError ? error.status : 503, headers });
+      return NextResponse.json({ error: error instanceof SecurityReviewError || error instanceof StateMaintenanceError ? error.code : "REVIEW_WRITE_UNCONFIRMED", executionStatus: "failed", ...(target ? { reviewRecord: target } : {}) }, { status: error instanceof SecurityReviewError ? error.status : 503, headers });
     }
   }, reviewAuditWriter());
 }

@@ -29,6 +29,30 @@ ESP uses the hackathon to explore that question through a working Security Revie
 
 These are the project's proposed discussion points, not official event judging criteria. Event rules, submission requirements and permitted sharing remain subject to organizer guidance. An internal-event label does not itself restrict access to the repository or the DEV application.
 
+## AI Readiness Evaluation - September 21
+
+The evaluation notice supplied by the project owner schedules the final evaluation for **Monday, September 21, 2026**. At least one repository must be accessible for scanning. The organizers plan to batch-scan accessible repositories, review AI Readiness results and recognize three projects. The notice does not specify a cutoff time or time zone, or establish the full hackathon judging rubric.
+
+| Submission item | ESP status |
+| --- | --- |
+| Repository | https://github.com/Liming201909016/ESP2 |
+| Scan branch | `main`; supply its exact commit SHA when submitting to the organizers |
+| Final evaluation | September 21, 2026; exact submission cutoff/time zone still requires confirmation |
+| Repository visibility | Kept unchanged; anonymous lookup returned 404, which does not establish repository type or reviewer access |
+| Reviewer access | Not verified. Successful owner Git access does not prove the scanner can read this repository |
+| CodeBlend evaluation | Not run: the evaluator is not installed on the current workstation; no AI Readiness score is claimed |
+| Code verification | The review-race and audit-reference fixes below have regression coverage; application tests are not a substitute for the CodeBlend evaluation |
+
+The notice recommends public repositories for easy access, **GitHub EMU Read access for `arechen_microsoft`**, or **Azure DevOps Read access for `arechen@microsoft.com`**. Do not apply the EMU account instructions to an unverified repository type. For a non-EMU private GitHub repository, confirm the appropriate scanner identity with the organizers. Do not make this internal project public merely to simplify scanning without approval.
+
+Before final submission:
+
+1. Confirm the repository type and sharing policy, then verify that the designated scanning identity can read the repository and target commit.
+2. Obtain CodeBlend from its authorized source, review its data-handling requirements, and run the evaluator against the intended scan version. Use the output to select targeted improvements rather than optimize for an invented score.
+3. Send the organizers the repository URL, branch and full commit SHA (`git rev-parse HEAD`), plus any actual evaluation results and unresolved access issues. Re-evaluate if subsequent changes alter the submitted version.
+
+The Azure demo URL is supplementary, not a replacement for source access. GitHub CLI authorization and reviewer-access verification remain separate from Git push authentication. No repository visibility, collaborator access or automated deployment setting is changed by this documentation update.
+
 ## Why ESP?
 
 ### Capabilities Exist. Employees Cannot Find Them.
@@ -356,13 +380,13 @@ This is the direction of the platform, not the scale demonstrated by the prototy
 
 The notes below retain implementation and deployment history. Artifact links under the ignored local artifacts directory refer to operator-held verification files and are not available in a fresh GitHub checkout. They are not public evidence downloads. The current deployment summary and its limitations remain readable below without those files.
 
-## Pending Local Review Fixes
+## Review Correctness Fixes - Not Deployed
 
 The review panel now rejects superseded detail responses and binds decision drafts to the selected review ID and ETag. History pagination has a synchronous in-flight guard, request cancellation, stale-response rejection and ID deduplication. Refresh and pagination controls reflect their own loading state. Three DOM interaction regressions reuse the existing review generator to exercise delayed details, repeated pagination and a late page arriving after a target change; Testing Library and Happy DOM are development-only dependencies.
 
 Failed review decisions now retain a `security_review` reference in the audit result after reading the target through the current owner's store. The audit start is still persisted before that read or any decision. Error responses may include minimal `reviewRecord` metadata (`id`, `policyVersion`) for this verified target; missing or foreign targets do not receive this reference. Existing historical audit entries are not modified or backfilled.
 
-Validation: **1131 tests / 71 files**, full lint and production build/types passed. These fixes are local and uncommitted; they are not included in the deployed release below. No cloud writes, deployment or GitHub push was performed for this fix.
+Validation: **1131 tests / 71 files**, full lint and production build/types passed during implementation. These fixes are included in the source update for evaluation preparation but are not included in the deployed release below. Historical audit records are not backfilled. Publishing the source is not a deployment or an AI Readiness evaluation.
 
 ## Current Azure DEV Release
 

@@ -2,6 +2,8 @@
 
 Planning baseline: 2026-09-14. The project owner confirmed on 2026-09-15 that ESP is an internal Hackathon 2026 project. This is the project's delivery plan, not an official event requirement or judging rubric. Submission dates, time limits, eligibility, required assets and disclosure/sharing requirements must be confirmed with the organizers. This context does not change repository visibility or DEV application access controls.
 
+Evaluation notice received via the project owner: final AI Readiness evaluation is **Monday, September 21, 2026**. At least one repository must be accessible for scanning. For GitHub EMU the specified reader is `arechen_microsoft`; for Azure DevOps it is `arechen@microsoft.com`. ESP2's repository type and scanner access are not verified; keep its existing visibility until an approved access plan is confirmed. CodeBlend is not installed locally and no score has been generated. Exact cutoff/time zone and other event requirements remain unconfirmed. See the [evaluation preparation checklist](README.md#ai-readiness-evaluation---september-21).
+
 ## Outcome And Scope
 
 Demonstrate **Intent -> Governed Capability -> Evidence -> Human Decision -> Evaluated Outcome**, with the same capability reused by independent consumers.
@@ -42,7 +44,7 @@ The deployed release is `6421747f-c475-4d2a-9239-d3b16efed4d6`, build `fOzUgq-Cv
 
 | ID | Task | Status | Acceptance / dependencies |
 | --- | --- | --- | --- |
-| H0-A01 | Confirm event requirements and delivery schedule | Decision | User will provide official materials later; proceed with independent tasks. No deadline or event time limit assumed |
+| H0-A01 | Confirm event requirements and delivery schedule | Partial, evaluation date supplied | AI Readiness final evaluation September 21, 2026; at least one scanner-readable repo required. EMU/ADO reader identities recorded above. Verify ESP2 type/access and exact cutoff/time zone; other rules, eligibility and submission assets remain unconfirmed |
 | H0-A02 | Freeze the primary demo story | Done | [Version 1.0.0 English story](HACKATHON-DEMO.md) covers intent, evidence, human decision, report and honest current/target reuse proof; event timing remains A01 |
 | H0-A03 | Define the MVP acceptance matrix | Partial | [SR-01 through SR-16 and release gates](HACKATHON-DEMO.md) drafted; proposed warm latency budgets and bounded run protocol still need agreement |
 | H0-A04 | Assign delivery and capability owners | Decision | User explicitly keeps owners unassigned for now; no real role assignment or responsibility inferred |

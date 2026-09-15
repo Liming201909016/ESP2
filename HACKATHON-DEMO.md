@@ -7,7 +7,7 @@ Audience: internal Hackathon 2026 reviewers, colleagues and potential collaborat
 
 - Primary story: software-introduction Security Review for Docker Desktop, using fixed non-sensitive synthetic materials.
 - Primary message: capabilities can be discovered, governed, evaluated and reused independently of the consuming interface.
-- Event rules, deadline, pitch/video length and required submission fields: awaiting official materials from the project owner. No event time limits are assumed here.
+- AI Readiness final evaluation: Monday, September 21, 2026, per the notice supplied by the project owner. At least one repository must be readable by the scanning identity; see the [scan preparation checklist](README.md#ai-readiness-evaluation---september-21). Exact cutoff/time zone, pitch/video length, other event rules and submission fields remain unconfirmed.
 - Delivery and capability owners: unassigned by explicit user choice; assignment remains open.
 - Live-demo latency budget: proposed below, not yet agreed. Do not claim H0-A03 fully accepted until this decision is recorded.
 
