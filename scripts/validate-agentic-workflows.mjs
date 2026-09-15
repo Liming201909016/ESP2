@@ -14,6 +14,7 @@ assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash")
 assert.match(source, /^\s*cli-proxy: false\s*$/m, "findings audit must disable CLI proxy tools");
 assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitHub MCP tools");
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
+assert.match(source, /^\s*max-turns: 40\s*$/m, "findings audit must retain its bounded completion budget");
 
 const manifestPrefix = "# gh-aw-manifest: ";
 const manifestLine = lock.split(/\r?\n/u).find((line) => line.startsWith(manifestPrefix));
