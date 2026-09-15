@@ -54,7 +54,7 @@
       ],
       "dispositionReason": "Resolved by disabling the GitHub MCP server and enforcing the generated MCP manifest in the agentic workflow contract check.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -83,7 +83,7 @@
       ],
       "dispositionReason": "Resolved by disabling edit and bash tools and moving report creation into a schema-validated custom safe-output job.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["gh aw validate agent-findings-audit --strict", "npm run agentic-workflows:check", "npm run lint"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -112,7 +112,7 @@
       ],
       "dispositionReason": "Resolved by documenting the ledger check and adding an ordered validation-sequence assertion that fails if the architecture entry is removed.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/check-repository-docs.test.ts"]
       },
@@ -141,7 +141,7 @@
       ],
       "dispositionReason": "Resolved by asserting the disabled CLI proxy in source while retaining the generated manifest assertion that safe outputs remain MCP-only.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -170,7 +170,7 @@
       ],
       "dispositionReason": "Resolved by binding the source body instruction, compiled safe-output tool list, and compiled runtime-import target in one deterministic contract check.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -199,7 +199,7 @@
       ],
       "dispositionReason": "Resolved by requiring one exact normalized terminal instruction block and exactly one report-tool reference in the workflow body.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npm run agentic-workflows:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -228,7 +228,7 @@
       ],
       "dispositionReason": "Resolved by adding focused Vitest regression files and updating affected proof records to reference those tests.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": [
           "npx vitest run scripts/validate-agentic-workflows.test.ts scripts/check-repository-docs.test.ts",
           "npm run agent-findings:check"
@@ -260,7 +260,7 @@
       ],
       "dispositionReason": "Resolved by parsing only the first two frontmatter delimiters and covering a thematic break in a focused regression test.",
       "proofOfFix": {
-        "commitSha": "d943c3632fa5bc453fdb12b48361011caee45731",
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
         "checks": ["npx vitest run scripts/validate-agentic-workflows.test.ts", "npm run agentic-workflows:check"],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
@@ -275,7 +275,7 @@
       "area": "agent-findings",
       "path": "docs/agent-findings/ledger.json",
       "owner": "@Liming201909016",
-      "status": "accepted",
+      "status": "resolved",
       "firstSeenAt": "2026-09-15T15:38:00.897Z",
       "lastSeenAt": "2026-09-15T15:38:00.897Z",
       "recurrenceCount": 1,
@@ -287,8 +287,16 @@
           "evidenceDigest": "7c126b2038e928a0629a69826aa7fa3ffa4b3554c689b6975856460af4bd9312"
         }
       ],
-      "dispositionReason": "Accepted because importing side-effectful CLI validators makes focused tests depend on unrelated repository-wide state.",
-      "proofOfFix": null,
+      "dispositionReason": "Resolved by moving the tested contracts into pure modules and keeping repository-wide checks in separate CLI validators.",
+      "proofOfFix": {
+        "commitSha": "f3bd4e805d4660cd143d563413947f94472d6a64",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts scripts/check-repository-docs.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run docs:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts", "scripts/check-repository-docs.test.ts"]
+      },
       "promotedControl": null,
       "riskExpiresAt": null
     }
