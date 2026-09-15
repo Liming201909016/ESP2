@@ -34,6 +34,7 @@ jobs:
       - name: Verify agentic workflow source and lock files
         run: |
           gh aw compile --strict
+          npm run agentic-workflows:check
           git diff --exit-code -- .github/workflows .github/aw/actions-lock.json
 
   application:

@@ -17,21 +17,59 @@ timeout-minutes: 20
 max-turns: 20
 max-ai-credits: 100
 tools:
-  edit:
+  edit: false
   bash: false
   cli-proxy: false
+  github: false
 safe-outputs:
   report-failed-jobs: false
   report-failure-as-issue: false
   report-incomplete: false
   missing-tool: false
   missing-data: false
-  upload-artifact:
-    max-uploads: 1
-    retention-days: 30
-    max-size-bytes: 262144
-    allowed-paths:
-      - agent-output/agent-findings-audit.md
+  jobs:
+    archive-findings-audit:
+      description: Archive one bounded findings audit report as a run artifact
+      runs-on: ubuntu-latest
+      permissions: {}
+      output: Findings audit report archived
+      inputs:
+        report:
+          description: Complete Markdown findings audit report
+          required: true
+          type: string
+      steps:
+        - name: Validate and write report
+          uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+          with:
+            script: |
+              const fs = require("fs");
+              const path = require("path");
+              const output = JSON.parse(fs.readFileSync(process.env.GH_AW_AGENT_OUTPUT, "utf8"));
+              const reports = output.items.filter((item) => item.type === "archive_findings_audit");
+              if (reports.length !== 1) {
+                core.setFailed(`Expected exactly one audit report, received ${reports.length}`);
+                return;
+              }
+              const report = reports[0].report;
+              if (typeof report !== "string" || report.trim().length === 0) {
+                core.setFailed("Audit report must be a non-empty string");
+                return;
+              }
+              if (Buffer.byteLength(report, "utf8") > 262144) {
+                core.setFailed("Audit report exceeds the 256 KiB limit");
+                return;
+              }
+              const directory = path.join(process.env.RUNNER_TEMP, "agent-findings-audit");
+              fs.mkdirSync(directory, { recursive: true });
+              fs.writeFileSync(path.join(directory, "agent-findings-audit.md"), report, "utf8");
+        - name: Upload report
+          uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+          with:
+            name: agent-findings-audit-${{ github.run_id }}
+            path: ${{ runner.temp }}/agent-findings-audit/agent-findings-audit.md
+            if-no-files-found: error
+            retention-days: 30
 ---
 
 # Agent Findings Audit
@@ -48,7 +86,7 @@ For each finding:
 3. Check whether the claimed fix still matches the implementation and whether a focused regression test exists.
 4. Flag stale risk acceptance, missing proof, inconsistent status, recurrence, or an unsupported learned-rule promotion.
 
-Write `agent-output/agent-findings-audit.md` with:
+Prepare one Markdown report with:
 
 - the audited commit SHA and UTC timestamp supplied by the workflow context;
 - totals by ledger status;
@@ -56,6 +94,6 @@ Write `agent-output/agent-findings-audit.md` with:
 - a clear statement that a human must decide every ledger change;
 - `No discrepancies found` when all available evidence is consistent.
 
-Then call `upload_artifact` exactly once for `agent-output/agent-findings-audit.md`. Do not call `noop` after a
-successful upload. If the report cannot be created, call `noop` exactly once with the reason and do not fabricate a
+Then call `archive_findings_audit` exactly once with the complete report in its `report` field. Do not call `noop` after
+successful archival. If the report cannot be prepared, call `noop` exactly once with the reason and do not fabricate a
 report.

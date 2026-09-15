@@ -79,6 +79,7 @@ Pull requests run the application and infrastructure checks in
 ```powershell
 npm run data:check
 npm run docs:check
+npm run agent-findings:check
 npm test
 npm run lint
 npm run format:check
@@ -119,7 +120,9 @@ manually triggered GitHub Agentic Workflow. Its compiler-generated
 sandbox with bounded turns and AI credits, threat detection, read-only repository permissions, and one path-restricted
 artifact output. It audits ledger proof but cannot mutate the ledger or create issues, comments, pull requests, commits,
 approvals, or deployments. `Validate` recompiles all agentic workflows with pinned `gh-aw v0.88.7` and fails when source
-and lock files differ.
+and lock files differ. `npm run agentic-workflows:check` also parses the generated manifest to reject GitHub MCP access,
+workspace edit or shell tools, persistent repository write permissions, or missing sandbox, threat-detection, budget, and
+report-size controls.
 
 ## Change guidance
 
