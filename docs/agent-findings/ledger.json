@@ -110,10 +110,10 @@
           "evidenceDigest": "ec0943ab72164b11f2265115128608840708fc016066942dcb65e80526113d01"
         }
       ],
-      "dispositionReason": "Resolved by adding the findings ledger contract check to the architecture document's local validation sequence.",
+      "dispositionReason": "Resolved by documenting the ledger check and adding an ordered validation-sequence assertion that fails if the architecture entry is removed.",
       "proofOfFix": {
-        "commitSha": "1721784a305a60f8403b019bb8846521ba0557ea",
-        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run format:check"],
+        "commitSha": "e2973c7f2967a40cb849fe4c3477984273a23747",
+        "checks": ["npm run docs:check", "npm run agent-findings:check", "npm run lint", "npm run format:check"],
         "testPaths": ["scripts/check-repository-docs.mjs"]
       },
       "promotedControl": null,
