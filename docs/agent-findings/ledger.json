@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 18,
+  "nextSequence": 20,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -521,6 +521,69 @@
       "dispositionReason": "Resolved by amending ESP-AF-0013 to describe its superseded CLI control and link the later SDK no-shell findings that replaced it.",
       "proofOfFix": {
         "commitSha": "af36a05ba2e5d3858a59941170b2ebac0b2d5231",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0018",
+      "fingerprint": "5e7013c29f75175b7d5468d28183d6e384641fa710cccca64cb7a7367cc92a12",
+      "title": "Audit SDK runtime install lacks immutable integrity",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:32:15.764Z",
+      "lastSeenAt": "2026-09-15T16:32:15.764Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34995443875",
+          "targetSha": "c0f3418ecb2df24fe024677ca0a8e89455de755e",
+          "observedAt": "2026-09-15T16:32:15.764Z",
+          "evidenceDigest": "0d42333fc030812b472a405d1794c41b0545709b45e7e60b8e766e3c2010eba1"
+        }
+      ],
+      "dispositionReason": "Resolved by committing exact SDK runtime dependencies and their SHA-512 package-lock closure, then running npm ci with scripts disabled after generated installation and before SDK execution.",
+      "proofOfFix": {
+        "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
+        "checks": [
+          "npm ci --ignore-scripts --no-audit --no-fund",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm test",
+          "npm run build"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0019",
+      "fingerprint": "e0db522443cbff5fcbe4c7538dba869fece7694402ccd9c83af9e479c6b92d0c",
+      "title": "Ledger proof describes a superseded report transport",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:32:15.764Z",
+      "lastSeenAt": "2026-09-15T16:32:15.764Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34995443875",
+          "targetSha": "c0f3418ecb2df24fe024677ca0a8e89455de755e",
+          "observedAt": "2026-09-15T16:32:15.764Z",
+          "evidenceDigest": "7c823d6e729fa94cf3c93ca0f9ab7c2c69eb18231819f88d934fa271f6703758"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0012 to identify its heredoc transport as superseded and link the current SDK direct-tool no-shell control.",
+      "proofOfFix": {
+        "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
         "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
         "testPaths": ["scripts/validate-agent-findings.test.ts"]
       },
