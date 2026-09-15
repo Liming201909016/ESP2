@@ -14,20 +14,30 @@ jobs:
     name: CodeQL
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
       packages: read
-      security-events: write
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@c20e34f438d671fc35777cc9820dd7adf8252874 # v3
+        uses: github/codeql-action/init@311b4ee155dcdab395044f00946f664bd51ff173 # v4
         with:
           languages: javascript-typescript
       - name: Analyze
-        uses: github/codeql-action/analyze@c20e34f438d671fc35777cc9820dd7adf8252874 # v3
+        uses: github/codeql-action/analyze@311b4ee155dcdab395044f00946f664bd51ff173 # v4
         with:
           category: /language:javascript-typescript
+          output: codeql-results
+          upload: never
+      - name: Upload SARIF
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: codeql-sarif-${{ github.run_number }}
+          path: codeql-results
+          if-no-files-found: warn
+          retention-days: 30
 
   secrets:
     name: Secret scanning
