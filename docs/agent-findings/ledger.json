@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 2,
+  "nextSequence": 5,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -29,6 +29,81 @@
         "checks": ["npm test -- scripts/agent-review-contract.test.ts", "npm run lint", "npx tsc --noEmit"],
         "testPaths": ["scripts/agent-review-contract.test.ts"]
       },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0002",
+      "fingerprint": "db8249e31451b21372e643250b3c6e964009b0af7f5f230a674daf00121953e0",
+      "title": "Findings audit exposes network-backed GitHub tools",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "5a9a90f02ab76540f55253080ff7fbdba4c1e943d725f5c835303846fb60809f"
+        }
+      ],
+      "dispositionReason": "Accepted because the compiled workflow exposed mutable GitHub API evidence even though the audit contract requires commit-visible local evidence only.",
+      "proofOfFix": null,
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0003",
+      "fingerprint": "134b7c905a484c4f329396b2f24f117cd866d69f4d956541d76da734c8bea1b6",
+      "title": "Findings audit grants unrestricted workspace editing",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "63f73f44456dd07b66bd9c0eb59381ce43e120e9e48b79ed1243c312004eb991"
+        }
+      ],
+      "dispositionReason": "Accepted because prompt-only restrictions cannot prevent the edit tool from changing tracked evidence before the report is produced.",
+      "proofOfFix": null,
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0004",
+      "fingerprint": "cbf258ff1c141cdf1ca23261a5a0399e098648a940a912bdd699f277ceff895b",
+      "title": "Architecture validation sequence omits findings ledger check",
+      "severity": "low",
+      "area": "documentation",
+      "path": "docs/architecture.md",
+      "owner": "@Liming201909016",
+      "status": "accepted",
+      "firstSeenAt": "2026-09-15T14:36:58.844Z",
+      "lastSeenAt": "2026-09-15T14:36:58.844Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34982631447",
+          "targetSha": "24564d411867287cace023a9fc81faebc519f76b",
+          "observedAt": "2026-09-15T14:36:58.844Z",
+          "evidenceDigest": "ec0943ab72164b11f2265115128608840708fc016066942dcb65e80526113d01"
+        }
+      ],
+      "dispositionReason": "Accepted because the documented local validation contract must match the required Validate workflow and engineering specification.",
+      "proofOfFix": null,
       "promotedControl": null,
       "riskExpiresAt": null
     }
