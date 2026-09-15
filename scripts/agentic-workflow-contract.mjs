@@ -82,3 +82,42 @@ export function validateCompiledReadOnlyTools(compiledWorkflow) {
   assert.deepEqual(config.permissions.allowedTools, ["read", "safeoutputs"]);
   assert.deepEqual(config.explicitlyDisabledTools, ["bash", "cli-proxy", "edit", "github"]);
 }
+
+export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, packageJson, packageLock) {
+  const runtimeDependencies = {
+    "@github/copilot-sdk": "1.0.11",
+    undici: "6.28.0",
+  };
+  for (const [name, version] of Object.entries(runtimeDependencies)) {
+    assert.equal(packageJson.devDependencies?.[name], version, `${name} must be an exact dev dependency`);
+    assert.equal(packageLock.packages?.[`node_modules/${name}`]?.version, version, `${name} lock version changed`);
+  }
+
+  const pending = Object.keys(runtimeDependencies);
+  const visited = new Set();
+  while (pending.length > 0) {
+    const name = pending.pop();
+    if (visited.has(name)) continue;
+    visited.add(name);
+    const entry = packageLock.packages?.[`node_modules/${name}`];
+    assert.ok(entry, `SDK dependency ${name} must exist in package-lock.json`);
+    assert.match(entry.integrity ?? "", /^sha512-[A-Za-z0-9+/]+={0,2}$/u, `${name} must have SHA-512 integrity`);
+    pending.push(...Object.keys(entry.dependencies ?? {}), ...Object.keys(entry.optionalDependencies ?? {}));
+  }
+
+  const reinstallCommand = "npm ci --ignore-scripts --no-audit --no-fund";
+  assert.match(
+    workflowSource,
+    /pre-agent-steps:\s+- name: Reinstall SDK from committed integrity lock\s+run: npm ci --ignore-scripts --no-audit --no-fund/u,
+    "workflow must reinstall the SDK from the committed integrity lock",
+  );
+  const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
+  const installIndex = compiledWorkflow.indexOf(generatedInstall);
+  const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
+  const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
+  assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
+  assert.ok(
+    reinstallIndex > installIndex && executeIndex > reinstallIndex,
+    "integrity-locked SDK reinstall must run after generated install and before execution",
+  );
+}

@@ -5,10 +5,13 @@ import {
   extractWorkflowBody,
   validateCompiledReadOnlyTools,
   validateFinalInstruction,
+  validateSdkInstallIntegrity,
 } from "./agentic-workflow-contract.mjs";
 
 const source = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.md"), "utf8");
 const lock = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.lock.yml"), "utf8");
+const packageJson = JSON.parse(readFileSync(resolve(import.meta.dirname, "../package.json"), "utf8"));
+const packageLock = JSON.parse(readFileSync(resolve(import.meta.dirname, "../package-lock.json"), "utf8"));
 
 describe("agentic workflow contract", () => {
   it("accepts a Markdown thematic break inside the workflow body", () => {
@@ -46,5 +49,23 @@ describe("agentic workflow contract", () => {
     expect(() => validateCompiledReadOnlyTools(bashEnabledLock)).toThrow();
     const thirdHarnessLock = `${lock}\ncopilot_harness.cjs --allow-all-tools\n`;
     expect(() => validateCompiledReadOnlyTools(thirdHarnessLock)).toThrow("exactly one agent and one detector");
+  });
+
+  it("requires an integrity-locked SDK reinstall before execution", () => {
+    expect(() => validateSdkInstallIntegrity(source, lock, packageJson, packageLock)).not.toThrow();
+    const packageLockWithoutIntegrity = structuredClone(packageLock);
+    delete packageLockWithoutIntegrity.packages["node_modules/@github/copilot-sdk"].integrity;
+    expect(() => validateSdkInstallIntegrity(source, lock, packageJson, packageLockWithoutIntegrity)).toThrow(
+      "SHA-512 integrity",
+    );
+    const reorderedLock = lock
+      .replace("npm ci --ignore-scripts --no-audit --no-fund", "")
+      .replace(
+        "- name: Execute GitHub Copilot CLI",
+        "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund",
+      );
+    expect(() => validateSdkInstallIntegrity(source, reorderedLock, packageJson, packageLock)).toThrow(
+      "before execution",
+    );
   });
 });

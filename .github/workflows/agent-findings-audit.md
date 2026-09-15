@@ -24,6 +24,9 @@ tools:
   bash: false
   cli-proxy: false
   github: false
+pre-agent-steps:
+  - name: Reinstall SDK from committed integrity lock
+    run: npm ci --ignore-scripts --no-audit --no-fund
 safe-outputs:
   report-failed-jobs: false
   report-failure-as-issue: false

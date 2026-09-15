@@ -353,7 +353,7 @@
           "evidenceDigest": "280ef6e9cfb2d864b96a0b82300f5a9966d1f173c196486afbde9a45822c396c"
         }
       ],
-      "dispositionReason": "Resolved by moving the complete report out of command arguments and using gh-aw's single-quoted heredoc plus jq -Rs JSON stdin transport.",
+      "dispositionReason": "Initially resolved with a heredoc and jq JSON transport; ESP-AF-0014 later superseded that approach with SDK direct tools so report content remains outside shell arguments without exposing agent shell access.",
       "proofOfFix": {
         "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
         "checks": [
