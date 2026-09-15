@@ -1,9 +1,15 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, extname, resolve } from "node:path";
+import { dirname, extname, relative, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
+const artifactRoot = resolve(root, "artifacts");
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+assert.match(
+  readFileSync(resolve(root, ".gitignore"), "utf8"),
+  /^\/artifacts\/$/m,
+  "Local evidence artifacts must remain ignored",
+);
 const markdownFiles = [
   "AGENTS.md",
   "CONTRIBUTING.md",
@@ -32,6 +38,7 @@ for (const path of collectMarkdown(resolve(root, ".github/agents"))) {
 }
 
 const checkedLinks = [];
+const localEvidenceLinks = [];
 const checkedScripts = [];
 
 for (const file of markdownFiles) {
@@ -43,6 +50,11 @@ for (const file of markdownFiles) {
     const target = match[1].split("#", 1)[0];
     if (!target || /^[a-z][a-z\d+.-]*:/i.test(target)) continue;
     const resolvedTarget = resolve(dirname(absoluteFile), decodeURIComponent(target));
+    const artifactPath = relative(artifactRoot, resolvedTarget);
+    if (artifactPath === "" || (!artifactPath.startsWith("..") && !/^(?:[A-Za-z]:)?[\\/]/.test(artifactPath))) {
+      localEvidenceLinks.push(`${file}:${target}`);
+      continue;
+    }
     assert.ok(existsSync(resolvedTarget), `${file}: missing link target ${target}`);
     checkedLinks.push(`${file}:${target}`);
   }
@@ -55,5 +67,5 @@ for (const file of markdownFiles) {
 }
 
 console.log(
-  `documentation: ${markdownFiles.length} files, ${checkedLinks.length} local links, ${checkedScripts.length} npm commands valid`,
+  `documentation: ${markdownFiles.length} files, ${checkedLinks.length} repository links, ${localEvidenceLinks.length} local evidence links, ${checkedScripts.length} npm commands valid`,
 );
