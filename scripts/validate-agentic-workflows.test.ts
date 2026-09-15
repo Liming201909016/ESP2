@@ -7,7 +7,9 @@ const source = readFileSync(resolve(import.meta.dirname, "../.github/workflows/a
 
 describe("agentic workflow contract", () => {
   it("accepts a Markdown thematic break inside the workflow body", () => {
-    const body = extractWorkflowBody(source).replace("# Agent Findings Audit", "# Agent Findings Audit\n\n---");
+    const sourceWithThematicBreak = source.replace("# Agent Findings Audit", "# Agent Findings Audit\n\n---");
+    const body = extractWorkflowBody(sourceWithThematicBreak);
+    expect(body).toContain("# Agent Findings Audit\n\n---");
     expect(() => validateFinalInstruction(body)).not.toThrow();
   });
 
