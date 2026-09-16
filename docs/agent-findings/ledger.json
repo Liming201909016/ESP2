@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 31,
+  "nextSequence": 32,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -960,6 +960,42 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "npm run agent-findings:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0031",
+      "fingerprint": "7850750ab8a3669021b7b1371dc8fcd5e52e1acea17a7d7385fffeb0d56b9ee3",
+      "title": "SDK runtime is consumed from target before trusted restoration",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:07:53.969Z",
+      "lastSeenAt": "2026-09-16T02:07:53.969Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35046689654",
+          "targetSha": "e37dcfdac69a86450670f06dd4ec5753a76eeed2",
+          "observedAt": "2026-09-16T02:07:53.969Z",
+          "evidenceDigest": "86978970ee63c5cf299d469bd9669c8872e0657dfd5ae4155452a8b6204e3a89"
+        }
+      ],
+      "dispositionReason": "Resolved by packaging SDK runtime files from github.workflow_sha in a separate trusted job, gating the agent on that artifact, and forbidding target-checkout runtime paths.",
+      "proofOfFix": {
+        "commitSha": "1d2ce1475106dadff9a8d11322b3624ec807cabf",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
           "npm test",
           "npm run lint",
           "npm run format:check"
