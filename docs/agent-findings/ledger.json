@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 34,
+  "nextSequence": 35,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -1064,6 +1064,42 @@
       "dispositionReason": "Resolved by stashing target .npmrc without reading it during generated resolution, restoring it before audit, and validating stash/install/restore ordering with a bypass mutation.",
       "proofOfFix": {
         "commitSha": "2d4a0c72331411d1a8fcb660d1792c6a0851a0b2",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0034",
+      "fingerprint": "e1f6dce0b652f6f41ec047c65f02d7d54d3b53c6a168ea4ce17b0bf759ada03b",
+      "title": "Restored npmrc reopens SDK resolution during agent launch",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:43:05.258Z",
+      "lastSeenAt": "2026-09-16T02:43:05.258Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35048964328",
+          "targetSha": "2d4a0c72331411d1a8fcb660d1792c6a0851a0b2",
+          "observedAt": "2026-09-16T02:43:05.258Z",
+          "evidenceDigest": "c76c3058b5cf9a92a947fe0c6510c0f739b77c8799877b0805f732669697def5"
+        }
+      ],
+      "dispositionReason": "Resolved by keeping target .npmrc stashed through Copilot execution, restoring it only in post-steps, and rejecting early restoration mutations.",
+      "proofOfFix": {
+        "commitSha": "21fe6c9621084462a1d2b930c018cdb74d9e4b42",
         "checks": [
           "gh aw compile agent-findings-audit --strict",
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
