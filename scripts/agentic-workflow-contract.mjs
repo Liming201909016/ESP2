@@ -151,6 +151,15 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     "workflow must prepare a verified offline SDK cache",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
+  const agentStart = compiledWorkflow.indexOf("\n  agent:\n");
+  const agentEnd = compiledWorkflow.indexOf("\n  detection:\n", agentStart);
+  assert.ok(agentStart >= 0 && agentEnd > agentStart, "compiled workflow must contain an isolated agent job");
+  const agentJob = compiledWorkflow.slice(agentStart, agentEnd);
+  const requireOnce = (command, description) => {
+    assert.equal(agentJob.split(command).length - 1, 1, `${description} must appear exactly once in the agent job`);
+  };
+  requireOnce(reinstallCommand, "verified SDK hydration");
+  requireOnce(generatedInstall, "generated SDK install");
   const installIndex = compiledWorkflow.indexOf(generatedInstall);
   const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
   const cleanCacheIndex = compiledWorkflow.indexOf('rm -rf "$RUNNER_TEMP/esp-sdk-npm-cache"');
@@ -164,6 +173,10 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici';
   const sdkLinkIndex = compiledWorkflow.indexOf(sdkLink);
   const undiciLinkIndex = compiledWorkflow.indexOf(undiciLink);
+  requireOnce(globalExclusion, "global SDK exclusion");
+  requireOnce("rm -rf node_modules/@github/copilot-sdk node_modules/undici", "generated SDK removal");
+  requireOnce(sdkLink, "verified SDK link");
+  requireOnce(undiciLink, "verified undici link");
   const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
   assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
   assert.ok(
@@ -177,5 +190,11 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
       undiciLinkIndex > sdkLinkIndex &&
       executeIndex > undiciLinkIndex,
     "verified offline SDK cache and resolution boundary must surround generated install",
+  );
+  const postBindCommands = compiledWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);
+  assert.doesNotMatch(
+    postBindCommands,
+    /npm (?:ci|install)|rm -rf node_modules|ln -s .*node_modules/u,
+    "SDK resolution boundary must not be mutated after verified binding",
   );
 }

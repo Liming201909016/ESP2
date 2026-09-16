@@ -103,15 +103,20 @@ describe("agentic workflow contract", () => {
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
       "true",
     );
-    expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow(
-      "resolution boundary",
-    );
+    expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow("exactly once");
     const workspaceBypassLock = lock.replace(
       'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici',
       "true",
     );
     expect(() => validateSdkInstallIntegrity(source, workspaceBypassLock, sdkManifest, sdkLock)).toThrow(
-      "resolution boundary",
+      "exactly once",
+    );
+    const lateInstallLock = lock.replace(
+      "- name: Execute GitHub Copilot CLI",
+      "- name: Late mutation\n        run: npm install undici\n      - name: Execute GitHub Copilot CLI",
+    );
+    expect(() => validateSdkInstallIntegrity(source, lateInstallLock, sdkManifest, sdkLock)).toThrow(
+      "must not be mutated",
     );
   });
 });

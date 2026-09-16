@@ -547,7 +547,7 @@
           "evidenceDigest": "0d42333fc030812b472a405d1794c41b0545709b45e7e60b8e766e3c2010eba1"
         }
       ],
-      "dispositionReason": "Resolved by committing exact SDK runtime dependencies and their SHA-512 package-lock closure, then running npm ci with scripts disabled after generated installation and before SDK execution.",
+      "dispositionReason": "Initially resolved with a root package-lock reinstall; ESP-AF-0020, ESP-AF-0023, and ESP-AF-0025 superseded it with an isolated whole-lock digest, verified resolution binding, and pre-install offline cache.",
       "proofOfFix": {
         "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
         "checks": [
