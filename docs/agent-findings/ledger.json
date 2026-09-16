@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 22,
+  "nextSequence": 23,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -652,6 +652,41 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0022",
+      "fingerprint": "d1152830ad1a8667666d24d4ca1fbd2699a559c9164b08bb95e3a95024b83fee",
+      "title": "SDK runtime validator allows top-level dependency expansion",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:19:35.475Z",
+      "lastSeenAt": "2026-09-16T01:19:35.475Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043512170",
+          "targetSha": "0eafb4f0d7ccc389b86c4316fd3943530d500afb",
+          "observedAt": "2026-09-16T01:19:35.475Z",
+          "evidenceDigest": "9abb6816f8b4dd402ca42b8820c898ffc984795708e15a00c69294c33d344af8"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exact equality for both isolated manifest and root-lock dependency sets, with a mutation test that adds a third package.",
+      "proofOfFix": {
+        "commitSha": "420091ab5f7173fde1a054f4c2a05c98dc3c5425",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
