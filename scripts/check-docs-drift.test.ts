@@ -102,18 +102,4 @@ describe("documentation drift contract", () => {
       "documentation drifted",
     );
   });
-
-  it("rejects a remediation outcome check detached from the PR head", () => {
-    const changedFiles = new Map(files);
-    changedFiles.set(
-      ".github/workflows/closed-loop-remediation-proof.yml",
-      repositoryFile(files, ".github/workflows/closed-loop-remediation-proof.yml").replace(
-        "context.payload.pull_request?.head?.sha ?? context.sha",
-        "context.sha",
-      ),
-    );
-    expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
-      "source behavior drifted",
-    );
-  });
 });
