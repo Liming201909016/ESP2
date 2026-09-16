@@ -50,9 +50,15 @@ export function GovernanceSkills({
           return;
         }
         const value = governanceCatalogSchema.parse(await response.json());
-        if (!controller.signal.aborted) { setCatalog(value); onCountChange?.(value.skills.length); }
+        if (!controller.signal.aborted) {
+          setCatalog(value);
+          onCountChange?.(value.skills.length);
+        }
       } catch {
-        if (!controller.signal.aborted) { setError("unavailable"); onCountChange?.(null); }
+        if (!controller.signal.aborted) {
+          setError("unavailable");
+          onCountChange?.(null);
+        }
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }

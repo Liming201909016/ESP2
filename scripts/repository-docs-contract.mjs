@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-const requiredValidationCommands = [
+export const requiredValidationCommands = [
   "npm run data:check",
   "npm run docs:check",
   "npm run docs:drift",

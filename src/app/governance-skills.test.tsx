@@ -51,15 +51,30 @@ afterEach(() => {
 describe("governance Skill catalog", () => {
   it("counts both authorized catalogs and preserves results across group and locale changes", async () => {
     let governanceStatus = 200;
-    const business = { skills: getSkillCatalog(["knowledge.read", "tickets.read", "tickets.create"]), generatedAt: provenance.collectedAt };
+    const business = {
+      skills: getSkillCatalog(["knowledge.read", "tickets.read", "tickets.create"]),
+      generatedAt: provenance.collectedAt,
+    };
     const fetchMock = vi.fn(async (url: string, options?: RequestInit) => {
       if (url === "/api/skills") return json(business);
       if (options?.method === "POST") return json(result);
       return governanceStatus === 200 ? json(catalog) : json({ error: "UNAVAILABLE" }, governanceStatus);
     });
     vi.stubGlobal("fetch", fetchMock);
-    const view = render(<LocaleProvider initialLocale="en-US"><LanguageSelector /><SkillCatalogView selectedId={null} onSelect={() => undefined} onTry={() => undefined} onOpenCase={() => undefined} executionPending={false} /></LocaleProvider>);
-    const counts = () => [...view.container.querySelectorAll(".catalog-summary > span > strong")].map((element) => element.textContent);
+    const view = render(
+      <LocaleProvider initialLocale="en-US">
+        <LanguageSelector />
+        <SkillCatalogView
+          selectedId={null}
+          onSelect={() => undefined}
+          onTry={() => undefined}
+          onOpenCase={() => undefined}
+          executionPending={false}
+        />
+      </LocaleProvider>,
+    );
+    const counts = () =>
+      [...view.container.querySelectorAll(".catalog-summary > span > strong")].map((element) => element.textContent);
     await waitFor(() => expect(counts()).toEqual(["9", "7", "2"]));
     expect(fetchMock).toHaveBeenCalledTimes(2);
     fireEvent.click(screen.getByRole("tab", { name: "Repository governance (2)" }));
