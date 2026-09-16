@@ -53,4 +53,8 @@ modifying files. Run `npm run hooks:install` once per clone to enable it.
 one approval, CODEOWNERS review, validation, security, and closed-loop remediation proof checks. The public repository
 exposes server-side enforcement to API verification; no configured actor can bypass the active ruleset.
 
+Agent policy exceptions use the `Agent policy exception` issue form. A request must name an owner, exact scope, UTC
+expiry, justification, compensating controls, and rollback proof. It remains inactive until a CODEOWNER approves it and
+fails closed at expiry; exceptions never authorize deployment, identity, migration, cloud, or production data changes.
+
 Cloud deployments, infrastructure changes, identity changes, data migrations, and live model evaluations require explicit approval. A merged source change does not by itself authorize those operations.

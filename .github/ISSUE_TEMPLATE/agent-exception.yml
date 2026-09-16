@@ -1,0 +1,54 @@
+name: Agent policy exception
+description: Request a time-bounded exception that requires human review
+title: "[Agent exception] "
+labels: [agent-exception, human-review-required]
+body:
+  - type: markdown
+    attributes:
+      value: Exceptions never authorize deployment, identity, migration, cloud, or production data changes.
+  - type: input
+    id: owner
+    attributes:
+      label: Accountable owner
+      description: GitHub username responsible for closing or renewing this exception
+      placeholder: "@username"
+    validations:
+      required: true
+  - type: input
+    id: expires
+    attributes:
+      label: Expiration (UTC)
+      description: ISO 8601 timestamp after which the exception is invalid
+      placeholder: "2026-10-01T00:00:00.000Z"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Exact scope
+      description: Name the workflow, path, or control and the narrow operation requested
+    validations:
+      required: true
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Explain why the governed path cannot be used
+    validations:
+      required: true
+  - type: textarea
+    id: compensating-controls
+    attributes:
+      label: Compensating controls and rollback
+      description: List detection, containment, rollback, and proof requirements
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Human decision boundary
+      options:
+        - label: I understand this request is inactive until a CODEOWNER explicitly approves it.
+          required: true
+        - label: I understand expiry fails closed and requires a new reviewed request.
+          required: true

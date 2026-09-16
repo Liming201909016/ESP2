@@ -27,10 +27,11 @@ semantic control version, an existing control path, existing regression-test pat
 timestamps after the source evidence. Retirement records its timestamp and optional successor; source findings cannot
 be assigned to more than one learned rule.
 
-The current corpus contains three active controls derived from 26 of 34 resolved findings: least-privilege agentic
-workflows, immutable isolated SDK provenance, and findings claims bound to current proof. The deterministic
-[`governed-learned-rule-proof-pairs.json`](../../dashboards/governed-learned-rule-proof-pairs.json) dashboard reports
-lifecycle counts, verified finding-to-control proof pairs, source coverage, and every uncovered finding.
+The current corpus contains one candidate, three active controls, and one retired control with an active successor. Its
+29 covered findings include least-privilege agentic workflows, immutable isolated SDK provenance, findings claims bound
+to current proof, and the superseded terminal-action control. The deterministic
+[`candidate-active-retired-proof-pairs.json`](../../dashboards/candidate-active-retired-proof-pairs.json) dashboard
+reports lifecycle counts, verified finding-to-control proof pairs, source coverage, and every uncovered finding.
 `npm run agent-improvement:check` recomputes these metrics and blocks pull requests when
 promotion evidence, controls, tests, lifecycle ordering, or dashboard values drift.
 

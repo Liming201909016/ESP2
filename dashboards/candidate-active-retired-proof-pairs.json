@@ -10,22 +10,13 @@
     "false_positive": 0
   },
   "learnedRuleStatusCounts": {
-    "candidate": 0,
+    "candidate": 1,
     "active": 3,
-    "retired": 0
+    "retired": 1
   },
-  "coveredFindingCount": 26,
-  "proofPairCount": 26,
+  "coveredFindingCount": 29,
+  "proofPairCount": 29,
   "verifiedControlCount": 3,
-  "coveragePercent": 76.5,
-  "uncoveredFindingIds": [
-    "ESP-AF-0001",
-    "ESP-AF-0004",
-    "ESP-AF-0006",
-    "ESP-AF-0007",
-    "ESP-AF-0009",
-    "ESP-AF-0012",
-    "ESP-AF-0026",
-    "ESP-AF-0027"
-  ]
+  "coveragePercent": 85.3,
+  "uncoveredFindingIds": ["ESP-AF-0001", "ESP-AF-0009", "ESP-AF-0012", "ESP-AF-0026", "ESP-AF-0027"]
 }

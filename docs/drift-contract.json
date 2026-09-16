@@ -62,12 +62,15 @@
         "contents: read",
         "--available-tools view rg glob edit",
         "agent-repair-contract.mjs finalize",
-        "Upload validated repair proposal"
+        "Upload validated repair proposal",
+        "Exhaust agent repair workspace and credentials",
+        "if: always()"
       ],
       "documentationTerms": [
         "explicit allowlist of existing files",
         "no repository write permission",
-        "requires human review and manual application"
+        "requires human review and manual application",
+        "exhausts both checkouts"
       ]
     },
     {
@@ -146,6 +149,38 @@
         "ruleset directly requires the proof job",
         "proof job succeeds"
       ]
+    },
+    {
+      "id": "agent-exception-lifecycle",
+      "source": ".github/workflows/agent-exception-audit.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "schedule:",
+        "issues: read",
+        "validate-agent-exception-lifecycle.mjs",
+        "audit-agent-exceptions.mjs",
+        "Upload machine-readable exception audit",
+        "if-no-files-found: error"
+      ],
+      "documentationTerms": [
+        "Agent Exception Audit",
+        "closed-loop exception lifecycle proof",
+        "pending, active, expired, or malformed",
+        "mutationAllowed: false",
+        "fail closed"
+      ]
+    },
+    {
+      "id": "agent-review-exhaust-cleanup",
+      "source": ".github/workflows/agent-review.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "Upload validated review artifact",
+        "Exhaust agent review workspace and credentials",
+        "if: always()",
+        "$RUNNER_TEMP/copilot-events.jsonl"
+      ],
+      "documentationTerms": ["exhausts the trusted and target checkouts", "after artifact upload"]
     }
   ]
 }

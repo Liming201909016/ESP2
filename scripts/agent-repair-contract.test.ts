@@ -173,4 +173,16 @@ describe("agent repair proposal contract", () => {
     const events = `${JSON.stringify({ type: "tool.execution_start", data: { toolName: "bash" } })}\n${JSON.stringify({ type: "result", exitCode: 0 })}\n`;
     expect(() => validateAgentRepairEvents(events)).toThrow("disallowed repair tool");
   });
+
+  it("exhausts the repair workspace only after artifact upload", () => {
+    const workflow = readFileSync(".github/workflows/agent-repair-proposal.yml", "utf8");
+    const upload = workflow.indexOf("Upload validated repair proposal");
+    const cleanup = workflow.indexOf("Exhaust agent repair workspace and credentials");
+    expect(upload).toBeGreaterThan(0);
+    expect(cleanup).toBeGreaterThan(upload);
+    expect(workflow.slice(cleanup)).toContain("if: always()");
+    expect(workflow.slice(cleanup)).toContain("rm -rf");
+    expect(workflow.slice(cleanup)).toContain('"$GITHUB_WORKSPACE/target"');
+    expect(workflow.slice(cleanup)).toContain('"$GITHUB_WORKSPACE/trusted"');
+  });
 });

@@ -118,3 +118,15 @@ jobs:
           path: ${{ runner.temp }}/agent-repair-proposal
           if-no-files-found: error
           retention-days: 14
+
+      - name: Exhaust agent repair workspace and credentials
+        if: always()
+        run: |
+          rm -rf \
+            "$GITHUB_WORKSPACE/target" \
+            "$GITHUB_WORKSPACE/trusted" \
+            "$RUNNER_TEMP/agent-repair-context" \
+            "$RUNNER_TEMP/agent-repair-proposal" \
+            "$RUNNER_TEMP/copilot-repair-events.jsonl"
+          test ! -e "$GITHUB_WORKSPACE/target"
+          test ! -e "$GITHUB_WORKSPACE/trusted"

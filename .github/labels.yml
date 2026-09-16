@@ -1,0 +1,12 @@
+- name: agent-exception
+  color: B60205
+  description: Time-bounded request to deviate from an agent policy
+- name: human-review-required
+  color: D93F0B
+  description: Requires an explicit decision by a repository CODEOWNER
+- name: exception-approved
+  color: 0E8A16
+  description: Approved exception that remains valid only until its recorded expiry
+- name: exception-expired
+  color: 5319E7
+  description: Expired or invalid exception that fails closed
