@@ -258,7 +258,13 @@ Agent policy exceptions start with the structured
 [`Agent Exception Audit`](../.github/workflows/agent-exception-audit.yml) reads open requests, validates accountable
 ownership and canonical UTC expiry, and classifies each request as pending, active, expired, or malformed. It uploads a
 machine-readable report with `mutationAllowed: false`; only a CODEOWNER can approve, renew, close, or change an
-exception, and expired or malformed requests fail closed. Before inspecting live requests, the workflow recomputes the
+exception, and expired or malformed requests fail closed. Approval evidence comes from unedited individual
+default-CODEOWNER comments bound to the exact issue body digest; the label
+alone is never sufficient. The default-branch collector flattens all issue and comment pages, recognizes the issue-form
+title even if labels are missing, and isolates null or empty bodies as malformed rather than aborting other requests.
+The accepted command is `/approve-agent-exception sha256:<approvalDigest>`; a later matching revoke comment or removing
+the approval label deactivates the request. Body changes invalidate previous approval. See CONTRIBUTING for the complete
+operator process. Before inspecting live requests, the workflow recomputes the
 [closed-loop exception lifecycle proof](../dashboards/closed-loop-agent-exception-lifecycle.json) through the same parser
 and rejects drift in pending, active, expired, malformed, human-decision, mutation, or fail-closed behavior.
 

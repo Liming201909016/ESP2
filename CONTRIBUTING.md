@@ -23,6 +23,10 @@ Run the repository checks that apply to the change. The complete local gate is:
 ```powershell
 npm run data:check
 npm run docs:check
+npm run docs:drift
+npm run agent-findings:check
+npm run agent-improvement:check
+npm run remediation:check
 npm test
 npm run lint
 npm run format:check
@@ -78,5 +82,15 @@ and required CODEOWNER review, and verify the live ruleset. There is no automati
 Agent policy exceptions use the `Agent policy exception` issue form. A request must name an owner, exact scope, UTC
 expiry, justification, compensating controls, and rollback proof. It remains inactive until a CODEOWNER approves it and
 fails closed at expiry; exceptions never authorize deployment, identity, migration, cloud, or production data changes.
+
+Exception approval requires both the `exception-approved` label and an unedited comment from an individual default
+CODEOWNER: `/approve-agent-exception sha256:<approvalDigest>`. The collector computes `approvalDigest` over the issue
+number, URL and exact body. The maintainer must review that body before posting the command; agents must not approve
+on their behalf. Any body change invalidates the old approval. A later matching `/revoke-agent-exception sha256:<approvalDigest>`
+comment or removal of the label makes the request pending again. Labels alone never prove approval. Comments from bots,
+non-CODEOWNERS, edited comments and future-dated comments are rejected. The current collector supports explicit individual
+default `*` owners; team ownership fails closed until supported. Expired and malformed requests require new human review.
+The default-branch workflow collects all issue pages and comment pages, including requests with the issue-form title but
+missing labels. It is read-only and does not provision labels or activate exceptions in any execution engine.
 
 Cloud deployments, infrastructure changes, identity changes, data migrations, and live model evaluations require explicit approval. A merged source change does not by itself authorize those operations.

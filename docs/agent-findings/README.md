@@ -32,6 +32,15 @@ The current corpus contains one candidate, three active controls, and one retire
 to current proof, and the superseded terminal-action control. The deterministic
 [`candidate-active-retired-proof-pairs.json`](../../dashboards/candidate-active-retired-proof-pairs.json) dashboard
 reports lifecycle counts, verified finding-to-control proof pairs, source coverage, and every uncovered finding.
+The current learned-rule corpus and dashboard use **schemaVersion 2**. The validator also accepts the original v1 corpus
+with `promotedAt` and its v1 dashboard without proof-pair fields, preserving its historical validation semantics without
+rewriting it. V1 and v2 inputs cannot be mixed or relabelled; new lifecycle records use `proposedAt` and `activatedAt`.
+No persisted historical ledger is migrated. The v2 dashboard lists each structural proof binding: finding ID, rule ID,
+control path/version, shared regression-test path and recorded proof commit. The test must be named by both the finding
+and the rule and directly import that control. Merely being resolved does not count as a proof pair. The current fixture
+has 29 covered findings, **26 structurally bound pairs and 2 fully bound active rules**; remaining coverage is not claimed
+as verified. Import/path checks establish traceable structure, not test execution or semantic correctness. Historical v1
+dashboards retain their old meaning and must not be described as v2 proof verification.
 `npm run agent-improvement:check` recomputes these metrics and blocks pull requests when
 promotion evidence, controls, tests, lifecycle ordering, or dashboard values drift.
 

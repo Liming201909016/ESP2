@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "esp-agent-learned-rules",
   "nextSequence": 6,
   "rules": [

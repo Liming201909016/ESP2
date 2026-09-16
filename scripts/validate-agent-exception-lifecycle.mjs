@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { auditAgentExceptions } from "./audit-agent-exceptions.mjs";
+import { auditAgentExceptions, exceptionRequestDigest } from "./audit-agent-exceptions.mjs";
 
 const now = new Date("2026-09-16T00:00:00.000Z");
 const labels = (approved) => ["agent-exception", ...(approved ? ["exception-approved"] : [])];
@@ -27,7 +27,7 @@ Exercise the fail-closed parser without granting an exception.
 Synthetic input only; no repository or production mutation.
 `;
 
-export function deriveAgentExceptionLifecycleProof() {
+export function deriveAgentExceptionLifecycleProof(audit = auditAgentExceptions) {
   const issues = [
     {
       number: 1,
@@ -49,14 +49,33 @@ export function deriveAgentExceptionLifecycleProof() {
     },
     { number: 4, html_url: "https://example.invalid/4", body: body("owner", "tomorrow"), labels: labels(true) },
   ];
-  const report = auditAgentExceptions(issues, now);
+  const approvedIssues = issues.map((issue) => ({
+    ...issue,
+    comments: issue.labels.includes("exception-approved")
+      ? [
+          {
+            id: issue.number,
+            user: { login: "owner", type: "User" },
+            body: `/approve-agent-exception sha256:${exceptionRequestDigest(issue)}`,
+            created_at: "2026-08-01T00:00:00.000Z",
+            updated_at: "2026-08-01T00:00:00.000Z",
+          },
+        ]
+      : [],
+  }));
+  const report = audit(approvedIssues, now, ["owner"]);
   const verifiedStates = report.records.map((record) => record.state);
   assert.deepEqual(verifiedStates, ["pending", "active", "expired", "malformed"]);
+  assert.deepEqual(
+    report.records.map((record) => record.humanApprovalRequired),
+    [true, false, true, true],
+    "Human decision boundary drifted",
+  );
   return {
     schemaVersion: 1,
     kind: "esp-agent-exception-lifecycle-proof",
     mode: "synthetic-contract",
-    humanDecisionRequired: true,
+    humanDecisionRequired: report.records[0].humanApprovalRequired && !report.records[1].humanApprovalRequired,
     mutationAllowed: report.mutationAllowed,
     expiryFailsClosed: report.records[2].state === "expired" && report.records[3].state === "malformed",
     verifiedStates,

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "esp-agent-improvement-dashboard",
   "findingCount": 34,
   "findingStatusCounts": {
@@ -15,8 +15,218 @@
     "retired": 1
   },
   "coveredFindingCount": 29,
-  "proofPairCount": 29,
-  "verifiedControlCount": 3,
+  "proofPairCount": 26,
+  "proofPairs": [
+    {
+      "findingId": "ESP-AF-0002",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    },
+    {
+      "findingId": "ESP-AF-0003",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    },
+    {
+      "findingId": "ESP-AF-0005",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    },
+    {
+      "findingId": "ESP-AF-0013",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15"
+    },
+    {
+      "findingId": "ESP-AF-0014",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "bf80273b2b5935b260b2e6b85f031a443a0a0744"
+    },
+    {
+      "findingId": "ESP-AF-0015",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "bf80273b2b5935b260b2e6b85f031a443a0a0744"
+    },
+    {
+      "findingId": "ESP-AF-0016",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "af36a05ba2e5d3858a59941170b2ebac0b2d5231"
+    },
+    {
+      "findingId": "ESP-AF-0021",
+      "ruleId": "ESP-LR-0001",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d"
+    },
+    {
+      "findingId": "ESP-AF-0018",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "0b22febd090b1a27fc8e6fdc6ed1812f90965423"
+    },
+    {
+      "findingId": "ESP-AF-0020",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d"
+    },
+    {
+      "findingId": "ESP-AF-0022",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "420091ab5f7173fde1a054f4c2a05c98dc3c5425"
+    },
+    {
+      "findingId": "ESP-AF-0023",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7"
+    },
+    {
+      "findingId": "ESP-AF-0024",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7"
+    },
+    {
+      "findingId": "ESP-AF-0025",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "0665bbd4a4ddf2db2b017e29abc9c7cf6e46adf0"
+    },
+    {
+      "findingId": "ESP-AF-0028",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7"
+    },
+    {
+      "findingId": "ESP-AF-0030",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "a42b06fe3a23c29bc0d15022e9f41b4277c63cb8"
+    },
+    {
+      "findingId": "ESP-AF-0031",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "1d2ce1475106dadff9a8d11322b3624ec807cabf"
+    },
+    {
+      "findingId": "ESP-AF-0032",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "0ffb3833a1f8865f674d5c10be93113825b95952"
+    },
+    {
+      "findingId": "ESP-AF-0033",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "2d4a0c72331411d1a8fcb660d1792c6a0851a0b2"
+    },
+    {
+      "findingId": "ESP-AF-0034",
+      "ruleId": "ESP-LR-0002",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "21fe6c9621084462a1d2b930c018cdb74d9e4b42"
+    },
+    {
+      "findingId": "ESP-AF-0017",
+      "ruleId": "ESP-LR-0003",
+      "controlPath": "scripts/validate-agent-findings.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agent-findings.test.ts",
+      "proofCommit": "af36a05ba2e5d3858a59941170b2ebac0b2d5231"
+    },
+    {
+      "findingId": "ESP-AF-0019",
+      "ruleId": "ESP-LR-0003",
+      "controlPath": "scripts/validate-agent-findings.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agent-findings.test.ts",
+      "proofCommit": "0b22febd090b1a27fc8e6fdc6ed1812f90965423"
+    },
+    {
+      "findingId": "ESP-AF-0029",
+      "ruleId": "ESP-LR-0003",
+      "controlPath": "scripts/validate-agent-findings.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agent-findings.test.ts",
+      "proofCommit": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7"
+    },
+    {
+      "findingId": "ESP-AF-0006",
+      "ruleId": "ESP-LR-0004",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    },
+    {
+      "findingId": "ESP-AF-0007",
+      "ruleId": "ESP-LR-0004",
+      "controlPath": "scripts/agentic-workflow-contract.mjs",
+      "controlVersion": "1.0.0",
+      "testPath": "scripts/validate-agentic-workflows.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    },
+    {
+      "findingId": "ESP-AF-0004",
+      "ruleId": "ESP-LR-0005",
+      "controlPath": "scripts/repository-docs-contract.mjs",
+      "controlVersion": "0.1.0",
+      "testPath": "scripts/check-repository-docs.test.ts",
+      "proofCommit": "f3bd4e805d4660cd143d563413947f94472d6a64"
+    }
+  ],
+  "verifiedControlCount": 2,
   "coveragePercent": 85.3,
   "uncoveredFindingIds": ["ESP-AF-0001", "ESP-AF-0009", "ESP-AF-0012", "ESP-AF-0026", "ESP-AF-0027"]
 }
