@@ -9,7 +9,8 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createEspGovernanceServer } from "./esp-governance-mcp.mjs";
+import { createEspGovernanceServer, validationPlan } from "./esp-governance-mcp.mjs";
+import { requiredValidationCommands, validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
 import { callGovernanceTool, callPackagedGovernanceTool } from "./esp-governance-client.mjs";
 import { packageGovernanceMcp } from "./package-governance-mcp.mjs";
 
@@ -125,7 +126,21 @@ describe("ESP governance MCP server", () => {
 
     const plan = await client.callTool({ name: "esp_validation_plan", arguments: {} });
     expect(plan.structuredContent).toMatchObject({ mutatesRepository: false });
-    expect((plan.structuredContent as { commands: string[] }).commands).toContain("npm run build");
+    const commands = (plan.structuredContent as { commands: string[] }).commands;
+    expect(commands.filter((command) => command !== "npm run agentic-workflows:check")).toEqual(
+      requiredValidationCommands,
+    );
+    expect(() => validateArchitectureValidationSequence(commands.join("\n"))).not.toThrow();
+    expect(() =>
+      validateArchitectureValidationSequence(
+        commands.filter((command) => command !== "npm run remediation:check").join("\n"),
+      ),
+    ).toThrow();
+    const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8"));
+    delete packageJson.scripts["agent-improvement:check"];
+    expect(() => validationPlan(process.cwd(), () => JSON.stringify(packageJson))).toThrow(
+      "Missing validation script: agent-improvement:check",
+    );
   });
 
   it("launches the VS Code stdio server and exposes the read-only validation plan", async () => {

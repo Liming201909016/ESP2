@@ -43,11 +43,52 @@ describe("agent improvement artifacts", () => {
 
   it("rejects stale proof-pair and verified-control counts", () => {
     expect(() =>
-      validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, proofPairCount: 25 }, { root }),
+      validateAgentImprovementArtifacts(
+        ledger,
+        corpus,
+        { ...dashboard, proofPairCount: dashboard.proofPairCount + 1 },
+        { root },
+      ),
     ).toThrow("proof-pair count is stale");
     expect(() =>
-      validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, verifiedControlCount: 2 }, { root }),
+      validateAgentImprovementArtifacts(
+        ledger,
+        corpus,
+        { ...dashboard, verifiedControlCount: dashboard.verifiedControlCount + 1 },
+        { root },
+      ),
     ).toThrow("verified-control count is stale");
+  });
+  it("rejects unrelated regression tests and altered control bindings", () => {
+    const unrelated = structuredClone(corpus);
+    unrelated.rules[0].control.testPaths = ["scripts/check-repository-docs.test.ts"];
+    expect(() => validateAgentImprovementArtifacts(ledger, unrelated, dashboard, { root })).toThrow(
+      "proof-pair count is stale",
+    );
+    const changedDashboard = structuredClone(dashboard);
+    changedDashboard.proofPairs[0].controlVersion = "9.9.9";
+    expect(() => validateAgentImprovementArtifacts(ledger, corpus, changedDashboard, { root })).toThrow(
+      "bindings are stale",
+    );
+  });
+  it("reads the legacy v1 shape without treating it as v2 proof evidence", () => {
+    const legacy = structuredClone(corpus);
+    legacy.schemaVersion = 1;
+    for (const rule of legacy.rules) {
+      rule.promotedAt = rule.activatedAt ?? rule.proposedAt;
+      rule.lastVerifiedAt ??= rule.promotedAt;
+      delete rule.proposedAt;
+      delete rule.activatedAt;
+    }
+    const legacyDashboard = structuredClone(dashboard);
+    legacyDashboard.schemaVersion = 1;
+    delete legacyDashboard.proofPairs;
+    delete legacyDashboard.proofPairCount;
+    delete legacyDashboard.verifiedControlCount;
+    expect(validateAgentImprovementArtifacts(ledger, legacy, legacyDashboard, { root }).corpus).toEqual(legacy);
+    expect(() =>
+      validateAgentImprovementArtifacts(ledger, { ...corpus, schemaVersion: 1 }, legacyDashboard, { root }),
+    ).toThrow("unexpected fields");
   });
 
   it("enforces candidate and retired lifecycle transitions", () => {

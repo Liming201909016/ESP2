@@ -7,6 +7,7 @@ import { z } from "zod";
 import { validateReviewPolicy } from "./agent-review-contract.mjs";
 import { validateRecoveryPolicy } from "./classify-ci-recovery.mjs";
 import { validateDocsDriftContract } from "./docs-drift-contract.mjs";
+import { requiredValidationCommands } from "./repository-docs-contract.mjs";
 
 export function governanceSnapshot(root, read = (path) => readFileSync(resolve(root, path), "utf8")) {
   const recovery = JSON.parse(read(".github/self-healing.json"));
@@ -37,17 +38,9 @@ export function governanceSnapshot(root, read = (path) => readFileSync(resolve(r
 
 export function validationPlan(root, read = (path) => readFileSync(resolve(root, path), "utf8")) {
   const packageJson = JSON.parse(read("package.json"));
-  const commands = [
-    "npm run data:check",
-    "npm run docs:check",
-    "npm run docs:drift",
-    "npm run agent-findings:check",
-    "npm run agentic-workflows:check",
-    "npm test",
-    "npm run lint",
-    "npm run format:check",
-    "npm run build",
-  ];
+  const commands = requiredValidationCommands.flatMap((command) =>
+    command === "npm test" ? ["npm run agentic-workflows:check", command] : [command],
+  );
   for (const command of commands) {
     const script = command === "npm test" ? "test" : command.replace("npm run ", "");
     if (typeof packageJson.scripts?.[script] !== "string") throw new Error(`Missing validation script: ${script}`);
