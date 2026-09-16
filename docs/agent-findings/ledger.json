@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 28,
+  "nextSequence": 30,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -865,6 +865,70 @@
           "npm run format:check"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0028",
+      "fingerprint": "db63cc2b4222d7a82e7bf66a25b479959c1886cfe8544dd8ed5f445ff956f889",
+      "title": "SDK validator permits late duplicate boundary mutations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:53:56.321Z",
+      "lastSeenAt": "2026-09-16T01:53:56.321Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045744208",
+          "targetSha": "7a1d14a53abf1651ee1c3d913f2c88ab5110e242",
+          "observedAt": "2026-09-16T01:53:56.321Z",
+          "evidenceDigest": "f68915d7e52737c6e3ee9cd2b32bc0d6ee3aca0cdecb140526bcc4fbaadef28c"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring each SDK boundary command exactly once and rejecting install, removal, or relink mutations after verified binding.",
+      "proofOfFix": {
+        "commitSha": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0029",
+      "fingerprint": "f1156a7c1a84c9e686d4a77e10d283a38a377714376c43d5fb0374180d262fde",
+      "title": "ESP-AF-0018 describes a superseded SDK fix",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:53:56.321Z",
+      "lastSeenAt": "2026-09-16T01:53:56.321Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045744208",
+          "targetSha": "7a1d14a53abf1651ee1c3d913f2c88ab5110e242",
+          "observedAt": "2026-09-16T01:53:56.321Z",
+          "evidenceDigest": "8fdd0009a97f05d013450702a56b2009bb2b6ceeda2e2029821352b600991a62"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0018 to identify its root-lock reinstall as superseded by the isolated lock, verified resolution binding, and pre-install offline cache controls.",
+      "proofOfFix": {
+        "commitSha": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
