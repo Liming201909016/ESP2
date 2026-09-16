@@ -79,8 +79,12 @@ pre-agent-steps:
       mkdir -p node_modules/@github
       ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk
       ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici
-      if test -e "$RUNNER_TEMP/target-project-npmrc" || test -L "$RUNNER_TEMP/target-project-npmrc"; then mv "$RUNNER_TEMP/target-project-npmrc" .npmrc; fi
       echo "NODE_PATH=$RUNNER_TEMP/trusted-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
+post-steps:
+  - name: Restore target project npm config
+    if: always()
+    run: |
+      if test -e "$RUNNER_TEMP/target-project-npmrc" || test -L "$RUNNER_TEMP/target-project-npmrc"; then mv "$RUNNER_TEMP/target-project-npmrc" .npmrc; fi
 safe-outputs:
   report-failed-jobs: false
   report-failure-as-issue: false

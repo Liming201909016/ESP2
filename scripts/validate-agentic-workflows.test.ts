@@ -114,6 +114,13 @@ describe("agentic workflow contract", () => {
     expect(() => validateSdkInstallIntegrity(source, projectConfigBypassLock, sdkManifest, sdkLock)).toThrow(
       "project npm config isolation",
     );
+    const restoreCommand =
+      'if test -e "$RUNNER_TEMP/target-project-npmrc" || test -L "$RUNNER_TEMP/target-project-npmrc"; then mv "$RUNNER_TEMP/target-project-npmrc" .npmrc; fi';
+    const earlyRestoreLock = renderedLock.replace(
+      "- name: Execute GitHub Copilot CLI",
+      `${restoreCommand}\n      - name: Execute GitHub Copilot CLI`,
+    );
+    expect(() => validateSdkInstallIntegrity(source, earlyRestoreLock, sdkManifest, sdkLock)).toThrow();
     const globalBypassLock = renderedLock.replace(
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
       "true",

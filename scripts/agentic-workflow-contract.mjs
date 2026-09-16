@@ -225,8 +225,8 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
       removeGeneratedIndex > globalExclusionIndex &&
       sdkLinkIndex > removeGeneratedIndex &&
       undiciLinkIndex > sdkLinkIndex &&
-      restoreProjectConfigIndex > undiciLinkIndex &&
-      executeIndex > restoreProjectConfigIndex,
+      executeIndex > undiciLinkIndex &&
+      restoreProjectConfigIndex > executeIndex,
     "verified SDK runtime and dry-run resolution boundary must surround generated install",
   );
   const postBindCommands = renderedWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);
