@@ -14,8 +14,10 @@ const sourcePath = path.join(root, ".github", "workflows", "agent-findings-audit
 const lockPath = path.join(root, ".github", "workflows", "agent-findings-audit.lock.yml");
 const source = fs.readFileSync(sourcePath, "utf8");
 const lock = fs.readFileSync(lockPath, "utf8");
-const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-const packageLock = JSON.parse(fs.readFileSync(path.join(root, "package-lock.json"), "utf8"));
+const sdkRuntimePath = path.join(root, ".github", "aw", "copilot-sdk-runtime");
+const sdkManifest = JSON.parse(fs.readFileSync(path.join(sdkRuntimePath, "package.json"), "utf8"));
+const sdkLockText = fs.readFileSync(path.join(sdkRuntimePath, "package-lock.json"), "utf8");
+const sdkLock = JSON.parse(sdkLockText);
 const workflowBody = extractWorkflowBody(source);
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
@@ -40,7 +42,7 @@ assert.deepEqual(manifest.mcp_servers, [
 ]);
 assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
 validateCompiledReadOnlyTools(lock);
-validateSdkInstallIntegrity(source, lock, packageJson, packageLock);
+validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock, sdkLockText);
 assert.match(
   lock,
   /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,

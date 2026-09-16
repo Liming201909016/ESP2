@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 
 const normalizeWhitespace = (value) => value.trim().replace(/\s+/gu, " ");
 const expectedFinalInstruction = normalizeWhitespace(`
@@ -63,11 +64,18 @@ export function validateCompiledReadOnlyTools(compiledWorkflow) {
   );
 
   const configPrefix = "GH_AW_COPILOT_SDK_TOOL_CONFIG: ";
-  const configLine = compiledWorkflow
+  const configLines = compiledWorkflow
     .split(/\r?\n/u)
     .map((line) => line.trim())
-    .find((line) => line.startsWith(configPrefix));
-  assert.ok(configLine, "compiled workflow must configure SDK tool permissions");
+    .filter((line) => line.startsWith(configPrefix));
+  assert.equal(configLines.length, 1, "compiled workflow must contain exactly one SDK tool configuration");
+  const configLine = configLines[0];
+  const agentStart = compiledWorkflow.indexOf("\n  agent:\n");
+  assert.ok(agentStart >= 0 && detectorStart > agentStart, "compiled workflow must contain agent before detection");
+  assert.ok(
+    compiledWorkflow.slice(agentStart, detectorStart).includes(configLine),
+    "SDK tool configuration must remain inside the agent job",
+  );
   const quotedConfig = configLine.slice(configPrefix.length);
   assert.match(quotedConfig, /^'.*'$/u, "SDK tool permissions must be a quoted JSON object");
   const config = JSON.parse(quotedConfig.slice(1, -1));
@@ -83,33 +91,48 @@ export function validateCompiledReadOnlyTools(compiledWorkflow) {
   assert.deepEqual(config.explicitlyDisabledTools, ["bash", "cli-proxy", "edit", "github"]);
 }
 
-export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, packageJson, packageLock) {
+export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sdkManifest, sdkLock, sdkLockText) {
   const runtimeDependencies = {
     "@github/copilot-sdk": "1.0.11",
     undici: "6.28.0",
   };
   for (const [name, version] of Object.entries(runtimeDependencies)) {
-    assert.equal(packageJson.devDependencies?.[name], version, `${name} must be an exact dev dependency`);
-    assert.equal(packageLock.packages?.[`node_modules/${name}`]?.version, version, `${name} lock version changed`);
+    assert.equal(sdkManifest.dependencies?.[name], version, `${name} must be an exact runtime dependency`);
+    assert.equal(sdkLock.packages?.[`node_modules/${name}`]?.version, version, `${name} lock version changed`);
   }
 
+  const expectedLockSha256 = "0b51f69c14a09e368b7fa877cfdf70b7770b7abb15c2d623a6794e0b566c9b4d";
+  assert.equal(
+    crypto.createHash("sha256").update(sdkLockText).digest("hex"),
+    expectedLockSha256,
+    "isolated SDK lock digest changed",
+  );
   const pending = Object.keys(runtimeDependencies);
   const visited = new Set();
   while (pending.length > 0) {
     const name = pending.pop();
     if (visited.has(name)) continue;
     visited.add(name);
-    const entry = packageLock.packages?.[`node_modules/${name}`];
-    assert.ok(entry, `SDK dependency ${name} must exist in package-lock.json`);
+    const entry = sdkLock.packages?.[`node_modules/${name}`];
+    assert.ok(entry, `SDK dependency ${name} must exist in the isolated lock`);
+    const resolved = new URL(entry.resolved ?? "https://invalid.local/");
+    assert.equal(resolved.origin, "https://registry.npmjs.org", `${name} must resolve from the npm registry`);
+    assert.match(resolved.pathname, new RegExp(`^/${name}/-/[^/]+\\.tgz$`, "u"), `${name} tarball path changed`);
+    assert.equal(resolved.search, "", `${name} resolved URL must not contain a query`);
+    assert.equal(resolved.hash, "", `${name} resolved URL must not contain a fragment`);
+    assert.equal(resolved.username, "", `${name} resolved URL must not contain credentials`);
     assert.match(entry.integrity ?? "", /^sha512-[A-Za-z0-9+/]+={0,2}$/u, `${name} must have SHA-512 integrity`);
     pending.push(...Object.keys(entry.dependencies ?? {}), ...Object.keys(entry.optionalDependencies ?? {}));
   }
 
-  const reinstallCommand = "npm ci --ignore-scripts --no-audit --no-fund";
+  const reinstallCommand = "npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime";
   assert.match(
     workflowSource,
-    /pre-agent-steps:\s+- name: Reinstall SDK from committed integrity lock\s+run: npm ci --ignore-scripts --no-audit --no-fund/u,
-    "workflow must reinstall the SDK from the committed integrity lock",
+    new RegExp(
+      `pre-agent-steps:\\s+- name: Reinstall SDK from verified isolated lock[\\s\\S]*${expectedLockSha256}[\\s\\S]*${reinstallCommand}`,
+      "u",
+    ),
+    "workflow must verify and reinstall the SDK from the isolated lock",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
   const installIndex = compiledWorkflow.indexOf(generatedInstall);

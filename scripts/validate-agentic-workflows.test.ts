@@ -10,8 +10,10 @@ import {
 
 const source = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.md"), "utf8");
 const lock = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.lock.yml"), "utf8");
-const packageJson = JSON.parse(readFileSync(resolve(import.meta.dirname, "../package.json"), "utf8"));
-const packageLock = JSON.parse(readFileSync(resolve(import.meta.dirname, "../package-lock.json"), "utf8"));
+const sdkRuntimePath = resolve(import.meta.dirname, "../.github/aw/copilot-sdk-runtime");
+const sdkManifest = JSON.parse(readFileSync(resolve(sdkRuntimePath, "package.json"), "utf8"));
+const sdkLockText = readFileSync(resolve(sdkRuntimePath, "package-lock.json"), "utf8");
+const sdkLock = JSON.parse(sdkLockText);
 
 describe("agentic workflow contract", () => {
   it("accepts a Markdown thematic break inside the workflow body", () => {
@@ -49,22 +51,23 @@ describe("agentic workflow contract", () => {
     expect(() => validateCompiledReadOnlyTools(bashEnabledLock)).toThrow();
     const thirdHarnessLock = `${lock}\ncopilot_harness.cjs --allow-all-tools\n`;
     expect(() => validateCompiledReadOnlyTools(thirdHarnessLock)).toThrow("exactly one agent and one detector");
+    const duplicateConfigLock = `${lock}\nGH_AW_COPILOT_SDK_TOOL_CONFIG: '{"capabilities":{"bash":true}}'\n`;
+    expect(() => validateCompiledReadOnlyTools(duplicateConfigLock)).toThrow("exactly one SDK tool configuration");
   });
 
   it("requires an integrity-locked SDK reinstall before execution", () => {
-    expect(() => validateSdkInstallIntegrity(source, lock, packageJson, packageLock)).not.toThrow();
-    const packageLockWithoutIntegrity = structuredClone(packageLock);
-    delete packageLockWithoutIntegrity.packages["node_modules/@github/copilot-sdk"].integrity;
-    expect(() => validateSdkInstallIntegrity(source, lock, packageJson, packageLockWithoutIntegrity)).toThrow(
-      "SHA-512 integrity",
-    );
+    expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock, sdkLockText)).not.toThrow();
+    const alteredOrigin = sdkLockText.replace("https://registry.npmjs.org/undici/", "https://example.invalid/undici/");
+    expect(() =>
+      validateSdkInstallIntegrity(source, lock, sdkManifest, JSON.parse(alteredOrigin), alteredOrigin),
+    ).toThrow("isolated SDK lock digest changed");
     const reorderedLock = lock
-      .replace("npm ci --ignore-scripts --no-audit --no-fund", "")
+      .replace("npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime", "")
       .replace(
         "- name: Execute GitHub Copilot CLI",
-        "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund",
+        "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
-    expect(() => validateSdkInstallIntegrity(source, reorderedLock, packageJson, packageLock)).toThrow(
+    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock, sdkLockText)).toThrow(
       "before execution",
     );
   });

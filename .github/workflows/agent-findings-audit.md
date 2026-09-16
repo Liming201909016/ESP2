@@ -25,8 +25,12 @@ tools:
   cli-proxy: false
   github: false
 pre-agent-steps:
-  - name: Reinstall SDK from committed integrity lock
-    run: npm ci --ignore-scripts --no-audit --no-fund
+  - name: Reinstall SDK from verified isolated lock
+    run: |
+      echo "0b51f69c14a09e368b7fa877cfdf70b7770b7abb15c2d623a6794e0b566c9b4d  .github/aw/copilot-sdk-runtime/package-lock.json" | sha256sum --check --strict
+      rm -rf node_modules/@github/copilot-sdk
+      npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime
+      echo "NODE_PATH=${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
 safe-outputs:
   report-failed-jobs: false
   report-failure-as-issue: false
