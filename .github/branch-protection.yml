@@ -1,12 +1,16 @@
 schemaVersion: 1
 defaultBranch: main
-enforcement: advisory
+enforcement: active
+rulesetId: 23527101
 pullRequests:
   required: true
   codeOwnerReview: true
   minimumApprovals: 1
   requiredChecks:
-    - Validate
-    - Security
-limitations:
-  - Server-side branch protection is not observable in the current repository plan.
+    - application
+    - infrastructure
+    - agentic-workflows
+    - CodeQL
+    - Secret scanning
+    - remediation-proof / remediation-proof
+    - remediation-outcome

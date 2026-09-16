@@ -40,21 +40,19 @@
       ]
     },
     {
-      "id": "advisory-branch-policy",
+      "id": "active-branch-policy",
       "source": ".github/branch-protection.yml",
       "documentation": "CONTRIBUTING.md",
       "sourceTerms": [
-        "enforcement: advisory",
+        "enforcement: active",
+        "rulesetId: 23527101",
         "codeOwnerReview: true",
         "minimumApprovals: 1",
-        "- Validate",
-        "- Security"
+        "- application",
+        "- remediation-proof / remediation-proof",
+        "- remediation-outcome"
       ],
-      "documentationTerms": [
-        "advisory default-branch contract",
-        "Server-side enforcement remains",
-        "must not be inferred from this file"
-      ]
+      "documentationTerms": ["active default-branch contract", "Ruleset `23527101`", "no configured actor can bypass"]
     },
     {
       "id": "agent-repair-proposal",
