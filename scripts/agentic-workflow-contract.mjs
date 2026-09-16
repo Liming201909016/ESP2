@@ -18,6 +18,11 @@ export function extractWorkflowBody(workflowSource) {
 
 export function validateFinalInstruction(workflowBody) {
   const normalizedWorkflowBody = normalizeWhitespace(workflowBody);
+  assert.match(
+    workflowBody,
+    /Use only local file view operations on exact paths named by the ledger and validator\. Do not search the repository,/u,
+    "findings audit must align its inspection instructions with the read-only SDK capability",
+  );
   assert.ok(
     normalizedWorkflowBody.endsWith(expectedFinalInstruction),
     "findings audit body must require the exposed report tool as its final action",

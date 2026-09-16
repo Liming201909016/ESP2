@@ -43,6 +43,14 @@ describe("agentic workflow contract", () => {
     expect(body).not.toContain("jq -Rs");
   });
 
+  it("rejects search instructions unsupported by the SDK allowlist", () => {
+    const body = extractWorkflowBody(source).replace(
+      "Use only local file view operations on exact paths named by the ledger and validator. Do not search the repository,",
+      "Use only local file view and search operations.",
+    );
+    expect(() => validateFinalInstruction(body)).toThrow("read-only SDK capability");
+  });
+
   it("validates every compiled harness and rejects broader agent tools", () => {
     expect(() => validateCompiledReadOnlyTools(lock)).not.toThrow();
     const broadenedLock = lock.replace("copilot_sdk_driver.cjs", "copilot_sdk_driver.cjs shell(curl)");
