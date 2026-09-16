@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "esp-closed-loop-remediation-outcomes",
+  "mode": "synthetic",
+  "automatedRollback": true,
+  "distinctFailureClassCount": 2,
+  "verifiedClosedLoopCount": 2,
+  "outcomes": [
+    {
+      "failureClass": "candidate-health-failure",
+      "scenario": "candidate-unhealthy",
+      "detection": "candidate.failed",
+      "remediation": "redeploy-last-good",
+      "verifiedOutcome": "rollback.verified",
+      "eventSteps": [
+        "preflight.passed",
+        "application.stop_requested",
+        "application.stopped",
+        "candidate.deployed",
+        "application.start_requested",
+        "candidate.failed",
+        "rollback.stopped",
+        "rollback.deployed",
+        "rollback.start_requested",
+        "rollback.verified"
+      ]
+    },
+    {
+      "failureClass": "candidate-start-failure",
+      "scenario": "candidate-start-failure",
+      "detection": "candidate.failed",
+      "remediation": "redeploy-last-good",
+      "verifiedOutcome": "rollback.verified",
+      "eventSteps": [
+        "preflight.passed",
+        "application.stop_requested",
+        "application.stopped",
+        "candidate.deployed",
+        "candidate.failed",
+        "rollback.stopped",
+        "rollback.deployed",
+        "rollback.start_requested",
+        "rollback.verified"
+      ]
+    }
+  ]
+}

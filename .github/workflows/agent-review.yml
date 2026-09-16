@@ -139,3 +139,15 @@ jobs:
           path: ${{ runner.temp }}/agent-review-report
           if-no-files-found: error
           retention-days: 30
+
+      - name: Exhaust agent review workspace and credentials
+        if: always()
+        run: |
+          rm -rf \
+            "$GITHUB_WORKSPACE/target" \
+            "$GITHUB_WORKSPACE/trusted" \
+            "$RUNNER_TEMP/agent-review-report" \
+            "$RUNNER_TEMP/agent-review-usage.json" \
+            "$RUNNER_TEMP/copilot-events.jsonl"
+          test ! -e "$GITHUB_WORKSPACE/target"
+          test ! -e "$GITHUB_WORKSPACE/trusted"

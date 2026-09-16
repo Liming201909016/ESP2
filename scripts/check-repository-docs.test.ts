@@ -22,6 +22,12 @@ describe("repository documentation contract", () => {
     ).toThrow("agent-improvement:check");
   });
 
+  it("rejects a missing closed-loop remediation check", () => {
+    expect(() =>
+      validateArchitectureValidationSequence(architecture.replaceAll("npm run remediation:check", "")),
+    ).toThrow("remediation:check");
+  });
+
   it("rejects a missing documentation drift gate", () => {
     expect(() => validateArchitectureValidationSequence(architecture.replace("npm run docs:drift", ""))).toThrow(
       "docs:drift",

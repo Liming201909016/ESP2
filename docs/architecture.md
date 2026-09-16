@@ -82,6 +82,7 @@ npm run docs:check
 npm run docs:drift
 npm run agent-findings:check
 npm run agent-improvement:check
+npm run remediation:check
 npm test
 npm run lint
 npm run format:check
@@ -90,8 +91,14 @@ npm run test:e2e
 ```
 
 [`release.yml`](../.github/workflows/release.yml) builds an immutable package and keeps deployment behind explicit
-repository configuration, environment review, provenance checks, and rollback validation. A source merge does not
-authorize a deployment.
+repository configuration, environment review, provenance checks, and rollback validation. Its `redeploy-last-good`
+path uses `deployWithRollback` to restore and verify the provenance-bound running baseline after a confirmed candidate
+failure. The [closed-loop remediation dashboard](../dashboards/closed-loop-remediation-outcomes.json) is recomputed by
+`npm run remediation:check` from two synthetic failure classes executed through this state machine; both must detect the
+candidate failure, redeploy the last-known-good baseline, and verify rollback. The reusable
+[`Closed-loop Remediation Proof`](../.github/workflows/closed-loop-remediation-proof.yml) workflow uploads the validated
+outcomes as a run artifact. The ruleset directly requires the proof job, and the required `application` job cannot start
+until this proof job succeeds. A source merge does not authorize a deployment.
 
 The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled,
 fails deterministically when SARIF contains findings or is missing, and retains the SARIF artifact for review instead of
@@ -112,7 +119,9 @@ The [Agent Findings Ledger](agent-findings/README.md) stores only human-reviewed
 Agent Review artifacts never update the ledger automatically; ledger changes use the normal pull-request validation and
 ownership path. The [learned-rule corpus](agent-findings/learned-rules.json) promotes a control only from multiple
 resolved findings with existing proof tests and explicit candidate, active, or retired lifecycle state. The deterministic
-[improvement dashboard](../dashboards/agent-improvement.json) reports finding status, active rules, source coverage, and
+[improvement dashboard](../dashboards/candidate-active-retired-proof-pairs.json) reports candidate, active, and retired
+rules, finding status,
+verified finding-to-control proof pairs, source coverage, and
 uncovered findings. `npm run agent-improvement:check` rejects unresolved promotion evidence, stale lifecycle ordering,
 missing controls or tests, duplicate source assignment, and stale dashboard metrics.
 
@@ -122,14 +131,16 @@ exposes only file-view/search tools, validates JSON output, and uploads provenan
 commits, approvals, issues, deployments, or ledger changes. The machine-readable
 [`copilot-code-review.yml`](../.github/copilot-code-review.yml) policy pins the model, CLI, AI credit limit, trusted
 review inputs, and read-only tool set; preparation and finalization both validate it, and the artifact context binds its
-digest.
+digest. An `if: always()` final step exhausts the trusted and target checkouts, report directory, usage data, and Copilot
+event stream after artifact upload.
 
 [`agent-repair-proposal.yml`](../.github/workflows/agent-repair-proposal.yml) is a manually dispatched agent-repair
 surface for one exact commit and an explicit allowlist of existing files. Copilot receives view, search, and edit tools
 but no shell or network tool; the workflow has no repository write permission. The trusted contract rejects staged,
 untracked, deleted, renamed, out-of-allowlist, oversized, or unapproved-tool changes and emits only a digest-bound patch
 artifact. Every proposal requires human review and manual application; it never commits, pushes, opens a pull request,
-deploys, or mutates application data.
+deploys, or mutates application data. An `if: always()` final step exhausts both checkouts, the repair context, proposal
+directory, and Copilot event stream after artifact upload.
 
 [`agent-findings-audit.md`](../.github/workflows/agent-findings-audit.md) is the declarative source for a weekly and
 manually triggered GitHub Agentic Workflow. Its compiler-generated
@@ -141,10 +152,67 @@ and lock files differ. `npm run agentic-workflows:check` also parses the generat
 workspace edit or shell tools, persistent repository write permissions, or missing sandbox, threat-detection, budget, and
 report-size controls.
 
-The repository-local [ESP governance MCP server](../scripts/esp-governance-mcp-server.mjs), configured by
+The repository-local [ESP governance MCP server](../src/mcp/esp-governance-server.ts), configured by
 [`.vscode/mcp.json`](../.vscode/mcp.json), exposes only a validated governance snapshot and the non-mutating validation
 plan. Both tools have fixed empty inputs, structured Zod outputs, read-only annotations, and no shell, network, or file
 mutation capability.
+
+### Governance execution package
+
+The first integration milestone supplies a real MCP client and a standalone execution package, not new Web Skill
+registrations. The client accepts only `repositoryId: "esp"` and either `esp_governance_snapshot` or
+`esp_validation_plan`; it sends no user-provided tool arguments, executable names, or repository paths. Its transport
+option is an internal test/host dependency, not an HTTP input. Calls use a bounded deadline and await transport cleanup;
+invalid tool results and provider failures become bounded public errors. A validation plan lists commands but does not
+execute them. This adapter is not itself an identity or audit boundary; Web integration must add those controls before
+making it accessible to users.
+
+With Node.js 24 and the locked development dependencies installed:
+
+```powershell
+npm run governance:call -- esp_governance_snapshot
+npm run governance:call -- esp_validation_plan
+npm run governance:package -- artifacts/governance-runtime-v1
+node artifacts/governance-runtime-v1/client.mjs esp_validation_plan --package artifacts/governance-runtime-v1
+```
+
+Use a new output directory under an existing parent; packaging refuses to overwrite a directory. The operator-only
+package path selects a trusted local artifact, not an arbitrary repository to scan. The package includes bundled MCP/Zod
+dependencies, a server, a client, a validated snapshot, its checksum and a manifest. It requires Node.js 24 at runtime,
+but no source checkout, npm install, GitHub login, model, Azure credential or global MCP service. The server is stdio,
+not an HTTP listener. Existing VS Code MCP configuration remains the live-checkout developer entry point.
+
+Packaged results are explicitly labelled `packaged_snapshot`: they describe the fixed ESP checkout at collection time,
+not the latest remote branch or deployment. Provenance includes the base commit, dirty-worktree flag, collection time
+and a digest of input-file hashes. The output contains governance summaries and input hashes, not source bodies or
+environment files. A dirty worktree is reported honestly; it is not claimed to be an exact clean commit snapshot. No
+CodeBlend score or proof of live GitHub ruleset enforcement is inferred from these configuration checks.
+
+The packaged client checks the fixed manifest file hashes before spawning the server and verifies returned provenance;
+the server also rejects an altered snapshot. These are integrity checks, not signatures or authorization: only execute
+packages obtained through a trusted build/review process. An attacker who replaces the whole package and manifest is
+outside this checksum protection. Packaging does not add the runtime to the Azure Web bundle or deploy it.
+
+The adjacent MCP tests exercise real stdio calls, invalid targets/tools, malformed results, an unresponsive child process,
+standalone server/client startup outside the checkout, and corrupted artifacts. Windows execution is verified locally;
+Linux execution and actual Azure hosting still require their own acceptance. Next steps are explicit read permissions,
+audited API invocation and Skill catalog/UI integration, followed by CodeBlend report retrieval before paid job dispatch.
+
+Agent policy exceptions start with the structured
+[`Agent policy exception`](../.github/ISSUE_TEMPLATE/agent-exception.yml) issue form and lifecycle labels from
+[`.github/labels.yml`](../.github/labels.yml). The scheduled
+[`Agent Exception Audit`](../.github/workflows/agent-exception-audit.yml) reads open requests, validates accountable
+ownership and canonical UTC expiry, and classifies each request as pending, active, expired, or malformed. It uploads a
+machine-readable report with `mutationAllowed: false`; only a CODEOWNER can approve, renew, close, or change an
+exception, and expired or malformed requests fail closed. Approval evidence comes from unedited individual
+default-CODEOWNER comments bound to the exact issue body digest; the label
+alone is never sufficient. The default-branch collector flattens all issue and comment pages, recognizes the issue-form
+title even if labels are missing, and isolates null or empty bodies as malformed rather than aborting other requests.
+The accepted command is `/approve-agent-exception sha256:<approvalDigest>`; a later matching revoke comment or removing
+the approval label deactivates the request. Body changes invalidate previous approval. See CONTRIBUTING for the complete
+operator process. Before inspecting live requests, the workflow recomputes the
+[closed-loop exception lifecycle proof](../dashboards/closed-loop-agent-exception-lifecycle.json) through the same parser
+and rejects drift in pending, active, expired, malformed, human-decision, mutation, or fail-closed behavior.
 
 ## Change guidance
 

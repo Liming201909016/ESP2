@@ -7,17 +7,14 @@ import { z } from "zod";
 import { validateReviewPolicy } from "./agent-review-contract.mjs";
 import { validateRecoveryPolicy } from "./classify-ci-recovery.mjs";
 import { validateDocsDriftContract } from "./docs-drift-contract.mjs";
+import { requiredValidationCommands } from "./repository-docs-contract.mjs";
 
-function readJson(root, path) {
-  return JSON.parse(readFileSync(resolve(root, path), "utf8"));
-}
-
-export function governanceSnapshot(root) {
-  const recovery = readJson(root, ".github/self-healing.json");
+export function governanceSnapshot(root, read = (path) => readFileSync(resolve(root, path), "utf8")) {
+  const recovery = JSON.parse(read(".github/self-healing.json"));
   validateRecoveryPolicy(recovery);
-  const codeReview = validateReviewPolicy(readJson(root, ".github/copilot-code-review.yml"));
-  const drift = readJson(root, "docs/drift-contract.json");
-  validateDocsDriftContract(drift, (path) => readFileSync(resolve(root, path), "utf8"));
+  const codeReview = validateReviewPolicy(JSON.parse(read(".github/copilot-code-review.yml")));
+  const drift = JSON.parse(read("docs/drift-contract.json"));
+  validateDocsDriftContract(drift, read);
   return {
     schemaVersion: 1,
     recovery: {
@@ -39,19 +36,11 @@ export function governanceSnapshot(root) {
   };
 }
 
-export function validationPlan(root) {
-  const packageJson = readJson(root, "package.json");
-  const commands = [
-    "npm run data:check",
-    "npm run docs:check",
-    "npm run docs:drift",
-    "npm run agent-findings:check",
-    "npm run agentic-workflows:check",
-    "npm test",
-    "npm run lint",
-    "npm run format:check",
-    "npm run build",
-  ];
+export function validationPlan(root, read = (path) => readFileSync(resolve(root, path), "utf8")) {
+  const packageJson = JSON.parse(read("package.json"));
+  const commands = requiredValidationCommands.flatMap((command) =>
+    command === "npm test" ? ["npm run agentic-workflows:check", command] : [command],
+  );
   for (const command of commands) {
     const script = command === "npm test" ? "test" : command.replace("npm run ", "");
     if (typeof packageJson.scripts?.[script] !== "string") throw new Error(`Missing validation script: ${script}`);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { isAbsolute, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
+import ts from "typescript";
 import { pathToFileURL } from "node:url";
 import { validateAgentFindingsLedger } from "./validate-agent-findings.mjs";
 
@@ -29,11 +30,48 @@ function canonicalDate(value, label) {
   return date;
 }
 
+export function deriveProofPairs(ledger, corpus, root = process.cwd()) {
+  return corpus.rules.flatMap((rule) =>
+    rule.sourceFindingIds.flatMap((findingId) => {
+      const finding = ledger.findings.find((entry) => entry.id === findingId);
+      const testPath = rule.control.testPaths.find((path) => {
+        if (!finding?.proofOfFix?.testPaths.includes(path)) return false;
+        const source = ts.createSourceFile(
+          path,
+          readFileSync(resolve(root, path), "utf8"),
+          ts.ScriptTarget.Latest,
+          true,
+        );
+        return source.statements.some(
+          (statement) =>
+            ts.isImportDeclaration(statement) &&
+            ts.isStringLiteral(statement.moduleSpecifier) &&
+            statement.moduleSpecifier.text.startsWith(".") &&
+            resolve(root, dirname(path), statement.moduleSpecifier.text) === resolve(root, rule.control.path),
+        );
+      });
+      return testPath
+        ? [
+            {
+              findingId,
+              ruleId: rule.id,
+              controlPath: rule.control.path,
+              controlVersion: rule.control.version,
+              testPath,
+              proofCommit: finding.proofOfFix.commitSha,
+            },
+          ]
+        : [];
+    }),
+  );
+}
+
 export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, options = {}) {
   const root = resolve(options.root ?? process.cwd());
   validateAgentFindingsLedger(ledger, { root });
   exactKeys(corpus, ["schemaVersion", "kind", "nextSequence", "rules"], "learnedRules");
-  assert.equal(corpus.schemaVersion, 1, "Unsupported learned-rules schema");
+  assert.ok([1, 2].includes(corpus.schemaVersion), "Unsupported learned-rules schema");
+  const legacy = corpus.schemaVersion === 1;
   assert.equal(corpus.kind, "esp-agent-learned-rules", "Unexpected learned-rules kind");
   assert.ok(Array.isArray(corpus.rules) && corpus.rules.length <= 100, "Invalid learned-rules collection");
 
@@ -52,7 +90,7 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
         "sourceFindingIds",
         "owner",
         "control",
-        "promotedAt",
+        ...(legacy ? ["promotedAt"] : ["proposedAt", "activatedAt"]),
         "lastVerifiedAt",
         "retiredAt",
         "supersededBy",
@@ -97,21 +135,35 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
       `${rule.id}: tests required`,
     );
     for (const path of rule.control.testPaths) repositoryFile(root, path, `${rule.id}.control.testPath`);
-    const promotedAt = canonicalDate(rule.promotedAt, `${rule.id}.promotedAt`);
+    const proposedAt = canonicalDate(legacy ? rule.promotedAt : rule.proposedAt, `${rule.id}.proposedAt`);
+    assert.ok(proposedAt >= latestSource, `${rule.id}: proposal predates source evidence`);
+    if (!legacy && rule.status === "candidate") {
+      assert.equal(rule.activatedAt, null, `${rule.id}: candidate cannot be activated`);
+      assert.equal(rule.lastVerifiedAt, null, `${rule.id}: candidate cannot be verified as active`);
+      assert.equal(rule.retiredAt, null, `${rule.id}: candidate cannot be retired`);
+      assert.equal(rule.supersededBy, null, `${rule.id}: candidate cannot have a successor`);
+      continue;
+    }
+    const activatedAt = canonicalDate(legacy ? rule.promotedAt : rule.activatedAt, `${rule.id}.activatedAt`);
     const lastVerifiedAt = canonicalDate(rule.lastVerifiedAt, `${rule.id}.lastVerifiedAt`);
-    assert.ok(promotedAt >= latestSource, `${rule.id}: promotion predates source evidence`);
-    assert.ok(lastVerifiedAt >= promotedAt, `${rule.id}: verification predates promotion`);
+    assert.ok(activatedAt >= proposedAt, `${rule.id}: activation predates proposal`);
+    assert.ok(lastVerifiedAt >= activatedAt, `${rule.id}: verification predates activation`);
     if (rule.status === "retired") {
       const retiredAt = canonicalDate(rule.retiredAt, `${rule.id}.retiredAt`);
       assert.ok(retiredAt >= lastVerifiedAt, `${rule.id}: retirement predates verification`);
-      assert.ok(
-        rule.supersededBy === null || /^ESP-LR-\d{4}$/u.test(rule.supersededBy),
-        `${rule.id}: invalid successor`,
-      );
+      if (!legacy || rule.supersededBy !== null)
+        assert.match(rule.supersededBy, /^ESP-LR-\d{4}$/u, `${rule.id}: retired rule needs a successor`);
     } else {
       assert.equal(rule.retiredAt, null, `${rule.id}: unexpected retirement timestamp`);
       assert.equal(rule.supersededBy, null, `${rule.id}: unexpected successor`);
     }
+  }
+  for (const rule of corpus.rules.filter(
+    (entry) => entry.status === "retired" && (!legacy || entry.supersededBy !== null),
+  )) {
+    const successor = corpus.rules.find((entry) => entry.id === rule.supersededBy);
+    assert.ok(successor && successor.status === "active", `${rule.id}: successor must be an active rule`);
+    assert.notEqual(successor.id, rule.id, `${rule.id}: rule cannot supersede itself`);
   }
   assert.ok(corpus.nextSequence > maximumSequence, "nextSequence must exceed all learned-rule IDs");
 
@@ -124,12 +176,13 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
       "findingStatusCounts",
       "learnedRuleStatusCounts",
       "coveredFindingCount",
+      ...(legacy ? [] : ["proofPairCount", "verifiedControlCount", "proofPairs"]),
       "coveragePercent",
       "uncoveredFindingIds",
     ],
     "improvementDashboard",
   );
-  assert.equal(dashboard.schemaVersion, 1, "Unsupported improvement dashboard schema");
+  assert.equal(dashboard.schemaVersion, corpus.schemaVersion, "Improvement dashboard and corpus versions must match");
   assert.equal(dashboard.kind, "esp-agent-improvement-dashboard", "Unexpected improvement dashboard kind");
   const findingStatusCounts = Object.fromEntries(
     findingStatuses.map((status) => [status, ledger.findings.filter((finding) => finding.status === status).length]),
@@ -142,6 +195,19 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
   assert.deepEqual(dashboard.findingStatusCounts, findingStatusCounts, "Dashboard finding status counts are stale");
   assert.deepEqual(dashboard.learnedRuleStatusCounts, learnedRuleStatusCounts, "Dashboard rule counts are stale");
   assert.equal(dashboard.coveredFindingCount, coveredFindingIds.size, "Dashboard covered count is stale");
+  if (!legacy) {
+    const proofPairs = deriveProofPairs(ledger, corpus, root);
+    const verifiedControlCount = corpus.rules.filter(
+      (rule) =>
+        rule.status === "active" &&
+        rule.sourceFindingIds.every((id) =>
+          proofPairs.some((pair) => pair.ruleId === rule.id && pair.findingId === id),
+        ),
+    ).length;
+    assert.equal(dashboard.proofPairCount, proofPairs.length, "Dashboard proof-pair count is stale");
+    assert.equal(dashboard.verifiedControlCount, verifiedControlCount, "Dashboard verified-control count is stale");
+    assert.deepEqual(dashboard.proofPairs, proofPairs, "Dashboard control/proof bindings are stale");
+  }
   assert.equal(
     dashboard.coveragePercent,
     Math.round((coveredFindingIds.size / Math.max(ledger.findings.length, 1)) * 1000) / 10,
@@ -155,7 +221,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const root = resolve(import.meta.dirname, "..");
   const ledger = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/ledger.json"), "utf8"));
   const corpus = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/learned-rules.json"), "utf8"));
-  const dashboard = JSON.parse(readFileSync(resolve(root, "dashboards/agent-improvement.json"), "utf8"));
+  const dashboard = JSON.parse(
+    readFileSync(resolve(root, "dashboards/candidate-active-retired-proof-pairs.json"), "utf8"),
+  );
   validateAgentImprovementArtifacts(ledger, corpus, dashboard, { root });
   console.log(
     `agent-improvement: ${corpus.rules.length} learned rules cover ${dashboard.coveredFindingCount} findings`,

@@ -24,7 +24,11 @@ export function validateFinalInstruction(workflowBody) {
     "findings audit must align its inspection instructions with the read-only SDK capability",
   );
   assert.match(workflowBody, /docs\/agent-findings\/learned-rules\.json/u, "findings audit must inspect learned rules");
-  assert.match(workflowBody, /dashboards\/agent-improvement\.json/u, "findings audit must inspect dashboard metrics");
+  assert.match(
+    workflowBody,
+    /dashboards\/candidate-active-retired-proof-pairs\.json/u,
+    "findings audit must inspect dashboard metrics",
+  );
   assert.doesNotMatch(
     workflowBody,
     /Do not[^.]*inspect the generated workflow lock/u,

@@ -1,12 +1,22 @@
 schemaVersion: 1
 defaultBranch: main
-enforcement: advisory
+enforcement: active
+rulesetId: 23527101
+governanceMode: single-maintainer-hackathon
+maintainer: Liming201909016
+independentReview: false
+protectDeletion: true
+protectNonFastForward: true
 pullRequests:
   required: true
-  codeOwnerReview: true
-  minimumApprovals: 1
+  codeOwnerReview: false
+  minimumApprovals: 0
+  resolveReviewThreads: true
+  strictRequiredChecks: true
   requiredChecks:
-    - Validate
-    - Security
-limitations:
-  - Server-side branch protection is not observable in the current repository plan.
+    - application
+    - infrastructure
+    - agentic-workflows
+    - CodeQL
+    - Secret scanning
+    - remediation-proof / remediation-proof

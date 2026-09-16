@@ -30,6 +30,22 @@ function repositoryFile(source: Map<string, string>, path: string) {
 }
 
 describe("documentation drift contract", () => {
+  it("retains single-maintainer disclosure and non-approval branch gates", () => {
+    for (const [path, before, after] of [
+      [".github/branch-protection.yml", "resolveReviewThreads: true", "resolveReviewThreads: false"],
+      [".github/branch-protection.yml", "strictRequiredChecks: true", "strictRequiredChecks: false"],
+      [".github/branch-protection.yml", "protectDeletion: true", "protectDeletion: false"],
+      [".github/branch-protection.yml", "protectNonFastForward: true", "protectNonFastForward: false"],
+      [".github/branch-protection.yml", "minimumApprovals: 0", "minimumApprovals: 1"],
+      [".github/branch-protection.yml", "codeOwnerReview: false", "codeOwnerReview: true"],
+      ["CONTRIBUTING.md", "not an independent-review guarantee", "independent review guaranteed"],
+    ]) {
+      const changedFiles = new Map(files);
+      expect(repositoryFile(files, path)).toContain(before);
+      changedFiles.set(path, repositoryFile(files, path).replace(before, after));
+      expect(() => validateDocsDriftContract(contract, (name: string) => repositoryFile(changedFiles, name))).toThrow();
+    }
+  });
   it("accepts current workflow behavior and documentation", () => {
     expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(files, path))).not.toThrow();
   });
@@ -56,11 +72,11 @@ describe("documentation drift contract", () => {
     );
   });
 
-  it("rejects an advisory branch policy presented as server-enforced", () => {
+  it("rejects active branch enforcement presented as advisory", () => {
     const changedFiles = new Map(files);
     changedFiles.set(
       "CONTRIBUTING.md",
-      repositoryFile(files, "CONTRIBUTING.md").replace("Server-side enforcement remains", "Server-side enforcement is"),
+      repositoryFile(files, "CONTRIBUTING.md").replace("active default-branch contract", "advisory contract"),
     );
     expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
       "documentation drifted",
@@ -86,6 +102,17 @@ describe("documentation drift contract", () => {
     changedFiles.set(
       "docs/architecture.md",
       repositoryFile(files, "docs/architecture.md").replace("read-only tool set", "unrestricted tool set"),
+    );
+    expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
+      "documentation drifted",
+    );
+  });
+
+  it("rejects removal of documented release rollback behavior", () => {
+    const changedFiles = new Map(files);
+    changedFiles.set(
+      "docs/architecture.md",
+      repositoryFile(files, "docs/architecture.md").replace("redeploy-last-good", "manual recovery"),
     );
     expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
       "documentation drifted",

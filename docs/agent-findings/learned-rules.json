@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "esp-agent-learned-rules",
-  "nextSequence": 4,
+  "nextSequence": 6,
   "rules": [
     {
       "id": "ESP-LR-0001",
@@ -25,7 +25,8 @@
         "version": "1.0.0",
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
-      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "proposedAt": "2026-09-16T02:50:00.000Z",
+      "activatedAt": "2026-09-16T03:00:00.000Z",
       "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
       "retiredAt": null,
       "supersededBy": null
@@ -56,7 +57,8 @@
         "version": "1.0.0",
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
-      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "proposedAt": "2026-09-16T02:50:00.000Z",
+      "activatedAt": "2026-09-16T03:00:00.000Z",
       "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
       "retiredAt": null,
       "supersededBy": null
@@ -74,8 +76,47 @@
         "version": "1.0.0",
         "testPaths": ["scripts/validate-agent-findings.test.ts"]
       },
-      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "proposedAt": "2026-09-16T02:50:00.000Z",
+      "activatedAt": "2026-09-16T03:00:00.000Z",
       "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
+      "retiredAt": null,
+      "supersededBy": null
+    },
+    {
+      "id": "ESP-LR-0004",
+      "status": "retired",
+      "title": "Final report action remains terminal and unique",
+      "description": "The findings audit must end with one direct structured report action and expose no alternate submission path.",
+      "sourceFindingIds": ["ESP-AF-0006", "ESP-AF-0007"],
+      "owner": "@Liming201909016",
+      "control": {
+        "kind": "contract",
+        "path": "scripts/agentic-workflow-contract.mjs",
+        "version": "1.0.0",
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "proposedAt": "2026-09-16T02:50:00.000Z",
+      "activatedAt": "2026-09-16T03:00:00.000Z",
+      "lastVerifiedAt": "2026-09-16T04:00:00.000Z",
+      "retiredAt": "2026-09-16T04:20:00.000Z",
+      "supersededBy": "ESP-LR-0001"
+    },
+    {
+      "id": "ESP-LR-0005",
+      "status": "candidate",
+      "title": "Generalize validation sequence completeness",
+      "description": "Evaluate replacing one-off ordered command assertions with a shared declarative validation registry before activation.",
+      "sourceFindingIds": ["ESP-AF-0004"],
+      "owner": "@Liming201909016",
+      "control": {
+        "kind": "contract",
+        "path": "scripts/repository-docs-contract.mjs",
+        "version": "0.1.0",
+        "testPaths": ["scripts/check-repository-docs.test.ts"]
+      },
+      "proposedAt": "2026-09-16T04:40:00.000Z",
+      "activatedAt": null,
+      "lastVerifiedAt": null,
       "retiredAt": null,
       "supersededBy": null
     }

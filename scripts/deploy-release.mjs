@@ -94,7 +94,7 @@ export function createAzureReleaseDriver(bundles) {
 }
 
 export function simulatedDriver(baseline, scenario = "success") {
-  requireRelease(["success", "candidate-unhealthy", "rollback-unhealthy", "deployment-unknown"].includes(scenario), "UNKNOWN_SIMULATION_SCENARIO");
+  requireRelease(["success", "candidate-unhealthy", "candidate-start-failure", "rollback-unhealthy", "deployment-unknown"].includes(scenario), "UNKNOWN_SIMULATION_SCENARIO");
   let running = baseline;
   return {
     async inspect() { return { release: running, state: { backend: "postgres", prepared: true, schemaVersion: baseline.stateSchemaVersion, writesPaused: false, migrationEnabled: false, knowledgeSeedEnabled: false } }; },
@@ -103,7 +103,9 @@ export function simulatedDriver(baseline, scenario = "success") {
       if (scenario === "deployment-unknown" && release.releaseId !== baseline.releaseId) throw new ReleaseError("DEPLOYMENT_RESULT_UNKNOWN");
       running = release;
     },
-    async start() {},
+    async start() {
+      if (scenario === "candidate-start-failure" && running.releaseId !== baseline.releaseId) throw new ReleaseError("SIMULATED_START_FAILURE");
+    },
     async verify(release) {
       requireRelease(release.releaseId === running.releaseId, "SIMULATED_MARKER_MISMATCH");
       if (scenario === "rollback-unhealthy" || scenario === "candidate-unhealthy" && release.releaseId !== baseline.releaseId) throw new ReleaseError("SIMULATED_UNHEALTHY_RELEASE");

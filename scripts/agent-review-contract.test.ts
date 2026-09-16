@@ -186,4 +186,16 @@ describe("agent review contract", () => {
     );
     expect(() => validateReviewPolicy({ ...policy, maxAiCredits: 100 })).toThrow("credit limit changed");
   });
+
+  it("exhausts the review workspace only after artifact upload", () => {
+    const workflow = readFileSync(".github/workflows/agent-review.yml", "utf8");
+    const upload = workflow.indexOf("Upload validated review artifact");
+    const cleanup = workflow.indexOf("Exhaust agent review workspace and credentials");
+    expect(upload).toBeGreaterThan(0);
+    expect(cleanup).toBeGreaterThan(upload);
+    expect(workflow.slice(cleanup)).toContain("if: always()");
+    expect(workflow.slice(cleanup)).toContain("rm -rf");
+    expect(workflow.slice(cleanup)).toContain('"$GITHUB_WORKSPACE/target"');
+    expect(workflow.slice(cleanup)).toContain('"$GITHUB_WORKSPACE/trusted"');
+  });
 });

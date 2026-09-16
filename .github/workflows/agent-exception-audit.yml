@@ -1,0 +1,42 @@
+name: Agent Exception Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "19 6 * * 1"
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  audit:
+    name: Read-only Agent Exception Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Verify closed-loop exception lifecycle contract
+        run: node scripts/validate-agent-exception-lifecycle.mjs
+      - name: Fetch open exception requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ESP_REPOSITORY: ${{ github.repository }}
+        run: node scripts/collect-agent-exceptions.mjs "$ESP_REPOSITORY" "$RUNNER_TEMP/agent-exceptions.json"
+      - name: Audit ownership, approval, and expiry without mutation
+        run: >-
+          node scripts/audit-agent-exceptions.mjs
+          "$RUNNER_TEMP/agent-exceptions.json"
+          "$RUNNER_TEMP/agent-exception-audit.json"
+      - name: Upload machine-readable exception audit
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: agent-exception-audit-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/agent-exception-audit.json
+            dashboards/closed-loop-agent-exception-lifecycle.json
+          if-no-files-found: error
+          retention-days: 30
