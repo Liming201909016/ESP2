@@ -159,13 +159,12 @@ mutation capability.
 
 ### Governance execution package
 
-The first integration milestone supplies a real MCP client and a standalone execution package, not new Web Skill
-registrations. The client accepts only `repositoryId: "esp"` and either `esp_governance_snapshot` or
+The execution layer supplies a real MCP client and a standalone execution package. The client accepts only
+`repositoryId: "esp"` and either `esp_governance_snapshot` or
 `esp_validation_plan`; it sends no user-provided tool arguments, executable names, or repository paths. Its transport
 option is an internal test/host dependency, not an HTTP input. Calls use a bounded deadline and await transport cleanup;
 invalid tool results and provider failures become bounded public errors. A validation plan lists commands but does not
-execute them. This adapter is not itself an identity or audit boundary; Web integration must add those controls before
-making it accessible to users.
+execute them. This low-level adapter is not itself an identity or audit boundary; Web callers use the governed API below.
 
 With Node.js 24 and the locked development dependencies installed:
 
@@ -191,12 +190,67 @@ CodeBlend score or proof of live GitHub ruleset enforcement is inferred from the
 The packaged client checks the fixed manifest file hashes before spawning the server and verifies returned provenance;
 the server also rejects an altered snapshot. These are integrity checks, not signatures or authorization: only execute
 packages obtained through a trusted build/review process. An attacker who replaces the whole package and manifest is
-outside this checksum protection. Packaging does not add the runtime to the Azure Web bundle or deploy it.
+outside this checksum protection. Standalone packaging can explicitly include a hash-pinned runtime as described below;
+neither packaging command deploys it.
 
 The adjacent MCP tests exercise real stdio calls, invalid targets/tools, malformed results, an unresponsive child process,
 standalone server/client startup outside the checkout, and corrupted artifacts. Windows execution is verified locally;
-Linux execution and actual Azure hosting still require their own acceptance. Next steps are explicit read permissions,
-audited API invocation and Skill catalog/UI integration, followed by CodeBlend report retrieval before paid job dispatch.
+Linux execution and actual Azure hosting still require their own acceptance. CodeBlend report retrieval and paid job
+dispatch remain separate work and are not implemented by these two tools.
+
+### Governed Web invocation
+
+The Skill Catalog contains a separate bilingual **Repository governance** group with two executable definitions:
+`inspect-repository-governance` and `get-repository-validation-plan`. They use the explicit `/api/governance` endpoint,
+not automatic intent selection through `/api/route`. The original seven business Skills and their Plugin bindings remain
+unchanged. Both governance Skills require the new `governance.read` permission, which is not part of the default DEV
+permission set. Knowledge or ticket access does not imply repository-governance access.
+
+- `GET /api/governance` checks authenticated identity, nonempty subject and permission before exposing definitions or
+  package provenance. `manifest_verified` means the configured manifest hash was verified, not a live MCP health probe.
+- `POST /api/governance` accepts only `{ "repositoryId": "esp", "skillId": "inspect-repository-governance" }` or the
+  validation-plan Skill ID. Paths, commands, caller identities and raw tool names are rejected by the strict schema.
+- The domain service requires a successful audit start before invoking the read, while retaining `mutation: false`.
+  Failed audit start prevents invocation; failed finalization retains the actual result with an incomplete audit receipt.
+  Completed audit results carry the Skill/Plugin reference, source commit and input digest. Existing audit APIs enforce
+  the caller's subject and `governance.read` permission on these records.
+- Runtime configuration requires an absolute `ESP_GOVERNANCE_PACKAGE` directory and the SHA-256 of its manifest in
+  `ESP_GOVERNANCE_MANIFEST_SHA256`. Both are operator-owned settings, never request parameters. Missing configuration,
+  changed manifests, invalid output or unavailable processes fail closed with bounded error codes.
+- The UI exposes explicit run buttons, disables duplicate submissions and distinguishes no permission, missing package,
+  audit failure and unavailable results. Locale switches do not refetch or replay a call. Original JSON, snapshot time,
+  dirty-worktree indicator, commit, input digest and audit detail remain inspectable. The plan does not execute its commands.
+
+For an explicitly approved local DEV identity, configure the runtime after creating a trusted package:
+
+```powershell
+$env:ESP_ENVIRONMENT = 'dev'
+$env:ESP_DEV_AUTH_BYPASS = 'true'
+$env:ESP_DEV_PERMISSIONS = 'knowledge.read,tickets.read,tickets.create,governance.read'
+$env:ESP_GOVERNANCE_PACKAGE = (Resolve-Path artifacts/governance-runtime-v1).Path
+$env:ESP_GOVERNANCE_MANIFEST_SHA256 = (Get-FileHash (Join-Path $env:ESP_GOVERNANCE_PACKAGE 'manifest.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+npm run dev -- --hostname 127.0.0.1 --port 3100
+```
+
+The HTTP path also needs the existing configured Blob audit storage and appropriate data-plane credentials/network
+access. The read-only MCP itself needs none of those credentials, but that does not waive the API's audit requirement.
+Without audit storage, the UI will report `AUDIT_START_FAILED` and no tool will run. Do not use the review-memory launcher
+for this setup: it overrides the permission list and only supplies memory audit storage to its own review API.
+The dedicated permission is a source-code contract; no Entra role, Azure setting or real user grant is provisioned here.
+
+After `npm run build`, an operator can include a verified package in a new release without copying the source checkout:
+
+```powershell
+$package = ./scripts/package-standalone.ps1 -ReleaseDirectory artifacts/governance-web-release -GovernancePackage $env:ESP_GOVERNANCE_PACKAGE -GovernanceManifestSha256 $env:ESP_GOVERNANCE_MANIFEST_SHA256
+```
+
+This copies only verified runtime files to `governance-runtime` in the stage. At the destination, explicitly configure
+`ESP_GOVERNANCE_PACKAGE` to that directory's absolute deployed path and pin the same manifest hash. Keep the directory
+immutable during execution and outside user-writable/upload paths. Deployment and identity configuration still require
+separate authorization; the default release pipeline does not enable or copy a governance package automatically.
+API integration tests use real packaged MCP processes and a synthetic audit writer; they do not claim live Azure audit
+acceptance. UI tests cover permission denial, missing package, audit failure, duplicate-click prevention, locale stability
+and audit navigation.
 
 Agent policy exceptions start with the structured
 [`Agent policy exception`](../.github/ISSUE_TEMPLATE/agent-exception.yml) issue form and lifecycle labels from

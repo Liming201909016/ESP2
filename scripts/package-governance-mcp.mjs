@@ -11,6 +11,26 @@ import { governanceBundleSchema, governanceManifestSchema } from "./esp-governan
 const root = fileURLToPath(new URL("../", import.meta.url));
 const digest = (value) => createHash("sha256").update(value).digest("hex");
 
+export async function stageGovernanceMcp(source, destination, expectedManifestHash) {
+  const manifestBytes = await readFile(resolve(source, "manifest.json"));
+  if (!/^[a-f0-9]{64}$/.test(expectedManifestHash) || digest(manifestBytes) !== expectedManifestHash)
+    throw new Error("GOVERNANCE_MANIFEST_MISMATCH");
+  const manifest = governanceManifestSchema.parse(JSON.parse(manifestBytes.toString("utf8")));
+  const files = new Map([["manifest.json", manifestBytes]]);
+  for (const [name, expected] of Object.entries(manifest.files)) {
+    const bytes = await readFile(resolve(source, name));
+    if (digest(bytes) !== expected) throw new Error("GOVERNANCE_FILE_MISMATCH");
+    files.set(name, bytes);
+  }
+  const snapshot = governanceBundleSchema.parse(JSON.parse(files.get("governance-snapshot.json").toString("utf8")));
+  if (JSON.stringify(snapshot.provenance) !== JSON.stringify(manifest.provenance))
+    throw new Error("GOVERNANCE_PROVENANCE_MISMATCH");
+  files.set("snapshot.sha256", Buffer.from(manifest.files["governance-snapshot.json"] + "\n"));
+  await mkdir(destination, { recursive: false });
+  for (const [name, bytes] of files) await writeFile(resolve(destination, name), bytes, { flag: "wx" });
+  return { directory: resolve(destination), manifestSha256: expectedManifestHash };
+}
+
 export async function packageGovernanceMcp(destination) {
   const inputs = new Map();
   const read = (name) => {
@@ -79,7 +99,15 @@ export async function packageGovernanceMcp(destination) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 3) {
+  if (process.argv[2] === "--stage" && process.argv.length === 6) {
+    await stageGovernanceMcp(process.argv[3], process.argv[4], process.argv[5]).then(
+      (result) => console.log(JSON.stringify(result)),
+      () => {
+        console.error("GOVERNANCE_STAGE_FAILED");
+        process.exitCode = 1;
+      },
+    );
+  } else if (process.argv.length !== 3) {
     console.error("Usage: node scripts/package-governance-mcp.mjs <new-output-directory>");
     process.exitCode = 1;
   } else

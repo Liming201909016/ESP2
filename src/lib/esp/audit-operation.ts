@@ -8,6 +8,7 @@ export type AuditOptions = {
   identity: IdentityContext; kind: AuditStart["kind"]; action: string; mutation: boolean;
   requestId?: string; traceId?: string; input?: AuditStart["input"];
   parentId?: string;
+  requireAuditStart?: boolean;
   requiredPermissions?: AuditStart["requiredPermissions"]; references?: AuditStart["references"];
 };
 export type AuditContext = Pick<AuditStart, "id" | "requestId" | "traceId">;
@@ -50,7 +51,7 @@ export async function runAudited<T>(options: AuditOptions, work: (context: Audit
     try { await writer.begin(start); begun = true; receipt.status = "incomplete"; }
     catch { console.error("audit.begin.failed", { requestId, kind: options.kind }); }
   }
-  if (options.mutation && !begun) {
+  if ((options.mutation || options.requireAuditStart) && !begun) {
     observe({ status: "unavailable", httpStatus: 503, errorCode: "AUDIT_START_FAILED" }, false);
     throw new AuditStartError(receipt);
   }

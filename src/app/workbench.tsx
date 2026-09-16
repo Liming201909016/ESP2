@@ -50,6 +50,7 @@ import { SecurityReviewPanel } from "./security-review-panel";
 import { discoverSecurityReview } from "../lib/esp/security-review";
 import { LanguageSelector, useLocale } from "./locale-provider";
 import type { TranslationKey } from "../lib/esp/locale";
+import { governanceText } from "../lib/esp/governance-locale";
 import { RuntimeTrace, runtimeIdentityLabel } from "./runtime-context";
 
 class RequestFailure extends Error {
@@ -404,7 +405,7 @@ export function Workbench() {
         ) : activeView === "knowledge" ? (
           <KnowledgeLibraryView selectedId={knowledgeDocumentId} onSelect={setKnowledgeDocumentId} onTest={tryCatalogSkill} onOpenAudit={openAudit} initialAudit={knowledgeParent} onOpenConnector={openConnectorSource} />
         ) : activeView === "catalog" ? (
-          <SkillCatalogView selectedId={catalogSkillId} onSelect={setCatalogSkillId} onTry={tryCatalogSkill} onOpenCase={openCatalogCase} executionPending={pending} />
+          <SkillCatalogView selectedId={catalogSkillId} onSelect={setCatalogSkillId} onTry={tryCatalogSkill} onOpenCase={openCatalogCase} executionPending={pending} onOpenAudit={openAudit} />
         ) : activeView === "cases" ? (
           <SimulationCaseLibrary selectedId={simulationCaseId} onSelect={setSimulationCaseId} onRun={runSimulation} pending={pending} onOpenAudit={openAudit} onRunRequest={(requestQuery) => { if (pending) return; updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery); }} onQuery={tryCatalogSkill} onOpenRecords={() => selectView("records")} onPrepare={(requestQuery, parameters) => { updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery, { selectedSkillId: "create-it-ticket", parameters }); }} />
         ) : activeView === "records" ? (
@@ -469,7 +470,7 @@ export function Workbench() {
             <button className="icon-button" type="button" title={t("knowledge")} aria-label={t("knowledge")} onClick={() => selectView("knowledge")}><BookOpenText size={18} /></button>
             <button className="icon-button" type="button" title={t("catalog")} aria-label={t("catalog")} onClick={() => selectView("catalog")}><Boxes size={18} /></button>
             <button className="refresh-button" type="button" onClick={() => selectView("cases")}><FlaskConical size={15} />{t("cases")}</button>
-            <div className="runtime-chip"><Activity size={15} /> {catalogRuntime ? `${catalogRuntime.skills.length} ${t("visibleSkills")}` : t("skillsUnknown")}</div>
+            <div className="runtime-chip"><Activity size={15} /> {catalogRuntime ? `${catalogRuntime.skills.length} ${governanceText(locale, "businessSkills")}` : t("skillsUnknown")}</div>
           </div>
         </section>
 
@@ -623,7 +624,7 @@ export function Workbench() {
 
             <section className="registry-section">
               <div className="registry-heading"><BookOpenText size={17} /><span>{t("registry")}</span></div>
-              <div className="registry-value"><strong>{catalogRuntime?.skills.length ?? "--"}</strong><span>{t("visibleSkills")}</span></div>
+              <div className="registry-value"><strong>{catalogRuntime?.skills.length ?? "--"}</strong><span>{governanceText(locale, "businessSkills")}</span></div>
             </section>
           </aside>
         </div>
