@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 27,
+  "nextSequence": 28,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -820,6 +820,42 @@
       "dispositionReason": "Resolved by constraining the prompt to exact-path local view operations and adding a regression that rejects unsupported search instructions.",
       "proofOfFix": {
         "commitSha": "1c3c5fd85ae3b3feef0760012435340f11750de5",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0027",
+      "fingerprint": "646676723587622af9b212b29619c6bd0dcd5ceaa0ce7874d651bd8e1b302087",
+      "title": "Audit prompt blocks referenced lock-file evidence",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:46:28.721Z",
+      "lastSeenAt": "2026-09-16T01:46:28.721Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045290800",
+          "targetSha": "4e84b33ab4c47966d74ec5be80a8aae99fc890a1",
+          "observedAt": "2026-09-16T01:46:28.721Z",
+          "evidenceDigest": "f21a023a1e85c4737347d9e1282a36215255547d1bda273a3c640b0bad279cf0"
+        }
+      ],
+      "dispositionReason": "Resolved by permitting lock-file views only for exact ledger or validator references and adding a regression that rejects a blanket lock-evidence prohibition.",
+      "proofOfFix": {
+        "commitSha": "5ba18554384b01f9f39f52a63b6d983bb21b3b16",
         "checks": [
           "gh aw compile agent-findings-audit --strict",
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
