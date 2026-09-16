@@ -165,10 +165,11 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     "workflow must prepare a verified SDK runtime before dry-run installation",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
-  const agentStart = compiledWorkflow.indexOf("\n  agent:\n");
-  const agentEnd = compiledWorkflow.indexOf("\n  detection:\n", agentStart);
+  const renderedWorkflow = compiledWorkflow.replaceAll('\\"', '"');
+  const agentStart = renderedWorkflow.indexOf("\n  agent:\n");
+  const agentEnd = renderedWorkflow.indexOf("\n  detection:\n", agentStart);
   assert.ok(agentStart >= 0 && agentEnd > agentStart, "compiled workflow must contain an isolated agent job");
-  const agentJob = compiledWorkflow.slice(agentStart, agentEnd);
+  const agentJob = renderedWorkflow.slice(agentStart, agentEnd);
   const requireOnce = (command, description) => {
     assert.equal(agentJob.split(command).length - 1, 1, `${description} must appear exactly once in the agent job`);
   };
@@ -176,27 +177,40 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   requireOnce(generatedInstall, "generated SDK install");
   const dryRunCommand = 'echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"';
   requireOnce(dryRunCommand, "generated SDK dry-run guard");
-  const installIndex = compiledWorkflow.indexOf(generatedInstall);
-  const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
-  const dryRunIndex = compiledWorkflow.indexOf(dryRunCommand);
+  const isolatedInstallGuards = [
+    'echo "NPM_CONFIG_PREFIX=$RUNNER_TEMP/generated-sdk-dry-run" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/empty-user-npmrc" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_GLOBALCONFIG=$RUNNER_TEMP/empty-global-npmrc" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_REGISTRY=https://registry.npmjs.org" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_PACKAGE_LOCK=false" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_WORKSPACES=false" >> "$GITHUB_ENV"',
+    'echo "NPM_CONFIG_IGNORE_SCRIPTS=true" >> "$GITHUB_ENV"',
+  ];
+  for (const guard of isolatedInstallGuards) requireOnce(guard, "generated SDK target-config isolation guard");
+  const installIndex = renderedWorkflow.indexOf(generatedInstall);
+  const reinstallIndex = renderedWorkflow.indexOf(reinstallCommand);
+  const dryRunIndex = renderedWorkflow.indexOf(dryRunCommand);
+  const isolationIndex = Math.max(...isolatedInstallGuards.map((guard) => renderedWorkflow.indexOf(guard)));
   const globalExclusion = 'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"';
-  const globalExclusionIndex = compiledWorkflow.indexOf(globalExclusion);
-  const removeGeneratedIndex = compiledWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
+  const globalExclusionIndex = renderedWorkflow.indexOf(globalExclusion);
+  const removeGeneratedIndex = renderedWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
   const sdkLink =
     'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
   const undiciLink = 'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici';
-  const sdkLinkIndex = compiledWorkflow.indexOf(sdkLink);
-  const undiciLinkIndex = compiledWorkflow.indexOf(undiciLink);
+  const sdkLinkIndex = renderedWorkflow.indexOf(sdkLink);
+  const undiciLinkIndex = renderedWorkflow.indexOf(undiciLink);
   requireOnce(globalExclusion, "global SDK exclusion");
   requireOnce("rm -rf node_modules/@github/copilot-sdk node_modules/undici", "generated SDK removal");
   requireOnce(sdkLink, "verified SDK link");
   requireOnce(undiciLink, "verified undici link");
-  const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
+  const executeIndex = renderedWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
   assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
   assert.ok(
     reinstallIndex >= 0 &&
       dryRunIndex > reinstallIndex &&
+      isolationIndex > reinstallIndex &&
       installIndex > dryRunIndex &&
+      installIndex > isolationIndex &&
       globalExclusionIndex > installIndex &&
       removeGeneratedIndex > globalExclusionIndex &&
       sdkLinkIndex > removeGeneratedIndex &&
@@ -204,7 +218,7 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
       executeIndex > undiciLinkIndex,
     "verified SDK runtime and dry-run resolution boundary must surround generated install",
   );
-  const postBindCommands = compiledWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);
+  const postBindCommands = renderedWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);
   assert.doesNotMatch(
     postBindCommands,
     /npm (?:ci|install)|rm -rf node_modules|ln -s .*node_modules/u,

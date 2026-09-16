@@ -77,6 +77,7 @@ describe("agentic workflow contract", () => {
 
   it("requires an integrity-locked SDK reinstall before execution", () => {
     expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock)).not.toThrow();
+    const renderedLock = lock.replaceAll('\\"', '"');
     const alteredOrigin = sdkLockText.replace("https://registry.npmjs.org/undici/", "https://example.invalid/undici/");
     expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, JSON.parse(alteredOrigin))).toThrow(
       "canonical JSON digest changed",
@@ -88,30 +89,37 @@ describe("agentic workflow contract", () => {
     expect(() => validateSdkInstallIntegrity(source, lock, expandedManifest, sdkLock)).toThrow(
       "manifest dependencies changed",
     );
-    const reorderedLock = lock
+    const reorderedLock = renderedLock
       .replace('npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"', "")
       .replace(
         "- name: Execute GitHub Copilot CLI",
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
     expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow("exactly once");
-    const writableInstallLock = lock.replace('echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"', "true");
+    const writableInstallLock = renderedLock.replace('echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"', "true");
     expect(() => validateSdkInstallIntegrity(source, writableInstallLock, sdkManifest, sdkLock)).toThrow(
       "dry-run guard",
     );
-    const globalBypassLock = lock.replace(
+    const targetConfigBypassLock = renderedLock.replace(
+      'echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/empty-user-npmrc" >> "$GITHUB_ENV"',
+      "true",
+    );
+    expect(() => validateSdkInstallIntegrity(source, targetConfigBypassLock, sdkManifest, sdkLock)).toThrow(
+      "target-config isolation guard",
+    );
+    const globalBypassLock = renderedLock.replace(
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
       "true",
     );
     expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow("exactly once");
-    const workspaceBypassLock = lock.replace(
+    const workspaceBypassLock = renderedLock.replace(
       'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici',
       "true",
     );
     expect(() => validateSdkInstallIntegrity(source, workspaceBypassLock, sdkManifest, sdkLock)).toThrow(
       "exactly once",
     );
-    const lateInstallLock = lock.replace(
+    const lateInstallLock = renderedLock.replace(
       "- name: Execute GitHub Copilot CLI",
       "- name: Late mutation\n        run: npm install undici\n      - name: Execute GitHub Copilot CLI",
     );

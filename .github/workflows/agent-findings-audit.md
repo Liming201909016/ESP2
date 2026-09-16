@@ -56,6 +56,17 @@ steps:
     run: |
       node -e "const fs=require('fs'),c=require('crypto'),p=process.env.RUNNER_TEMP+'/trusted-sdk-runtime/package-lock.json';const actual=c.createHash('sha256').update(JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8')))).digest('hex');if(actual!=='0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a')throw new Error('isolated SDK canonical JSON digest mismatch')"
       npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"
+      mkdir -p "$RUNNER_TEMP/generated-sdk-dry-run"
+      printf '%s\n' '{"private":true}' > "$RUNNER_TEMP/generated-sdk-dry-run/package.json"
+      : > "$RUNNER_TEMP/empty-user-npmrc"
+      : > "$RUNNER_TEMP/empty-global-npmrc"
+      echo "NPM_CONFIG_PREFIX=$RUNNER_TEMP/generated-sdk-dry-run" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/empty-user-npmrc" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_GLOBALCONFIG=$RUNNER_TEMP/empty-global-npmrc" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_REGISTRY=https://registry.npmjs.org" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_PACKAGE_LOCK=false" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_WORKSPACES=false" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_IGNORE_SCRIPTS=true" >> "$GITHUB_ENV"
       echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"
 pre-agent-steps:
   - name: Bind verified SDK runtime
