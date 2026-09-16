@@ -6,6 +6,7 @@ const requiredValidationCommands = [
   "npm run docs:drift",
   "npm run agent-findings:check",
   "npm run agent-improvement:check",
+  "npm run remediation:check",
   "npm test",
   "npm run lint",
   "npm run format:check",

@@ -120,6 +120,34 @@
       "documentation": "docs/architecture.md",
       "sourceTerms": ["redeploy-last-good", "deploy-release.mjs --mode execute", "ESP_BASELINE_RUN_ID"],
       "documentationTerms": ["redeploy-last-good", "deployWithRollback", "provenance-bound running baseline"]
+    },
+    {
+      "id": "closed-loop-remediation-outcomes",
+      "source": "dashboards/closed-loop-remediation-outcomes.json",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "\"automatedRollback\": true",
+        "\"distinctFailureClassCount\": 2",
+        "\"verifiedClosedLoopCount\": 2",
+        "\"verifiedOutcome\": \"rollback.verified\""
+      ],
+      "documentationTerms": ["closed-loop remediation dashboard", "two synthetic failure classes", "verify rollback"]
+    },
+    {
+      "id": "closed-loop-remediation-proof-workflow",
+      "source": ".github/workflows/closed-loop-remediation-proof.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "workflow_call:",
+        "npm run remediation:check",
+        "Upload verified closed-loop remediation outcomes",
+        "if-no-files-found: error"
+      ],
+      "documentationTerms": [
+        "Closed-loop Remediation Proof",
+        "uploads the validated",
+        "cannot start until this proof job succeeds"
+      ]
     }
   ]
 }

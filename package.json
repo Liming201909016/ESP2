@@ -19,6 +19,7 @@
     "docs:drift": "node scripts/check-docs-drift.mjs",
     "agent-findings:check": "node scripts/validate-agent-findings.mjs",
     "agent-improvement:check": "node scripts/validate-agent-improvement.mjs",
+    "remediation:check": "node scripts/validate-remediation-outcomes.mjs",
     "agentic-workflows:check": "node scripts/validate-agentic-workflows.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
