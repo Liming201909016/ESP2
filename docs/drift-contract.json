@@ -139,13 +139,16 @@
       "documentation": "docs/architecture.md",
       "sourceTerms": [
         "workflow_call:",
+        "checks: write",
         "npm run remediation:check",
         "Upload verified closed-loop remediation outcomes",
+        "name: 'remediation-outcome'",
         "if-no-files-found: error"
       ],
       "documentationTerms": [
         "Closed-loop Remediation Proof",
         "uploads the validated",
+        "SHA-bound `remediation-outcome` check",
         "cannot start until this proof job succeeds"
       ]
     }

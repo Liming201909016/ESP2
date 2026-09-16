@@ -97,8 +97,8 @@ failure. The [closed-loop remediation dashboard](../dashboards/closed-loop-remed
 `npm run remediation:check` from two synthetic failure classes executed through this state machine; both must detect the
 candidate failure, redeploy the last-known-good baseline, and verify rollback. The reusable
 [`Closed-loop Remediation Proof`](../.github/workflows/closed-loop-remediation-proof.yml) workflow uploads the validated
-outcomes as a run artifact, and the required `application` job cannot start until this proof job succeeds. A source merge
-does not authorize a deployment.
+outcomes as a run artifact and publishes a SHA-bound `remediation-outcome` check. The ruleset requires that check, and
+the required `application` job cannot start until this proof job succeeds. A source merge does not authorize a deployment.
 
 The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled,
 fails deterministically when SARIF contains findings or is missing, and retains the SARIF artifact for review instead of
