@@ -187,10 +187,18 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     'echo "NPM_CONFIG_IGNORE_SCRIPTS=true" >> "$GITHUB_ENV"',
   ];
   for (const guard of isolatedInstallGuards) requireOnce(guard, "generated SDK target-config isolation guard");
+  const stashProjectConfig =
+    'if test -e .npmrc || test -L .npmrc; then mv .npmrc "$RUNNER_TEMP/target-project-npmrc"; fi';
+  const restoreProjectConfig =
+    'if test -e "$RUNNER_TEMP/target-project-npmrc" || test -L "$RUNNER_TEMP/target-project-npmrc"; then mv "$RUNNER_TEMP/target-project-npmrc" .npmrc; fi';
+  requireOnce(stashProjectConfig, "target project npm config isolation");
+  requireOnce(restoreProjectConfig, "target project npm config restoration");
   const installIndex = renderedWorkflow.indexOf(generatedInstall);
   const reinstallIndex = renderedWorkflow.indexOf(reinstallCommand);
   const dryRunIndex = renderedWorkflow.indexOf(dryRunCommand);
   const isolationIndex = Math.max(...isolatedInstallGuards.map((guard) => renderedWorkflow.indexOf(guard)));
+  const stashProjectConfigIndex = renderedWorkflow.indexOf(stashProjectConfig);
+  const restoreProjectConfigIndex = renderedWorkflow.indexOf(restoreProjectConfig);
   const globalExclusion = 'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"';
   const globalExclusionIndex = renderedWorkflow.indexOf(globalExclusion);
   const removeGeneratedIndex = renderedWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
@@ -209,13 +217,16 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     reinstallIndex >= 0 &&
       dryRunIndex > reinstallIndex &&
       isolationIndex > reinstallIndex &&
+      stashProjectConfigIndex > reinstallIndex &&
       installIndex > dryRunIndex &&
       installIndex > isolationIndex &&
+      installIndex > stashProjectConfigIndex &&
       globalExclusionIndex > installIndex &&
       removeGeneratedIndex > globalExclusionIndex &&
       sdkLinkIndex > removeGeneratedIndex &&
       undiciLinkIndex > sdkLinkIndex &&
-      executeIndex > undiciLinkIndex,
+      restoreProjectConfigIndex > undiciLinkIndex &&
+      executeIndex > restoreProjectConfigIndex,
     "verified SDK runtime and dry-run resolution boundary must surround generated install",
   );
   const postBindCommands = renderedWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);

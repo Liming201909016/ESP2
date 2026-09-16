@@ -107,6 +107,13 @@ describe("agentic workflow contract", () => {
     expect(() => validateSdkInstallIntegrity(source, targetConfigBypassLock, sdkManifest, sdkLock)).toThrow(
       "target-config isolation guard",
     );
+    const projectConfigBypassLock = renderedLock.replace(
+      'if test -e .npmrc || test -L .npmrc; then mv .npmrc "$RUNNER_TEMP/target-project-npmrc"; fi',
+      "true",
+    );
+    expect(() => validateSdkInstallIntegrity(source, projectConfigBypassLock, sdkManifest, sdkLock)).toThrow(
+      "project npm config isolation",
+    );
     const globalBypassLock = renderedLock.replace(
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
       "true",

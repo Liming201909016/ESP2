@@ -60,6 +60,8 @@ steps:
       printf '%s\n' '{"private":true}' > "$RUNNER_TEMP/generated-sdk-dry-run/package.json"
       : > "$RUNNER_TEMP/empty-user-npmrc"
       : > "$RUNNER_TEMP/empty-global-npmrc"
+      rm -f "$RUNNER_TEMP/target-project-npmrc"
+      if test -e .npmrc || test -L .npmrc; then mv .npmrc "$RUNNER_TEMP/target-project-npmrc"; fi
       echo "NPM_CONFIG_PREFIX=$RUNNER_TEMP/generated-sdk-dry-run" >> "$GITHUB_ENV"
       echo "NPM_CONFIG_USERCONFIG=$RUNNER_TEMP/empty-user-npmrc" >> "$GITHUB_ENV"
       echo "NPM_CONFIG_GLOBALCONFIG=$RUNNER_TEMP/empty-global-npmrc" >> "$GITHUB_ENV"
@@ -77,6 +79,7 @@ pre-agent-steps:
       mkdir -p node_modules/@github
       ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk
       ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici
+      if test -e "$RUNNER_TEMP/target-project-npmrc" || test -L "$RUNNER_TEMP/target-project-npmrc"; then mv "$RUNNER_TEMP/target-project-npmrc" .npmrc; fi
       echo "NODE_PATH=$RUNNER_TEMP/trusted-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
 safe-outputs:
   report-failed-jobs: false
