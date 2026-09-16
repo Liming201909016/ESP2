@@ -15,6 +15,8 @@
     "retired": 0
   },
   "coveredFindingCount": 26,
+  "proofPairCount": 26,
+  "verifiedControlCount": 3,
   "coveragePercent": 76.5,
   "uncoveredFindingIds": [
     "ESP-AF-0001",

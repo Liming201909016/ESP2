@@ -88,7 +88,7 @@
     {
       "id": "agent-improvement-lifecycle",
       "source": "docs/agent-findings/learned-rules.json",
-      "documentation": "docs/architecture.md",
+      "documentation": "docs/agent-findings/README.md",
       "sourceTerms": [
         "\"kind\": \"esp-agent-learned-rules\"",
         "\"status\": \"active\"",
@@ -96,9 +96,10 @@
         "\"lastVerifiedAt\""
       ],
       "documentationTerms": [
-        "resolved findings with existing proof tests",
-        "candidate, active, or retired lifecycle state",
-        "stale dashboard metrics"
+        "governed learned-rule corpus",
+        "existing regression-test paths",
+        "Retirement records",
+        "feedback loop"
       ]
     },
     {
@@ -112,6 +113,13 @@
         "no shell, network",
         "mutation capability"
       ]
+    },
+    {
+      "id": "release-rollback",
+      "source": ".github/workflows/release.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": ["redeploy-last-good", "deploy-release.mjs --mode execute", "ESP_BASELINE_RUN_ID"],
+      "documentationTerms": ["redeploy-last-good", "deployWithRollback", "provenance-bound running baseline"]
     }
   ]
 }

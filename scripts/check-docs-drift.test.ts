@@ -91,4 +91,15 @@ describe("documentation drift contract", () => {
       "documentation drifted",
     );
   });
+
+  it("rejects removal of documented release rollback behavior", () => {
+    const changedFiles = new Map(files);
+    changedFiles.set(
+      "docs/architecture.md",
+      repositoryFile(files, "docs/architecture.md").replace("redeploy-last-good", "manual recovery"),
+    );
+    expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
+      "documentation drifted",
+    );
+  });
 });
