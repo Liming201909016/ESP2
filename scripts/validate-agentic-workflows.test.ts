@@ -56,19 +56,22 @@ describe("agentic workflow contract", () => {
   });
 
   it("requires an integrity-locked SDK reinstall before execution", () => {
-    expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock, sdkLockText)).not.toThrow();
+    expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock)).not.toThrow();
     const alteredOrigin = sdkLockText.replace("https://registry.npmjs.org/undici/", "https://example.invalid/undici/");
-    expect(() =>
-      validateSdkInstallIntegrity(source, lock, sdkManifest, JSON.parse(alteredOrigin), alteredOrigin),
-    ).toThrow("isolated SDK lock digest changed");
+    expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, JSON.parse(alteredOrigin))).toThrow(
+      "isolated SDK lock digest changed",
+    );
+    const expandedManifest = structuredClone(sdkManifest);
+    expandedManifest.dependencies.lodash = "4.17.23";
+    expect(() => validateSdkInstallIntegrity(source, lock, expandedManifest, sdkLock)).toThrow(
+      "manifest dependencies changed",
+    );
     const reorderedLock = lock
       .replace("npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime", "")
       .replace(
         "- name: Execute GitHub Copilot CLI",
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
-    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock, sdkLockText)).toThrow(
-      "before execution",
-    );
+    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow("before execution");
   });
 });

@@ -42,7 +42,7 @@ assert.deepEqual(manifest.mcp_servers, [
 ]);
 assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
 validateCompiledReadOnlyTools(lock);
-validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock, sdkLockText);
+validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock);
 assert.match(
   lock,
   /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,

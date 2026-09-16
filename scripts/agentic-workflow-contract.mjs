@@ -91,7 +91,7 @@ export function validateCompiledReadOnlyTools(compiledWorkflow) {
   assert.deepEqual(config.explicitlyDisabledTools, ["bash", "cli-proxy", "edit", "github"]);
 }
 
-export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sdkManifest, sdkLock, sdkLockText) {
+export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sdkManifest, sdkLock) {
   const runtimeDependencies = {
     "@github/copilot-sdk": "1.0.11",
     undici: "6.28.0",
@@ -101,9 +101,15 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     assert.equal(sdkLock.packages?.[`node_modules/${name}`]?.version, version, `${name} lock version changed`);
   }
 
-  const expectedLockSha256 = "0b51f69c14a09e368b7fa877cfdf70b7770b7abb15c2d623a6794e0b566c9b4d";
+  assert.deepEqual(sdkManifest.dependencies, runtimeDependencies, "isolated SDK manifest dependencies changed");
+  assert.deepEqual(
+    sdkLock.packages?.[""]?.dependencies,
+    runtimeDependencies,
+    "isolated SDK root lock dependencies changed",
+  );
+  const expectedLockSha256 = "0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a";
   assert.equal(
-    crypto.createHash("sha256").update(sdkLockText).digest("hex"),
+    crypto.createHash("sha256").update(JSON.stringify(sdkLock)).digest("hex"),
     expectedLockSha256,
     "isolated SDK lock digest changed",
   );
