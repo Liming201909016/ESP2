@@ -90,6 +90,85 @@ describe("agent repair proposal contract", () => {
     ).toThrow("outside allowlist");
   });
 
+  it("rejects duplicate allowed paths during prepare", () => {
+    const { root, targetSha } = repository();
+    const contextDirectory = resolve(root, "..", `${targetSha}-context`);
+    temporaryRoots.push(contextDirectory);
+
+    expect(() =>
+      prepareAgentRepair({
+        targetRoot: root,
+        outputDirectory: contextDirectory,
+        repository: "synthetic/repository",
+        targetSha,
+        task: "Update the synthetic allowed file only.",
+        allowedPaths: "allowed.txt\nallowed.txt",
+      }),
+    ).toThrow("duplicate path");
+  });
+
+  it("rejects parent traversal during prepare", () => {
+    const { root, targetSha } = repository();
+    const contextDirectory = resolve(root, "..", `${targetSha}-context`);
+    temporaryRoots.push(contextDirectory);
+
+    expect(() =>
+      prepareAgentRepair({
+        targetRoot: root,
+        outputDirectory: contextDirectory,
+        repository: "synthetic/repository",
+        targetSha,
+        task: "Update the synthetic allowed file only.",
+        allowedPaths: "../outside.txt",
+      }),
+    ).toThrow("path escapes repository");
+  });
+
+  it("rejects missing files during prepare", () => {
+    const { root, targetSha } = repository();
+    const contextDirectory = resolve(root, "..", `${targetSha}-context`);
+    temporaryRoots.push(contextDirectory);
+
+    expect(() =>
+      prepareAgentRepair({
+        targetRoot: root,
+        outputDirectory: contextDirectory,
+        repository: "synthetic/repository",
+        targetSha,
+        task: "Update the synthetic allowed file only.",
+        allowedPaths: "missing.txt",
+      }),
+    ).toThrow("ENOENT");
+  });
+
+  it("rejects untracked files created before finalize", () => {
+    const { root, targetSha } = repository();
+    const contextDirectory = resolve(root, "..", `${targetSha}-context`);
+    const outputDirectory = resolve(root, "..", `${targetSha}-output`);
+    temporaryRoots.push(contextDirectory, outputDirectory);
+    const context = prepareAgentRepair({
+      targetRoot: root,
+      outputDirectory: contextDirectory,
+      repository: "synthetic/repository",
+      targetSha,
+      task: "Update the synthetic allowed file only.",
+      allowedPaths: "allowed.txt",
+    });
+    writeFileSync(resolve(root, "untracked.txt"), "created\n");
+
+    expect(() =>
+      finalizeAgentRepair({
+        targetRoot: root,
+        context,
+        outputDirectory,
+        workflowRunId: "12345",
+        model: "synthetic-model",
+        copilotCliVersion: "1.0.83",
+        eventStream: successfulEvents,
+      }),
+    ).toThrow("Agent created untracked repository files");
+  });
+
   it("rejects tools outside the repair allowlist", () => {
     const events = `${JSON.stringify({ type: "tool.execution_start", data: { toolName: "bash" } })}\n${JSON.stringify({ type: "result", exitCode: 0 })}\n`;
     expect(() => validateAgentRepairEvents(events)).toThrow("disallowed repair tool");

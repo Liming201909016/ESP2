@@ -133,6 +133,51 @@ describe("agent review contract", () => {
     expect(workflow).toContain(`--available-tools ${agentReviewToolNames.join(" ")}`);
   });
 
+  it("rejects workflow drift from the pinned review policy", () => {
+    const policy = JSON.parse(readFileSync(".github/copilot-code-review.yml", "utf8"));
+    const workflow = readFileSync(".github/workflows/agent-review.yml", "utf8");
+    const trustedCheckout = workflow.slice(
+      workflow.indexOf("name: Check out trusted review contract"),
+      workflow.indexOf("name: Check out target without credentials"),
+    );
+    const expectWorkflowToUsePolicy = (source: string) => {
+      expect(source).toContain(`npm install --global @github/copilot@${policy.copilotCliVersion}`);
+      expect(source).toContain(`--model ${policy.model}`);
+      expect(source).toContain(`--model "${policy.model}"`);
+      expect(source).toContain(`[[ "$cli_version" == "${policy.copilotCliVersion}" ]]`);
+      expect(source).toContain(`--copilot-cli-version "$cli_version"`);
+    };
+    const expectTrustedCheckoutToContainPolicy = (source: string) => {
+      expect(source).toContain(".github/copilot-code-review.yml");
+      expect(source).toContain(policy.reviewerConfig);
+      expect(source).toContain(policy.engineeringContract);
+    };
+
+    expectWorkflowToUsePolicy(workflow);
+    expectTrustedCheckoutToContainPolicy(trustedCheckout);
+    expect(workflow).toContain("node trusted/scripts/agent-review-contract.mjs prepare");
+    expect(workflow).toContain('--trusted-root "$GITHUB_WORKSPACE/trusted"');
+    expect(workflow).toContain('--policy "$GITHUB_WORKSPACE/trusted/.github/copilot-code-review.yml"');
+    expect(() =>
+      expectWorkflowToUsePolicy(workflow.replace(`--model ${policy.model}`, "--model drifted-model")),
+    ).toThrow();
+    expect(() =>
+      expectWorkflowToUsePolicy(
+        workflow.replace(`@github/copilot@${policy.copilotCliVersion}`, "@github/copilot@0.0.0"),
+      ),
+    ).toThrow();
+    expect(() =>
+      expectTrustedCheckoutToContainPolicy(
+        trustedCheckout.replace(policy.reviewerConfig, ".github/agents/drifted.agent.md"),
+      ),
+    ).toThrow();
+    expect(() =>
+      expectTrustedCheckoutToContainPolicy(
+        trustedCheckout.replace(policy.engineeringContract, "docs/specs/drifted.md"),
+      ),
+    ).toThrow();
+  });
+
   it("rejects expansion of the read-only review policy", () => {
     const policy = JSON.parse(readFileSync(".github/copilot-code-review.yml", "utf8"));
     expect(validateReviewPolicy(policy)).toEqual(policy);
