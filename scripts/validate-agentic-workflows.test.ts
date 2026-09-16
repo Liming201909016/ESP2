@@ -95,9 +95,9 @@ describe("agentic workflow contract", () => {
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
     expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow("exactly once");
-    const onlineInstallLock = lock.replace('echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"', "true");
-    expect(() => validateSdkInstallIntegrity(source, onlineInstallLock, sdkManifest, sdkLock)).toThrow(
-      "offline SDK cache",
+    const writableInstallLock = lock.replace('echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"', "true");
+    expect(() => validateSdkInstallIntegrity(source, writableInstallLock, sdkManifest, sdkLock)).toThrow(
+      "dry-run guard",
     );
     const globalBypassLock = lock.replace(
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',

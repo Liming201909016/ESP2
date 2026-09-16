@@ -157,12 +157,12 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     "runtime setup must not consume SDK material from the target checkout",
   );
   const reinstallCommand = 'npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"';
-  assert.ok(workflowSource.includes("- name: Prepare verified SDK cache"), "workflow must prepare the SDK cache");
+  assert.ok(workflowSource.includes("- name: Prepare verified SDK runtime"), "workflow must prepare the SDK runtime");
   assert.ok(
     workflowSource.includes(expectedCanonicalLockSha256) &&
       workflowSource.includes(reinstallCommand) &&
-      workflowSource.includes("NPM_CONFIG_OFFLINE=true"),
-    "workflow must prepare a verified offline SDK cache",
+      workflowSource.includes("NPM_CONFIG_DRY_RUN=true"),
+    "workflow must prepare a verified SDK runtime before dry-run installation",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
   const agentStart = compiledWorkflow.indexOf("\n  agent:\n");
@@ -174,10 +174,11 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   };
   requireOnce(reinstallCommand, "verified SDK hydration");
   requireOnce(generatedInstall, "generated SDK install");
+  const dryRunCommand = 'echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"';
+  requireOnce(dryRunCommand, "generated SDK dry-run guard");
   const installIndex = compiledWorkflow.indexOf(generatedInstall);
   const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
-  const cleanCacheIndex = compiledWorkflow.indexOf('rm -rf "$RUNNER_TEMP/esp-sdk-npm-cache"');
-  const offlineIndex = compiledWorkflow.indexOf('echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"');
+  const dryRunIndex = compiledWorkflow.indexOf(dryRunCommand);
   const globalExclusion = 'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"';
   const globalExclusionIndex = compiledWorkflow.indexOf(globalExclusion);
   const removeGeneratedIndex = compiledWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
@@ -193,16 +194,15 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
   assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
   assert.ok(
-    cleanCacheIndex >= 0 &&
-      reinstallIndex > cleanCacheIndex &&
-      offlineIndex > reinstallIndex &&
-      installIndex > offlineIndex &&
+    reinstallIndex >= 0 &&
+      dryRunIndex > reinstallIndex &&
+      installIndex > dryRunIndex &&
       globalExclusionIndex > installIndex &&
       removeGeneratedIndex > globalExclusionIndex &&
       sdkLinkIndex > removeGeneratedIndex &&
       undiciLinkIndex > sdkLinkIndex &&
       executeIndex > undiciLinkIndex,
-    "verified offline SDK cache and resolution boundary must surround generated install",
+    "verified SDK runtime and dry-run resolution boundary must surround generated install",
   );
   const postBindCommands = compiledWorkflow.slice(undiciLinkIndex + undiciLink.length, executeIndex);
   assert.doesNotMatch(

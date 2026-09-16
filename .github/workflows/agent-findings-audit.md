@@ -52,14 +52,11 @@ steps:
     with:
       name: trusted-sdk-runtime-${{ github.run_id }}
       path: ${{ runner.temp }}/trusted-sdk-runtime
-  - name: Prepare verified SDK cache
+  - name: Prepare verified SDK runtime
     run: |
       node -e "const fs=require('fs'),c=require('crypto'),p=process.env.RUNNER_TEMP+'/trusted-sdk-runtime/package-lock.json';const actual=c.createHash('sha256').update(JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8')))).digest('hex');if(actual!=='0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a')throw new Error('isolated SDK canonical JSON digest mismatch')"
-      rm -rf "$RUNNER_TEMP/esp-sdk-npm-cache"
-      export npm_config_cache="$RUNNER_TEMP/esp-sdk-npm-cache"
       npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"
-      echo "NPM_CONFIG_CACHE=$RUNNER_TEMP/esp-sdk-npm-cache" >> "$GITHUB_ENV"
-      echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"
+      echo "NPM_CONFIG_DRY_RUN=true" >> "$GITHUB_ENV"
 pre-agent-steps:
   - name: Bind verified SDK runtime
     run: |
