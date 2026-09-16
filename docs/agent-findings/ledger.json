@@ -610,7 +610,7 @@
           "evidenceDigest": "96efac64575e63c055dad71ab57257a9eb2026d53d8caa97cbde07bb5c5fad54"
         }
       ],
-      "dispositionReason": "Resolved by moving SDK dependencies into an isolated lock, verifying its complete file SHA-256 before hydration, and validating every closure entry's version, registry path, integrity, and dependency edges.",
+      "dispositionReason": "Resolved by moving SDK dependencies into an isolated lock, verifying its canonical JSON SHA-256 before hydration, and validating every closure entry's version, registry path, integrity, and dependency edges.",
       "proofOfFix": {
         "commitSha": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d",
         "checks": [

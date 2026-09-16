@@ -79,8 +79,10 @@ describe("agentic workflow contract", () => {
     expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock)).not.toThrow();
     const alteredOrigin = sdkLockText.replace("https://registry.npmjs.org/undici/", "https://example.invalid/undici/");
     expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, JSON.parse(alteredOrigin))).toThrow(
-      "isolated SDK lock digest changed",
+      "canonical JSON digest changed",
     );
+    const differentlyFormattedLock = JSON.parse(JSON.stringify(sdkLock, null, 4));
+    expect(() => validateSdkInstallIntegrity(source, lock, sdkManifest, differentlyFormattedLock)).not.toThrow();
     const expandedManifest = structuredClone(sdkManifest);
     expandedManifest.dependencies.lodash = "4.17.23";
     expect(() => validateSdkInstallIntegrity(source, lock, expandedManifest, sdkLock)).toThrow(

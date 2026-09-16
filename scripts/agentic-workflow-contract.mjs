@@ -117,11 +117,11 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     runtimeDependencies,
     "isolated SDK root lock dependencies changed",
   );
-  const expectedLockSha256 = "0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a";
+  const expectedCanonicalLockSha256 = "0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a";
   assert.equal(
     crypto.createHash("sha256").update(JSON.stringify(sdkLock)).digest("hex"),
-    expectedLockSha256,
-    "isolated SDK lock digest changed",
+    expectedCanonicalLockSha256,
+    "isolated SDK canonical JSON digest changed",
   );
   const pending = Object.keys(runtimeDependencies);
   const visited = new Set();
@@ -145,7 +145,7 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   assert.match(
     workflowSource,
     new RegExp(
-      `steps:\\s+- name: Prepare verified SDK cache[\\s\\S]*${expectedLockSha256}[\\s\\S]*${reinstallCommand}[\\s\\S]*NPM_CONFIG_OFFLINE=true`,
+      `steps:\\s+- name: Prepare verified SDK cache[\\s\\S]*${expectedCanonicalLockSha256}[\\s\\S]*${reinstallCommand}[\\s\\S]*NPM_CONFIG_OFFLINE=true`,
       "u",
     ),
     "workflow must prepare a verified offline SDK cache",
