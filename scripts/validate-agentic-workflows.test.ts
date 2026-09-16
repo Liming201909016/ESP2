@@ -72,6 +72,22 @@ describe("agentic workflow contract", () => {
         "- name: Execute GitHub Copilot CLI",
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
-    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow("before execution");
+    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow(
+      "resolution boundary",
+    );
+    const globalBypassLock = lock.replace(
+      'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
+      "true",
+    );
+    expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow(
+      "resolution boundary",
+    );
+    const workspaceBypassLock = lock.replace(
+      'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici',
+      "true",
+    );
+    expect(() => validateSdkInstallIntegrity(source, workspaceBypassLock, sdkManifest, sdkLock)).toThrow(
+      "resolution boundary",
+    );
   });
 });

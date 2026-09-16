@@ -143,10 +143,24 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
   const installIndex = compiledWorkflow.indexOf(generatedInstall);
   const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
+  const globalExclusion = 'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"';
+  const globalExclusionIndex = compiledWorkflow.indexOf(globalExclusion);
+  const removeGeneratedIndex = compiledWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
+  const sdkLink =
+    'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
+  const undiciLink =
+    'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici';
+  const sdkLinkIndex = compiledWorkflow.indexOf(sdkLink);
+  const undiciLinkIndex = compiledWorkflow.indexOf(undiciLink);
   const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
   assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
   assert.ok(
-    reinstallIndex > installIndex && executeIndex > reinstallIndex,
-    "integrity-locked SDK reinstall must run after generated install and before execution",
+    reinstallIndex > installIndex &&
+      globalExclusionIndex > reinstallIndex &&
+      removeGeneratedIndex > globalExclusionIndex &&
+      sdkLinkIndex > removeGeneratedIndex &&
+      undiciLinkIndex > sdkLinkIndex &&
+      executeIndex > undiciLinkIndex,
+    "verified SDK resolution boundary must be established after install and before execution",
   );
 }

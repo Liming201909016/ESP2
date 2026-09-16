@@ -28,8 +28,13 @@ pre-agent-steps:
   - name: Reinstall SDK from verified isolated lock
     run: |
       node -e "const fs=require('fs'),c=require('crypto'),p='.github/aw/copilot-sdk-runtime/package-lock.json';const actual=c.createHash('sha256').update(JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8')))).digest('hex');if(actual!=='0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a')throw new Error('isolated SDK lock digest mismatch')"
-      rm -rf node_modules/@github/copilot-sdk
       npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime
+      global_root="$(npm root -g)"
+      test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"
+      rm -rf node_modules/@github/copilot-sdk node_modules/undici
+      mkdir -p node_modules/@github
+      ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk
+      ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici
       echo "NODE_PATH=${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
 safe-outputs:
   report-failed-jobs: false
