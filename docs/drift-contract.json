@@ -143,6 +143,7 @@
         "npm run remediation:check",
         "Upload verified closed-loop remediation outcomes",
         "name: 'remediation-outcome'",
+        "context.payload.pull_request?.head?.sha ?? context.sha",
         "if-no-files-found: error"
       ],
       "documentationTerms": [

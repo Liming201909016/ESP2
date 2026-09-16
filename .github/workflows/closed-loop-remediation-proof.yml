@@ -44,7 +44,7 @@ jobs:
             await github.rest.checks.create({
               ...context.repo,
               name: 'remediation-outcome',
-              head_sha: context.sha,
+              head_sha: context.payload.pull_request?.head?.sha ?? context.sha,
               status: 'completed',
               conclusion: 'success',
               external_id: `closed-loop-remediation-${context.runId}`,
