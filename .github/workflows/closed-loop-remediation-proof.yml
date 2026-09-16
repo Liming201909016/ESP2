@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  checks: write
 
 jobs:
   verify:
@@ -30,3 +31,25 @@ jobs:
           path: dashboards/closed-loop-remediation-outcomes.json
           if-no-files-found: error
           retention-days: 30
+      - name: Publish machine-consumable remediation outcome
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const dashboard = JSON.parse(fs.readFileSync('dashboards/closed-loop-remediation-outcomes.json', 'utf8'));
+            if (dashboard.distinctFailureClassCount !== 2 || dashboard.verifiedClosedLoopCount !== 2) {
+              core.setFailed('Validated remediation dashboard did not contain two verified loops.');
+              return;
+            }
+            await github.rest.checks.create({
+              ...context.repo,
+              name: 'remediation-outcome',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: 'success',
+              external_id: `closed-loop-remediation-${context.runId}`,
+              output: {
+                title: 'Two closed-loop remediation classes verified',
+                summary: `Verified ${dashboard.verifiedClosedLoopCount} rollback loops across ${dashboard.distinctFailureClassCount} failure classes.`,
+              },
+            });

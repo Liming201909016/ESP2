@@ -27,6 +27,7 @@ jobs:
     uses: ./.github/workflows/closed-loop-remediation-proof.yml
     permissions:
       contents: read
+      checks: write
 
   agentic-workflows:
     runs-on: ubuntu-latest
