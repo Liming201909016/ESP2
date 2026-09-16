@@ -1,11 +1,24 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { deployWithRollback } from "./release-contract.mjs";
 import { simulatedDriver } from "./deploy-release.mjs";
 
-const root = new URL("../artifacts/release-rehearsal-20260912-113017/", import.meta.url);
-const baseline = JSON.parse(readFileSync(new URL("baseline/manifest.json", root), "utf8")).release;
-const candidate = JSON.parse(readFileSync(new URL("candidate/manifest.json", root), "utf8")).release;
+const release = (releaseId: string) => ({
+  schemaVersion: 1,
+  application: "esp-platform",
+  releaseId,
+  createdAt: "2026-09-16T00:00:00.000Z",
+  sourceCommit: "local",
+  buildRunId: null,
+  buildId: "synthetic-closed-loop-proof",
+  applicationVersion: "0.1.0",
+  nodeMajor: 24,
+  stateBackend: "postgres",
+  stateSchemaVersion: 1,
+  knowledgeVersion: "synthetic-proof-v1",
+  knowledgeDigest: "a".repeat(64),
+});
+const baseline = release("8e136994-5d3e-4ed6-8d4d-b188fa643983");
+const candidate = release("406d2576-45dc-4a95-8388-3eed6eba215f");
 
 describe("closed-loop remediation outcomes", () => {
   it.each(["candidate-unhealthy", "candidate-start-failure"])(

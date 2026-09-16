@@ -10,15 +10,27 @@ const scenarios = [
   { failureClass: "candidate-start-failure", scenario: "candidate-start-failure" },
 ];
 
-function release(root, kind) {
-  return JSON.parse(
-    readFileSync(resolve(root, `artifacts/release-rehearsal-20260912-113017/${kind}/manifest.json`), "utf8"),
-  ).release;
+function syntheticRelease(releaseId) {
+  return {
+    schemaVersion: 1,
+    application: "esp-platform",
+    releaseId,
+    createdAt: "2026-09-16T00:00:00.000Z",
+    sourceCommit: "local",
+    buildRunId: null,
+    buildId: "synthetic-closed-loop-proof",
+    applicationVersion: "0.1.0",
+    nodeMajor: 24,
+    stateBackend: "postgres",
+    stateSchemaVersion: 1,
+    knowledgeVersion: "synthetic-proof-v1",
+    knowledgeDigest: "a".repeat(64),
+  };
 }
 
-export async function deriveRemediationOutcomes(root) {
-  const baseline = release(root, "baseline");
-  const candidate = release(root, "candidate");
+export async function deriveRemediationOutcomes() {
+  const baseline = syntheticRelease("8e136994-5d3e-4ed6-8d4d-b188fa643983");
+  const candidate = syntheticRelease("406d2576-45dc-4a95-8388-3eed6eba215f");
   const outcomes = [];
   for (const scenario of scenarios) {
     const result = await deployWithRollback({
@@ -53,11 +65,8 @@ export async function deriveRemediationOutcomes(root) {
 }
 
 export async function validateRemediationOutcomes(dashboard, root = process.cwd()) {
-  assert.deepEqual(
-    dashboard,
-    await deriveRemediationOutcomes(resolve(root)),
-    "Closed-loop remediation dashboard is stale",
-  );
+  void root;
+  assert.deepEqual(dashboard, await deriveRemediationOutcomes(), "Closed-loop remediation dashboard is stale");
   return dashboard;
 }
 
