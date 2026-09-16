@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 25,
+  "nextSequence": 26,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -755,6 +755,42 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "npm test"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0025",
+      "fingerprint": "5015a8cae02d71721d190a1e2e1b5354b63f79f138719d30e2194538f8a9c253",
+      "title": "Generated SDK install runs before lock verification",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:33:50.349Z",
+      "lastSeenAt": "2026-09-16T01:33:50.349Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35044439763",
+          "targetSha": "b7c89a96e75453cb470059e593891b16c92ad310",
+          "observedAt": "2026-09-16T01:33:50.349Z",
+          "evidenceDigest": "3daa82a6d11ea30d53be8a6566adecd0d9590654970ddaccb846f11b8effa796"
+        }
+      ],
+      "dispositionReason": "Resolved by verifying and hydrating the isolated lock into a clean dedicated npm cache before engine installation, then forcing the compiler-generated install to use that cache offline.",
+      "proofOfFix": {
+        "commitSha": "0665bbd4a4ddf2db2b017e29abc9c7cf6e46adf0",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
