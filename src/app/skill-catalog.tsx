@@ -7,6 +7,8 @@ import { SkillEvaluationPanel, type EvaluationReports, type EvaluationSlot, type
 import { useLocale } from "./locale-provider";
 import type { TranslationKey } from "../lib/esp/locale";
 import { presentedInputLabel, presentedSkillDescription, presentedSkillName, skillSearchText } from "../lib/esp/skill-presentation";
+import { GovernanceSkills } from "./governance-skills";
+import { governanceText } from "../lib/esp/governance-locale";
 
 const categories = ["knowledge", "query", "action"] as const;
 const resultKeys: Record<string, TranslationKey> = {
@@ -28,6 +30,7 @@ type CatalogProps = {
   onTry: (skillId: string, query: string) => void;
   onOpenCase: (caseId: string) => void;
   executionPending: boolean;
+  onOpenAudit?: (id: string) => void;
 };
 
 function CatalogDetails({ entry, busy, onTry, onOpenCase, evaluationReports, onEvaluationReport }: {
@@ -151,7 +154,7 @@ function CatalogDetails({ entry, busy, onTry, onOpenCase, evaluationReports, onE
   );
 }
 
-export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, executionPending }: CatalogProps) {
+export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, executionPending, onOpenAudit }: CatalogProps) {
   const { locale, t } = useLocale();
   const [catalog, setCatalog] = useState<CatalogResponse | null>(null);
   const [pending, setPending] = useState(true);
@@ -162,6 +165,8 @@ export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, exec
   const [confirmation, setConfirmation] = useState("all");
   const [implementation, setImplementation] = useState("all");
   const [evaluationReports, setEvaluationReports] = useState<EvaluationReports>({ baseline: null, candidate: null });
+  const [group, setGroup] = useState<"business" | "governance">("business");
+  const [governanceCount, setGovernanceCount] = useState<number | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -205,12 +210,22 @@ export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, exec
     <div className="catalog-page">
       <section className="workspace-heading">
         <div><p className="eyebrow">SKILL REGISTRY</p><h1>{t("catalog")}</h1></div>
-        <button className="refresh-button" type="button" onClick={refresh} disabled={pending}><RefreshCw size={15} />{t(pending ? "loading" : "catalogRefresh")}</button>
+        <button className="refresh-button" type="button" onClick={refresh} disabled={pending}><RefreshCw size={15} />{pending ? t("loading") : governanceText(locale, "businessRefresh")}</button>
       </section>
       <div className="catalog-summary">
-        <span><strong>{skills.length}</strong> {t("visibleSkills")}</span>
-        {categories.map((value) => <span key={value}><strong>{skills.filter((skill) => skill.category === value).length}</strong> {t(`category_${value}`)}</span>)}
+        <span><strong>{catalog && governanceCount !== null ? (skills.length + governanceCount).toLocaleString(locale) : "--"}</strong> {t("visibleSkills")}</span>
+        <span><strong>{catalog ? skills.length.toLocaleString(locale) : "--"}</strong> {governanceText(locale, "businessSkills")}</span>
+        <span><strong>{governanceCount === null ? "--" : governanceCount.toLocaleString(locale)}</strong> {governanceText(locale, "title")}</span>
       </div>
+      <div className="catalog-tabs enterprise-view-tabs" role="tablist" aria-label={governanceText(locale, "catalogGroups")}>
+        {(["business", "governance"] as const).map((item, index, items) => <button key={item} id={`skill-group-${item}`} type="button" role="tab" aria-selected={group === item} aria-controls={`skill-group-panel-${item}`} tabIndex={group === item ? 0 : -1} onClick={() => setGroup(item)} onKeyDown={(event) => {
+          const next = event.key === "Home" ? 0 : event.key === "End" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowRight" ? 1 - index : null;
+          if (next === null) return;
+          event.preventDefault(); setGroup(items[next]);
+          event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+        }}>{governanceText(locale, item === "business" ? "businessSkills" : "title")} ({item === "business" ? catalog ? skills.length : "--" : governanceCount ?? "--"})</button>)}
+      </div>
+      <div id="skill-group-panel-business" role="tabpanel" aria-labelledby="skill-group-business" hidden={group !== "business"}>
       <div className="catalog-toolbar case-toolbar">
         <label className="case-search"><Search size={16} /><input type="search" aria-label={t("catalogSearch")} placeholder={t("catalogSearchHint")} value={query} onChange={(event) => setQuery(event.target.value)} /></label>
         <select aria-label={t("catalogCategory")} value={category} onChange={(event) => setCategory(event.target.value)}>
@@ -257,6 +272,10 @@ export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, exec
           evaluationReports={evaluationReports} onEvaluationReport={(slot, loaded) => setEvaluationReports((current) => ({ ...current, [slot]: loaded }))} /> : (
           <aside className="catalog-detail catalog-empty-detail"><Boxes size={28} /><p>{t(pending ? "catalogDetailLoading" : "catalogDetailEmpty")}</p></aside>
         )}
+      </div>
+      </div>
+      <div id="skill-group-panel-governance" role="tabpanel" aria-labelledby="skill-group-governance" hidden={group !== "governance"}>
+        <GovernanceSkills onOpenAudit={onOpenAudit} executionPending={executionPending} onCountChange={setGovernanceCount} />
       </div>
     </div>
   );

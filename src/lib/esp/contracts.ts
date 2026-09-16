@@ -4,6 +4,7 @@ export const permissionSchema = z.enum([
   "knowledge.read",
   "tickets.read",
   "tickets.create",
+  "governance.read",
 ]);
 
 export const skillDefinitionSchema = z.object({

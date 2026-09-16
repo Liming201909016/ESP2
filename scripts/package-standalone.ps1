@@ -2,7 +2,9 @@ param(
   [string]$OutputPath,
   [string]$ReleaseDirectory,
   [string]$SourceCommit = 'local',
-  [string]$BuildRunId
+  [string]$BuildRunId,
+  [string]$GovernancePackage,
+  [string]$GovernanceManifestSha256
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,6 +13,7 @@ $standalone = Join-Path $root '.next/standalone'
 if (-not (Test-Path (Join-Path $standalone 'server.js'))) { throw 'Run the production build before packaging.' }
 if (-not (Test-Path (Join-Path $standalone 'node_modules/pg/lib/index.js'))) { throw 'The standalone PostgreSQL driver is missing.' }
 if ($OutputPath -and $ReleaseDirectory) { throw 'Choose OutputPath or ReleaseDirectory, not both.' }
+if ([bool]$GovernancePackage -ne [bool]$GovernanceManifestSha256) { throw 'GovernancePackage and GovernanceManifestSha256 must be supplied together.' }
 $windowsHost = [Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT
 $nodeCommand = Get-Command node -ErrorAction SilentlyContinue
 $node = if ($nodeCommand) { $nodeCommand.Source } elseif ($windowsHost) { Join-Path $env:ProgramFiles 'nodejs/node.exe' } else { throw 'Node.js 24 is required.' }
@@ -31,6 +34,10 @@ New-Item -ItemType Directory -Path $stage | Out-Null
 Get-ChildItem $standalone -Force | Where-Object { $_.Name -notlike '.env*' } | Copy-Item -Destination $stage -Recurse -Force
 Copy-Item (Join-Path $root '.next/static') -Destination (Join-Path $stage '.next/static') -Recurse -Force
 Copy-Item (Join-Path $root 'public') -Destination (Join-Path $stage 'public') -Recurse -Force
+if ($GovernancePackage) {
+  $null = & $node (Join-Path $PSScriptRoot 'package-governance-mcp.mjs') --stage $GovernancePackage (Join-Path $stage 'governance-runtime') $GovernanceManifestSha256
+  if ($LASTEXITCODE -ne 0) { throw 'Governance runtime staging failed.' }
+}
 $stampArguments = @((Join-Path $PSScriptRoot 'release-package.mjs'), 'stamp', $stage, $SourceCommit)
 if ($BuildRunId) { $stampArguments += $BuildRunId }
 $null = & $node @stampArguments

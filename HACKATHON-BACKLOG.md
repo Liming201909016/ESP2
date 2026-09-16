@@ -2,7 +2,29 @@
 
 Planning baseline: 2026-09-14. The project owner confirmed on 2026-09-15 that ESP is an internal Hackathon 2026 project. This is the project's delivery plan, not an official event requirement or judging rubric. Submission dates, time limits, eligibility, required assets and disclosure/sharing requirements must be confirmed with the organizers. This context does not change repository visibility or DEV application access controls.
 
-Evaluation notice received via the project owner: final AI Readiness evaluation is **Monday, September 21, 2026**. At least one repository must be accessible for scanning. For GitHub EMU the specified reader is `arechen_microsoft`; for Azure DevOps it is `arechen@microsoft.com`. ESP2's repository type and scanner access are not verified; keep its existing visibility until an approved access plan is confirmed. CodeBlend is not installed locally and no score has been generated. Exact cutoff/time zone and other event requirements remain unconfirmed. See the [evaluation preparation checklist](README.md#ai-readiness-evaluation---september-21).
+Evaluation notice received via the project owner: final AI Readiness evaluation is **Monday, September 21, 2026**. At least one repository must be accessible for scanning. For GitHub EMU the specified reader is `arechen_microsoft`; for Azure DevOps it is `arechen@microsoft.com`. Scanner access to the final submitted commit must be verified; keep repository visibility unchanged unless separately approved. CodeBlend is installed and its manual workflow has completed successfully on earlier commits; this does not establish an evaluation score for the current worktree. Exact cutoff/time zone and other event requirements remain unconfirmed. See the [evaluation preparation checklist](README.md#ai-readiness-evaluation---september-21).
+
+## Governance Skill Delivery - September 16
+
+The local Skill Catalog now counts **seven business Skills plus two repository-governance Skills** when the caller has
+`governance.read`. The governance tab uses the explicit `/api/governance` endpoint; these two Skills are not automatic
+intent-routing entries and do not run CodeBlend. The endpoint validates identity, a fixed ESP target and a hash-pinned
+MCP package, requires audit start before the read, and returns original results with snapshot provenance and audit links.
+Real packaged MCP calls have been exercised through API tests with a synthetic audit writer. Browser checks preserve
+results across tabs/locales and cover missing permissions and unavailable dependencies.
+
+Remaining delivery gates, in order:
+
+1. Submit and review the governance Web increment after its MCP execution-layer dependency (PR #12); retain CODEOWNER
+	approval and required checks. Do not bypass branch rules to merge either change.
+2. With explicit operator authorization, connect durable audit storage and grant only the intended DEV users
+	`governance.read`; configure the approved runtime directory and manifest SHA-256.
+3. Verify both actual API calls, result-to-audit navigation, denied access and restart behavior on the identified release.
+	The current local no-storage site deliberately returns `AUDIT_START_FAILED`; it is not successful live audit acceptance.
+4. Add provenance-checked CodeBlend report retrieval before enabling separately authorized paid evaluation dispatch.
+
+No Azure deployment, identity grant or cloud audit write is implied by this source increment. The wider C/D/F work below
+remains open; two governance tools do not complete the five-stage review-capability integration.
 
 ## Outcome And Scope
 
