@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "kind": "esp-agent-exception-lifecycle-proof",
+  "mode": "synthetic-contract",
+  "humanDecisionRequired": true,
+  "mutationAllowed": false,
+  "expiryFailsClosed": true,
+  "verifiedStates": ["pending", "active", "expired", "malformed"],
+  "stateCounts": { "pending": 1, "active": 1, "expired": 1, "malformed": 1 }
+}

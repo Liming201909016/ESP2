@@ -52,7 +52,8 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
         "sourceFindingIds",
         "owner",
         "control",
-        "promotedAt",
+        "proposedAt",
+        "activatedAt",
         "lastVerifiedAt",
         "retiredAt",
         "supersededBy",
@@ -97,21 +98,32 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
       `${rule.id}: tests required`,
     );
     for (const path of rule.control.testPaths) repositoryFile(root, path, `${rule.id}.control.testPath`);
-    const promotedAt = canonicalDate(rule.promotedAt, `${rule.id}.promotedAt`);
+    const proposedAt = canonicalDate(rule.proposedAt, `${rule.id}.proposedAt`);
+    assert.ok(proposedAt >= latestSource, `${rule.id}: proposal predates source evidence`);
+    if (rule.status === "candidate") {
+      assert.equal(rule.activatedAt, null, `${rule.id}: candidate cannot be activated`);
+      assert.equal(rule.lastVerifiedAt, null, `${rule.id}: candidate cannot be verified as active`);
+      assert.equal(rule.retiredAt, null, `${rule.id}: candidate cannot be retired`);
+      assert.equal(rule.supersededBy, null, `${rule.id}: candidate cannot have a successor`);
+      continue;
+    }
+    const activatedAt = canonicalDate(rule.activatedAt, `${rule.id}.activatedAt`);
     const lastVerifiedAt = canonicalDate(rule.lastVerifiedAt, `${rule.id}.lastVerifiedAt`);
-    assert.ok(promotedAt >= latestSource, `${rule.id}: promotion predates source evidence`);
-    assert.ok(lastVerifiedAt >= promotedAt, `${rule.id}: verification predates promotion`);
+    assert.ok(activatedAt >= proposedAt, `${rule.id}: activation predates proposal`);
+    assert.ok(lastVerifiedAt >= activatedAt, `${rule.id}: verification predates activation`);
     if (rule.status === "retired") {
       const retiredAt = canonicalDate(rule.retiredAt, `${rule.id}.retiredAt`);
       assert.ok(retiredAt >= lastVerifiedAt, `${rule.id}: retirement predates verification`);
-      assert.ok(
-        rule.supersededBy === null || /^ESP-LR-\d{4}$/u.test(rule.supersededBy),
-        `${rule.id}: invalid successor`,
-      );
+      assert.match(rule.supersededBy, /^ESP-LR-\d{4}$/u, `${rule.id}: retired rule needs a successor`);
     } else {
       assert.equal(rule.retiredAt, null, `${rule.id}: unexpected retirement timestamp`);
       assert.equal(rule.supersededBy, null, `${rule.id}: unexpected successor`);
     }
+  }
+  for (const rule of corpus.rules.filter((entry) => entry.status === "retired")) {
+    const successor = corpus.rules.find((entry) => entry.id === rule.supersededBy);
+    assert.ok(successor && successor.status === "active", `${rule.id}: successor must be an active rule`);
+    assert.notEqual(successor.id, rule.id, `${rule.id}: rule cannot supersede itself`);
   }
   assert.ok(corpus.nextSequence > maximumSequence, "nextSequence must exceed all learned-rule IDs");
 
@@ -162,7 +174,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const ledger = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/ledger.json"), "utf8"));
   const corpus = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/learned-rules.json"), "utf8"));
   const dashboard = JSON.parse(
-    readFileSync(resolve(root, "dashboards/governed-learned-rule-proof-pairs.json"), "utf8"),
+    readFileSync(resolve(root, "dashboards/candidate-active-retired-proof-pairs.json"), "utf8"),
   );
   validateAgentImprovementArtifacts(ledger, corpus, dashboard, { root });
   console.log(

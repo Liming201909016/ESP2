@@ -7,7 +7,7 @@ const root = process.cwd();
 const readJson = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const ledger = readJson("docs/agent-findings/ledger.json");
 const corpus = readJson("docs/agent-findings/learned-rules.json");
-const dashboard = readJson("dashboards/governed-learned-rule-proof-pairs.json");
+const dashboard = readJson("dashboards/candidate-active-retired-proof-pairs.json");
 
 describe("agent improvement artifacts", () => {
   it("accepts the current learned-rule lifecycle and dashboard", () => {
@@ -48,5 +48,20 @@ describe("agent improvement artifacts", () => {
     expect(() =>
       validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, verifiedControlCount: 2 }, { root }),
     ).toThrow("verified-control count is stale");
+  });
+
+  it("enforces candidate and retired lifecycle transitions", () => {
+    const activatedCandidate = structuredClone(corpus);
+    activatedCandidate.rules.find((rule: { id: string }) => rule.id === "ESP-LR-0005").activatedAt =
+      "2026-09-16T05:00:00.000Z";
+    expect(() => validateAgentImprovementArtifacts(ledger, activatedCandidate, dashboard, { root })).toThrow(
+      "candidate cannot be activated",
+    );
+
+    const missingSuccessor = structuredClone(corpus);
+    missingSuccessor.rules.find((rule: { id: string }) => rule.id === "ESP-LR-0004").supersededBy = "ESP-LR-9999";
+    expect(() => validateAgentImprovementArtifacts(ledger, missingSuccessor, dashboard, { root })).toThrow(
+      "successor must be an active rule",
+    );
   });
 });

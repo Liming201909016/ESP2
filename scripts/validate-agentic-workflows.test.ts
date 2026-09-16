@@ -54,7 +54,7 @@ describe("agentic workflow contract", () => {
   it("requires learned-rule and dashboard inspection", () => {
     const body = extractWorkflowBody(source);
     expect(() =>
-      validateFinalInstruction(body.replace("dashboards/governed-learned-rule-proof-pairs.json", "dashboard")),
+      validateFinalInstruction(body.replace("dashboards/candidate-active-retired-proof-pairs.json", "dashboard")),
     ).toThrow("dashboard metrics");
   });
 

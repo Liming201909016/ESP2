@@ -26,7 +26,7 @@ export function validateFinalInstruction(workflowBody) {
   assert.match(workflowBody, /docs\/agent-findings\/learned-rules\.json/u, "findings audit must inspect learned rules");
   assert.match(
     workflowBody,
-    /dashboards\/governed-learned-rule-proof-pairs\.json/u,
+    /dashboards\/candidate-active-retired-proof-pairs\.json/u,
     "findings audit must inspect dashboard metrics",
   );
   assert.doesNotMatch(

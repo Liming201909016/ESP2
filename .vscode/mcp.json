@@ -3,7 +3,7 @@
     "esp-governance": {
       "type": "stdio",
       "command": "node",
-      "args": ["${workspaceFolder}/scripts/esp-governance-mcp-server.mjs"]
+      "args": ["${workspaceFolder}/src/mcp/esp-governance-server.ts"]
     }
   }
 }
