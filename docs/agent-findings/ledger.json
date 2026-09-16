@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 12,
+  "nextSequence": 32,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -327,6 +327,678 @@
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
           "npm run agentic-workflows:check",
           "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0012",
+      "fingerprint": "eaf40085419b86cef897326da717a55bee478d3c984a4e29177fb5d07590be30",
+      "title": "Audit report content is passed through a shell argument",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:09:23.004Z",
+      "lastSeenAt": "2026-09-15T16:09:23.004Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993002716",
+          "targetSha": "5c19ef6af13cf3888d8afaa9491b2c88ebd44aa0",
+          "observedAt": "2026-09-15T16:09:23.004Z",
+          "evidenceDigest": "280ef6e9cfb2d864b96a0b82300f5a9966d1f173c196486afbde9a45822c396c"
+        }
+      ],
+      "dispositionReason": "Initially resolved with a heredoc and jq JSON transport; ESP-AF-0014 later superseded that approach with SDK direct tools so report content remains outside shell arguments without exposing agent shell access.",
+      "proofOfFix": {
+        "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw compile agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0013",
+      "fingerprint": "3071600f02ede03d2a6b4eed5d1b1baaca98552615e7dbe8ad5e8c18c85e138b",
+      "title": "Validator misses broader compiled shell permissions",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:09:23.004Z",
+      "lastSeenAt": "2026-09-15T16:09:23.004Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993002716",
+          "targetSha": "5c19ef6af13cf3888d8afaa9491b2c88ebd44aa0",
+          "observedAt": "2026-09-15T16:09:23.004Z",
+          "evidenceDigest": "cac3fb2db846f6673f688e01dac49674cc1bcd114ecf1421ab2132d472daaac9"
+        }
+      ],
+      "dispositionReason": "Initially resolved by pinning the compiled CLI shell set; later review found that boundary still write-capable, so ESP-AF-0014 and ESP-AF-0015 superseded it with SDK direct tools and no agent shell access.",
+      "proofOfFix": {
+        "commitSha": "5cadfdcf153e1f8e951af9bedfb8c07cd9961a15",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw compile agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0014",
+      "fingerprint": "6a6f3272e080111dabbcb40e9646d9d1b5b60cbbd09a9b30b42cfedf079ccc44",
+      "title": "Read-only audit exposes write-capable shell primitives",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:16:46.313Z",
+      "lastSeenAt": "2026-09-15T16:16:46.313Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993749558",
+          "targetSha": "46cff48ae5c7e4b90e70d63715a105f28664ceb8",
+          "observedAt": "2026-09-15T16:16:46.313Z",
+          "evidenceDigest": "fe358292ecf2f67f50c4af9b873f28dfe4e97d14ca03f8dd0b30fd682e627988"
+        }
+      ],
+      "dispositionReason": "Resolved by removing bash and CLI proxy access and moving direct safe-output invocation into the Copilot SDK's structured MCP tool boundary.",
+      "proofOfFix": {
+        "commitSha": "bf80273b2b5935b260b2e6b85f031a443a0a0744",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw validate agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0015",
+      "fingerprint": "cccb38f94aa8b7c0f3565e5095f2344fab23ba876bc663146e3723f7047a1c95",
+      "title": "Validator ratifies overbroad shell permissions",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/validate-agentic-workflows.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:16:46.313Z",
+      "lastSeenAt": "2026-09-15T16:16:46.313Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34993749558",
+          "targetSha": "46cff48ae5c7e4b90e70d63715a105f28664ceb8",
+          "observedAt": "2026-09-15T16:16:46.313Z",
+          "evidenceDigest": "b94c018a8684da7200a5debf311357aa05fbff0411644b5019f02856f6309725"
+        }
+      ],
+      "dispositionReason": "Resolved by parsing the compiled SDK permission JSON and requiring bash/edit/CLI proxy to be disabled with only read and safeoutputs allowed.",
+      "proofOfFix": {
+        "commitSha": "bf80273b2b5935b260b2e6b85f031a443a0a0744",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "gh aw validate agent-findings-audit --strict"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0016",
+      "fingerprint": "a0ac6bf31e91fd2d5bd71445da21e0fa77e9a18903717fd21808db7a8ce0bfd6",
+      "title": "Validator ignores additional Copilot harness invocations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:27:34.637Z",
+      "lastSeenAt": "2026-09-15T16:27:34.637Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34994967344",
+          "targetSha": "391263f48e18179cd6ceb612ee9989881e9fe594",
+          "observedAt": "2026-09-15T16:27:34.637Z",
+          "evidenceDigest": "7402b97d45b4f2cf6252d368b63cd62fef6874802a00e78910de21fc1a923ae8"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exactly one SDK agent harness and one isolated detector harness, validating each role, and rejecting any additional harness invocation.",
+      "proofOfFix": {
+        "commitSha": "af36a05ba2e5d3858a59941170b2ebac0b2d5231",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run agent-findings:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0017",
+      "fingerprint": "30661d12bf8e6a4df474fb689a0c75d8a72afab1179660c31d87565ba29e9c94",
+      "title": "Ledger proof overstates validator enforcement",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:27:34.637Z",
+      "lastSeenAt": "2026-09-15T16:27:34.637Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34994967344",
+          "targetSha": "391263f48e18179cd6ceb612ee9989881e9fe594",
+          "observedAt": "2026-09-15T16:27:34.637Z",
+          "evidenceDigest": "8b63e8d1551489663d8cf3c989e7cd1267a41b1e10d36a788b29c1c2c4e17488"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0013 to describe its superseded CLI control and link the later SDK no-shell findings that replaced it.",
+      "proofOfFix": {
+        "commitSha": "af36a05ba2e5d3858a59941170b2ebac0b2d5231",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0018",
+      "fingerprint": "5e7013c29f75175b7d5468d28183d6e384641fa710cccca64cb7a7367cc92a12",
+      "title": "Audit SDK runtime install lacks immutable integrity",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:32:15.764Z",
+      "lastSeenAt": "2026-09-15T16:32:15.764Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34995443875",
+          "targetSha": "c0f3418ecb2df24fe024677ca0a8e89455de755e",
+          "observedAt": "2026-09-15T16:32:15.764Z",
+          "evidenceDigest": "0d42333fc030812b472a405d1794c41b0545709b45e7e60b8e766e3c2010eba1"
+        }
+      ],
+      "dispositionReason": "Initially resolved with a root package-lock reinstall; ESP-AF-0020, ESP-AF-0023, and ESP-AF-0025 superseded it with an isolated whole-lock digest, verified resolution binding, and pre-install offline cache.",
+      "proofOfFix": {
+        "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
+        "checks": [
+          "npm ci --ignore-scripts --no-audit --no-fund",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm test",
+          "npm run build"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0019",
+      "fingerprint": "e0db522443cbff5fcbe4c7538dba869fece7694402ccd9c83af9e479c6b92d0c",
+      "title": "Ledger proof describes a superseded report transport",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:32:15.764Z",
+      "lastSeenAt": "2026-09-15T16:32:15.764Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34995443875",
+          "targetSha": "c0f3418ecb2df24fe024677ca0a8e89455de755e",
+          "observedAt": "2026-09-15T16:32:15.764Z",
+          "evidenceDigest": "7c823d6e729fa94cf3c93ca0f9ab7c2c69eb18231819f88d934fa271f6703758"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0012 to identify its heredoc transport as superseded and link the current SDK direct-tool no-shell control.",
+      "proofOfFix": {
+        "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0020",
+      "fingerprint": "9e2c38b9e91435bba3b5bff4bedb51c28ed6eb206fc1bea7272bd1e2e93c0990",
+      "title": "SDK reinstall trusts an unconstrained repository lock",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:47:55.818Z",
+      "lastSeenAt": "2026-09-15T16:47:55.818Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34997076776",
+          "targetSha": "39934e78de67aba51659ee213d1060f6dc32d1a9",
+          "observedAt": "2026-09-15T16:47:55.818Z",
+          "evidenceDigest": "96efac64575e63c055dad71ab57257a9eb2026d53d8caa97cbde07bb5c5fad54"
+        }
+      ],
+      "dispositionReason": "Resolved by moving SDK dependencies into an isolated lock, verifying its canonical JSON SHA-256 before hydration, and validating every closure entry's version, registry path, integrity, and dependency edges.",
+      "proofOfFix": {
+        "commitSha": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d",
+        "checks": [
+          "npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run build"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0021",
+      "fingerprint": "801a6d402269263885a91bcb8ea61623d28173b3d9b8bda9740cd7d04904198d",
+      "title": "Validator accepts duplicate SDK tool configurations",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:47:55.818Z",
+      "lastSeenAt": "2026-09-15T16:47:55.818Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34997076776",
+          "targetSha": "39934e78de67aba51659ee213d1060f6dc32d1a9",
+          "observedAt": "2026-09-15T16:47:55.818Z",
+          "evidenceDigest": "41583ff37a1f50289c7ece4e8a73d6430cfd176ca185a22753ea539b23e499f1"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exactly one SDK tool configuration, binding it to the agent job, and adding a duplicate-config mutation test.",
+      "proofOfFix": {
+        "commitSha": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0022",
+      "fingerprint": "d1152830ad1a8667666d24d4ca1fbd2699a559c9164b08bb95e3a95024b83fee",
+      "title": "SDK runtime validator allows top-level dependency expansion",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:19:35.475Z",
+      "lastSeenAt": "2026-09-16T01:19:35.475Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043512170",
+          "targetSha": "0eafb4f0d7ccc389b86c4316fd3943530d500afb",
+          "observedAt": "2026-09-16T01:19:35.475Z",
+          "evidenceDigest": "9abb6816f8b4dd402ca42b8820c898ffc984795708e15a00c69294c33d344af8"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exact equality for both isolated manifest and root-lock dependency sets, with a mutation test that adds a third package.",
+      "proofOfFix": {
+        "commitSha": "420091ab5f7173fde1a054f4c2a05c98dc3c5425",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0023",
+      "fingerprint": "6b90f7be5b4171298e749c7b6b63e3865d4d552b88251429bfd4c3486073df42",
+      "title": "SDK resolution can prefer unverified module locations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:26:34.411Z",
+      "lastSeenAt": "2026-09-16T01:26:34.411Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043970732",
+          "targetSha": "5c6a8f3775b1f4319696ffad3f38b97fb9e2a5c8",
+          "observedAt": "2026-09-16T01:26:34.411Z",
+          "evidenceDigest": "2951f015146822c7da81554d6134f7738474bc8794fedcafaa396237d418f86a"
+        }
+      ],
+      "dispositionReason": "Resolved by failing when global SDK packages exist, removing generated workspace SDK packages, and linking workspace resolution paths only to the verified isolated runtime.",
+      "proofOfFix": {
+        "commitSha": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0024",
+      "fingerprint": "d1aec3d5708be05fca77ef978074cc2e9d82c0123655578f6db29d432badf258",
+      "title": "Validator misses the SDK module-resolution boundary",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:26:34.411Z",
+      "lastSeenAt": "2026-09-16T01:26:34.411Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043970732",
+          "targetSha": "5c6a8f3775b1f4319696ffad3f38b97fb9e2a5c8",
+          "observedAt": "2026-09-16T01:26:34.411Z",
+          "evidenceDigest": "5580616735dbf6db8bcd259452b3ca60ecf22bcfd909e7a148b33fc5204cce1a"
+        }
+      ],
+      "dispositionReason": "Resolved by validating global exclusion, generated-package removal, verified workspace links, and execution ordering with explicit bypass mutations.",
+      "proofOfFix": {
+        "commitSha": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0025",
+      "fingerprint": "5015a8cae02d71721d190a1e2e1b5354b63f79f138719d30e2194538f8a9c253",
+      "title": "Generated SDK install runs before lock verification",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:33:50.349Z",
+      "lastSeenAt": "2026-09-16T01:33:50.349Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35044439763",
+          "targetSha": "b7c89a96e75453cb470059e593891b16c92ad310",
+          "observedAt": "2026-09-16T01:33:50.349Z",
+          "evidenceDigest": "3daa82a6d11ea30d53be8a6566adecd0d9590654970ddaccb846f11b8effa796"
+        }
+      ],
+      "dispositionReason": "Resolved by verifying and hydrating the isolated lock into a clean dedicated npm cache before engine installation, then forcing the compiler-generated install to use that cache offline.",
+      "proofOfFix": {
+        "commitSha": "0665bbd4a4ddf2db2b017e29abc9c7cf6e46adf0",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0026",
+      "fingerprint": "3e5580e22a4a19eefa6c869d4671fb32b9e16eb77823e5c3879339c2f42092f0",
+      "title": "Audit prompt requires unsupported local search",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:40:20.682Z",
+      "lastSeenAt": "2026-09-16T01:40:20.682Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35044906780",
+          "targetSha": "abba23eeb4f00c66cc0692d7e16ffa425f2df87f",
+          "observedAt": "2026-09-16T01:40:20.682Z",
+          "evidenceDigest": "f4d7111489d6f7ef24f4a268c365ba4ab4bacbee134db9d64c2be294799742c3"
+        }
+      ],
+      "dispositionReason": "Resolved by constraining the prompt to exact-path local view operations and adding a regression that rejects unsupported search instructions.",
+      "proofOfFix": {
+        "commitSha": "1c3c5fd85ae3b3feef0760012435340f11750de5",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0027",
+      "fingerprint": "646676723587622af9b212b29619c6bd0dcd5ceaa0ce7874d651bd8e1b302087",
+      "title": "Audit prompt blocks referenced lock-file evidence",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:46:28.721Z",
+      "lastSeenAt": "2026-09-16T01:46:28.721Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045290800",
+          "targetSha": "4e84b33ab4c47966d74ec5be80a8aae99fc890a1",
+          "observedAt": "2026-09-16T01:46:28.721Z",
+          "evidenceDigest": "f21a023a1e85c4737347d9e1282a36215255547d1bda273a3c640b0bad279cf0"
+        }
+      ],
+      "dispositionReason": "Resolved by permitting lock-file views only for exact ledger or validator references and adding a regression that rejects a blanket lock-evidence prohibition.",
+      "proofOfFix": {
+        "commitSha": "5ba18554384b01f9f39f52a63b6d983bb21b3b16",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0028",
+      "fingerprint": "db63cc2b4222d7a82e7bf66a25b479959c1886cfe8544dd8ed5f445ff956f889",
+      "title": "SDK validator permits late duplicate boundary mutations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:53:56.321Z",
+      "lastSeenAt": "2026-09-16T01:53:56.321Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045744208",
+          "targetSha": "7a1d14a53abf1651ee1c3d913f2c88ab5110e242",
+          "observedAt": "2026-09-16T01:53:56.321Z",
+          "evidenceDigest": "f68915d7e52737c6e3ee9cd2b32bc0d6ee3aca0cdecb140526bcc4fbaadef28c"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring each SDK boundary command exactly once and rejecting install, removal, or relink mutations after verified binding.",
+      "proofOfFix": {
+        "commitSha": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0029",
+      "fingerprint": "f1156a7c1a84c9e686d4a77e10d283a38a377714376c43d5fb0374180d262fde",
+      "title": "ESP-AF-0018 describes a superseded SDK fix",
+      "severity": "medium",
+      "area": "agent-findings",
+      "path": "docs/agent-findings/ledger.json",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:53:56.321Z",
+      "lastSeenAt": "2026-09-16T01:53:56.321Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35045744208",
+          "targetSha": "7a1d14a53abf1651ee1c3d913f2c88ab5110e242",
+          "observedAt": "2026-09-16T01:53:56.321Z",
+          "evidenceDigest": "8fdd0009a97f05d013450702a56b2009bb2b6ceeda2e2029821352b600991a62"
+        }
+      ],
+      "dispositionReason": "Resolved by amending ESP-AF-0018 to identify its root-lock reinstall as superseded by the isolated lock, verified resolution binding, and pre-install offline cache controls.",
+      "proofOfFix": {
+        "commitSha": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7",
+        "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0030",
+      "fingerprint": "a68a2b710382285fef3d7a41fb8b3ec5a815b75c9a1ed98b10d5ef96917fbcf5",
+      "title": "SDK lock evidence overstates byte-exact hashing",
+      "severity": "low",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:01:39.452Z",
+      "lastSeenAt": "2026-09-16T02:01:39.452Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35046225286",
+          "targetSha": "110ce6a6152b72548293284517aea9a937d50bc2",
+          "observedAt": "2026-09-16T02:01:39.452Z",
+          "evidenceDigest": "d6cdcd1c20c0ac6eccf6c2abb61d573d20a39f7915c8ccf3e2aaefc98c6f193d"
+        }
+      ],
+      "dispositionReason": "Resolved by naming the control as a canonical JSON SHA-256 throughout workflow, validator, and ledger, with a format-invariance regression test.",
+      "proofOfFix": {
+        "commitSha": "a42b06fe3a23c29bc0d15022e9f41b4277c63cb8",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run agent-findings:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0031",
+      "fingerprint": "7850750ab8a3669021b7b1371dc8fcd5e52e1acea17a7d7385fffeb0d56b9ee3",
+      "title": "SDK runtime is consumed from target before trusted restoration",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:07:53.969Z",
+      "lastSeenAt": "2026-09-16T02:07:53.969Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35046689654",
+          "targetSha": "e37dcfdac69a86450670f06dd4ec5753a76eeed2",
+          "observedAt": "2026-09-16T02:07:53.969Z",
+          "evidenceDigest": "86978970ee63c5cf299d469bd9669c8872e0657dfd5ae4155452a8b6204e3a89"
+        }
+      ],
+      "dispositionReason": "Resolved by packaging SDK runtime files from github.workflow_sha in a separate trusted job, gating the agent on that artifact, and forbidding target-checkout runtime paths.",
+      "proofOfFix": {
+        "commitSha": "1d2ce1475106dadff9a8d11322b3624ec807cabf",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },

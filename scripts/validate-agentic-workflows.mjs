@@ -2,19 +2,29 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extractWorkflowBody, validateFinalInstruction } from "./agentic-workflow-contract.mjs";
+import {
+  extractWorkflowBody,
+  validateCompiledReadOnlyTools,
+  validateFinalInstruction,
+  validateSdkInstallIntegrity,
+} from "./agentic-workflow-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcePath = path.join(root, ".github", "workflows", "agent-findings-audit.md");
 const lockPath = path.join(root, ".github", "workflows", "agent-findings-audit.lock.yml");
 const source = fs.readFileSync(sourcePath, "utf8");
 const lock = fs.readFileSync(lockPath, "utf8");
+const sdkRuntimePath = path.join(root, ".github", "aw", "copilot-sdk-runtime");
+const sdkManifest = JSON.parse(fs.readFileSync(path.join(sdkRuntimePath, "package.json"), "utf8"));
+const sdkLockText = fs.readFileSync(path.join(sdkRuntimePath, "package-lock.json"), "utf8");
+const sdkLock = JSON.parse(sdkLockText);
 const workflowBody = extractWorkflowBody(source);
 
 assert.match(source, /^\s*edit: false\s*$/m, "findings audit must disable edit");
 assert.match(source, /^\s*bash: false\s*$/m, "findings audit must disable bash");
 assert.match(source, /^\s*cli-proxy: false\s*$/m, "findings audit must disable CLI proxy tools");
 assert.match(source, /^\s*github: false\s*$/m, "findings audit must disable GitHub MCP tools");
+assert.match(source, /^\s*copilot-sdk: true\s*$/m, "findings audit must use SDK tool isolation");
 assert.match(source, /^\s*strict: true\s*$/m, "findings audit must use strict mode");
 assert.match(source, /^\s*gh-aw-detection: false\s*$/m, "findings audit must use the supported inline detector");
 assert.match(source, /^\s*max-turns: 40\s*$/m, "findings audit must retain its bounded completion budget");
@@ -31,6 +41,8 @@ assert.deepEqual(manifest.mcp_servers, [
   },
 ]);
 assert.match(lock, /Tools: noop, submit_findings_audit_report/u, "compiled prompt must expose the final report tool");
+validateCompiledReadOnlyTools(lock);
+validateSdkInstallIntegrity(source, lock, sdkManifest, sdkLock);
 assert.match(
   lock,
   /\{\{#runtime-import \.github\/workflows\/agent-findings-audit\.md\}\}/u,
