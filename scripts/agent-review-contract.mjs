@@ -12,6 +12,36 @@ const confidences = new Set(["high", "medium", "low"]);
 const reviewContractVersion = "1.0.0";
 export const agentReviewToolNames = ["view", "rg", "glob"];
 
+export function validateReviewPolicy(value) {
+  exactKeys(
+    value,
+    [
+      "schemaVersion",
+      "mode",
+      "model",
+      "copilotCliVersion",
+      "maxAiCredits",
+      "allowedTools",
+      "reviewerConfig",
+      "engineeringContract",
+    ],
+    "reviewPolicy",
+  );
+  assert.equal(value.schemaVersion, 1, "Unsupported review policy schema");
+  assert.equal(value.mode, "read-only", "Review policy must remain read-only");
+  assert.equal(value.model, "gpt-5.4", "Review policy model changed");
+  assert.equal(value.copilotCliVersion, "1.0.83", "Review policy CLI version changed");
+  assert.equal(value.maxAiCredits, 30, "Review policy AI credit limit changed");
+  assert.deepEqual(value.allowedTools, agentReviewToolNames, "Review policy tools changed");
+  assert.equal(value.reviewerConfig, ".github/agents/esp-reviewer.agent.md", "Review policy reviewer changed");
+  assert.equal(
+    value.engineeringContract,
+    "docs/specs/esp-engineering-contract-v1.md",
+    "Review policy engineering contract changed",
+  );
+  return value;
+}
+
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -58,6 +88,7 @@ export function validateReviewContext(value) {
       "changedFiles",
       "diffSha256",
       "reviewerConfigSha256",
+      "reviewPolicySha256",
       "promptSha256",
     ],
     "reviewContext",
@@ -79,6 +110,7 @@ export function validateReviewContext(value) {
   assert.equal(new Set(changedFiles).size, changedFiles.length, "Duplicate changed file");
   assert.match(value.diffSha256, /^[a-f0-9]{64}$/, "Invalid diff digest");
   assert.match(value.reviewerConfigSha256, /^[a-f0-9]{64}$/, "Invalid reviewer config digest");
+  assert.match(value.reviewPolicySha256, /^[a-f0-9]{64}$/, "Invalid review policy digest");
   assert.match(value.promptSha256, /^[a-f0-9]{64}$/, "Invalid prompt digest");
   return value;
 }
@@ -231,6 +263,8 @@ export function buildAgentReviewReport({
       diffSha256: context.diffSha256,
     },
     reviewer: {
+      policyPath: ".github/copilot-code-review.yml",
+      policySha256: context.reviewPolicySha256,
       agentConfigPath: ".github/agents/esp-reviewer.agent.md",
       agentConfigSha256: context.reviewerConfigSha256,
       promptSha256: context.promptSha256,
@@ -352,8 +386,10 @@ export function prepareAgentReview({
     Buffer.byteLength(diff, "utf8") > 0 && Buffer.byteLength(diff, "utf8") <= 750 * 1024,
     "Review diff must be between 1 byte and 750 KiB",
   );
-  const reviewerConfig = readFileSync(resolve(trustedRoot, ".github/agents/esp-reviewer.agent.md"), "utf8");
-  const engineeringContract = readFileSync(resolve(trustedRoot, "docs/specs/esp-engineering-contract-v1.md"), "utf8");
+  const reviewPolicySource = readFileSync(resolve(trustedRoot, ".github/copilot-code-review.yml"), "utf8");
+  const reviewPolicy = validateReviewPolicy(JSON.parse(reviewPolicySource));
+  const reviewerConfig = readFileSync(resolve(trustedRoot, reviewPolicy.reviewerConfig), "utf8");
+  const engineeringContract = readFileSync(resolve(trustedRoot, reviewPolicy.engineeringContract), "utf8");
   const prompt = createReviewPrompt(reviewerConfig, engineeringContract);
 
   const context = {
@@ -368,6 +404,7 @@ export function prepareAgentReview({
     changedFiles,
     diffSha256: sha256(diff),
     reviewerConfigSha256: sha256(reviewerConfig),
+    reviewPolicySha256: sha256(reviewPolicySource),
     promptSha256: sha256(prompt),
   };
   mkdirSync(outputDirectory, { recursive: false });
@@ -407,6 +444,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log(`agent-review: prepared ${context.changedFiles.length} changed file(s)`);
   } else if (command === "finalize") {
     const context = validateReviewContext(JSON.parse(readFileSync(resolve(args.context), "utf8")));
+    const reviewPolicy = validateReviewPolicy(JSON.parse(readFileSync(resolve(args.policy), "utf8")));
+    assert.equal(
+      sha256(readFileSync(resolve(args.policy), "utf8")),
+      context.reviewPolicySha256,
+      "Review policy digest mismatch",
+    );
+    assert.equal(args.model, reviewPolicy.model, "Workflow model does not match review policy");
+    assert.equal(
+      args["copilot-cli-version"],
+      reviewPolicy.copilotCliVersion,
+      "Workflow CLI does not match review policy",
+    );
     const eventStream = readFileSync(resolve(args["event-stream"]), "utf8");
     const modelOutput = extractCopilotReview(eventStream);
     const usage = readFileSync(resolve(args.usage), "utf8");

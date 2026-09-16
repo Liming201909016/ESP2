@@ -20,9 +20,11 @@ export function validateFinalInstruction(workflowBody) {
   const normalizedWorkflowBody = normalizeWhitespace(workflowBody);
   assert.match(
     workflowBody,
-    /Use only local file view operations on exact paths named by the ledger and validator\. Do not search the repository,/u,
+    /Use only local file view operations on exact paths named by the findings, learned rules, and validators\. Do not search the repository,/u,
     "findings audit must align its inspection instructions with the read-only SDK capability",
   );
+  assert.match(workflowBody, /docs\/agent-findings\/learned-rules\.json/u, "findings audit must inspect learned rules");
+  assert.match(workflowBody, /dashboards\/agent-improvement\.json/u, "findings audit must inspect dashboard metrics");
   assert.doesNotMatch(
     workflowBody,
     /Do not[^.]*inspect the generated workflow lock/u,

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "mode": "read-only",
+  "model": "gpt-5.4",
+  "copilotCliVersion": "1.0.83",
+  "maxAiCredits": 30,
+  "allowedTools": ["view", "rg", "glob"],
+  "reviewerConfig": ".github/agents/esp-reviewer.agent.md",
+  "engineeringContract": "docs/specs/esp-engineering-contract-v1.md"
+}

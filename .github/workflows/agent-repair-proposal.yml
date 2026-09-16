@@ -1,0 +1,120 @@
+name: Agent Repair Proposal
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Exact 40-character commit SHA to repair
+        type: string
+        required: true
+      task:
+        description: Bounded repair objective (20-2000 characters)
+        type: string
+        required: true
+      allowed_paths:
+        description: Existing repository paths the agent may edit, one per line
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  copilot-requests: write
+
+concurrency:
+  group: agent-repair-proposal-${{ inputs.target_sha }}
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    name: Bounded Agent Repair Proposal
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Resolve exact repair target
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ inputs.target_sha }}
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_SHA" =~ ^[a-f0-9]{40}$ ]]
+          resolved_sha="$(gh api "repos/${{ github.repository }}/commits/$TARGET_SHA" --jq .sha)"
+          [[ "$resolved_sha" == "$TARGET_SHA" ]]
+          echo "target_sha=$resolved_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Check out trusted repair contract
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: scripts/agent-repair-contract.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Check out target without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.target.outputs.target_sha }}
+          path: target
+          persist-credentials: false
+
+      - name: Prepare bounded agent repair context
+        env:
+          ALLOWED_PATHS: ${{ inputs.allowed_paths }}
+          REPAIR_TASK: ${{ inputs.task }}
+        run: >-
+          node trusted/scripts/agent-repair-contract.mjs prepare
+          --target-root "$GITHUB_WORKSPACE/target"
+          --output-directory "$RUNNER_TEMP/agent-repair-context"
+          --repository "${{ github.repository }}"
+          --target-sha "${{ steps.target.outputs.target_sha }}"
+          --task "$REPAIR_TASK"
+          --allowed-paths "$ALLOWED_PATHS"
+
+      - name: Install GitHub Copilot CLI
+        run: npm install --global @github/copilot@1.0.83 --no-audit --no-fund
+
+      - name: Run bounded agent repair
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          prompt="$(cat "$RUNNER_TEMP/agent-repair-context/repair-prompt.txt")"
+          copilot -p "$prompt" \
+            -C "$GITHUB_WORKSPACE/target" \
+            --model gpt-5.4 \
+            --no-custom-instructions \
+            --disable-builtin-mcps \
+            --no-remote-export \
+            --no-color \
+            --no-ask-user \
+            --no-auto-update \
+            --disallow-temp-dir \
+            --allow-all-tools \
+            --output-format json \
+            --max-ai-credits 30 \
+            --available-tools view rg glob edit > "$RUNNER_TEMP/copilot-repair-events.jsonl"
+
+      - name: Validate and finalize repair proposal
+        env:
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cli_version="$(copilot --version | sed -nE 's/^GitHub Copilot CLI ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' | head -n 1)"
+          [[ "$cli_version" == "1.0.83" ]]
+          node trusted/scripts/agent-repair-contract.mjs finalize \
+            --target-root "$GITHUB_WORKSPACE/target" \
+            --context "$RUNNER_TEMP/agent-repair-context/repair-context.json" \
+            --event-stream "$RUNNER_TEMP/copilot-repair-events.jsonl" \
+            --workflow-run-id "$WORKFLOW_RUN_ID" \
+            --model "gpt-5.4" \
+            --copilot-cli-version "$cli_version" \
+            --output-directory "$RUNNER_TEMP/agent-repair-proposal"
+
+      - name: Upload validated repair proposal
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: agent-repair-proposal-${{ github.run_id }}-${{ steps.target.outputs.target_sha }}
+          path: ${{ runner.temp }}/agent-repair-proposal
+          if-no-files-found: error
+          retention-days: 14

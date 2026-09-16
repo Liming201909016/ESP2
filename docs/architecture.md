@@ -79,7 +79,9 @@ Pull requests run the application and infrastructure checks in
 ```powershell
 npm run data:check
 npm run docs:check
+npm run docs:drift
 npm run agent-findings:check
+npm run agent-improvement:check
 npm test
 npm run lint
 npm run format:check
@@ -100,19 +102,34 @@ CodeBlend evaluator only through manual dispatch. It uploads the generated repor
 source files, deploy, or run on a schedule.
 
 [`ci-recovery.yml`](../.github/workflows/ci-recovery.yml) classifies failed same-repository `Validate` or `Security`
-runs using a strict hosted-runner failure allowlist from the trusted default branch. It emits a bounded decision artifact
-with classifier and failed-log digests, reruns failed jobs once only for a known transient signal, records the second
+runs using the versioned [self-healing containment policy](../.github/self-healing.json) and a strict hosted-runner
+failure allowlist from the trusted default branch. It emits a bounded decision artifact
+with classifier and failed-log digests, applies one flaky-infrastructure rerun only for a known transient signal, records the second
 attempt's terminal outcome, and hands deterministic, unknown, or unavailable-log failures to humans. It does not execute
 code from the failed ref, rerun successful jobs, retry a second failure, deploy, or mutate application data.
 
 The [Agent Findings Ledger](agent-findings/README.md) stores only human-reviewed findings and proof-of-fix metadata.
 Agent Review artifacts never update the ledger automatically; ledger changes use the normal pull-request validation and
-ownership path.
+ownership path. The [learned-rule corpus](agent-findings/learned-rules.json) promotes a control only from multiple
+resolved findings with existing proof tests and explicit candidate, active, or retired lifecycle state. The deterministic
+[improvement dashboard](../dashboards/agent-improvement.json) reports finding status, active rules, source coverage, and
+uncovered findings. `npm run agent-improvement:check` rejects unresolved promotion evidence, stale lifecycle ordering,
+missing controls or tests, duplicate source assignment, and stale dashboard metrics.
 
 [`agent-review.yml`](../.github/workflows/agent-review.yml) is a manual, read-only Copilot review of one exact commit or
 same-repository pull request. It separates trusted review code from untrusted target code, disables target instructions,
 exposes only file-view/search tools, validates JSON output, and uploads provenance-bound artifacts without comments,
-commits, approvals, issues, deployments, or ledger changes.
+commits, approvals, issues, deployments, or ledger changes. The machine-readable
+[`copilot-code-review.yml`](../.github/copilot-code-review.yml) policy pins the model, CLI, AI credit limit, trusted
+review inputs, and read-only tool set; preparation and finalization both validate it, and the artifact context binds its
+digest.
+
+[`agent-repair-proposal.yml`](../.github/workflows/agent-repair-proposal.yml) is a manually dispatched agent-repair
+surface for one exact commit and an explicit allowlist of existing files. Copilot receives view, search, and edit tools
+but no shell or network tool; the workflow has no repository write permission. The trusted contract rejects staged,
+untracked, deleted, renamed, out-of-allowlist, oversized, or unapproved-tool changes and emits only a digest-bound patch
+artifact. Every proposal requires human review and manual application; it never commits, pushes, opens a pull request,
+deploys, or mutates application data.
 
 [`agent-findings-audit.md`](../.github/workflows/agent-findings-audit.md) is the declarative source for a weekly and
 manually triggered GitHub Agentic Workflow. Its compiler-generated
@@ -123,6 +140,11 @@ approvals, or deployments. `Validate` recompiles all agentic workflows with pinn
 and lock files differ. `npm run agentic-workflows:check` also parses the generated manifest to reject GitHub MCP access,
 workspace edit or shell tools, persistent repository write permissions, or missing sandbox, threat-detection, budget, and
 report-size controls.
+
+The repository-local [ESP governance MCP server](../scripts/esp-governance-mcp-server.mjs), configured by
+[`.vscode/mcp.json`](../.vscode/mcp.json), exposes only a validated governance snapshot and the non-mutating validation
+plan. Both tools have fixed empty inputs, structured Zod outputs, read-only annotations, and no shell, network, or file
+mutation capability.
 
 ## Change guidance
 

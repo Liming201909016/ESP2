@@ -7,6 +7,7 @@ import {
   extractCopilotReview,
   parseModelReview,
   renderAgentReviewMarkdown,
+  validateReviewPolicy,
 } from "./agent-review-contract.mjs";
 
 const context = {
@@ -21,6 +22,7 @@ const context = {
   changedFiles: ["scripts/example.mjs"],
   diffSha256: "c".repeat(64),
   reviewerConfigSha256: "d".repeat(64),
+  reviewPolicySha256: "f".repeat(64),
   promptSha256: "e".repeat(64),
 };
 
@@ -129,5 +131,14 @@ describe("agent review contract", () => {
     for (const tool of agentReviewToolNames) expect(prompt).toContain(`\`${tool}\``);
     expect(prompt).not.toContain("`grep`");
     expect(workflow).toContain(`--available-tools ${agentReviewToolNames.join(" ")}`);
+  });
+
+  it("rejects expansion of the read-only review policy", () => {
+    const policy = JSON.parse(readFileSync(".github/copilot-code-review.yml", "utf8"));
+    expect(validateReviewPolicy(policy)).toEqual(policy);
+    expect(() => validateReviewPolicy({ ...policy, allowedTools: [...policy.allowedTools, "edit"] })).toThrow(
+      "tools changed",
+    );
+    expect(() => validateReviewPolicy({ ...policy, maxAiCredits: 100 })).toThrow("credit limit changed");
   });
 });

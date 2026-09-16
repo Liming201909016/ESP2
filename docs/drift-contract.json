@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "contracts": [
+    {
+      "id": "ci-recovery",
+      "source": ".github/workflows/ci-recovery.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": ["run_attempt == 1", "rerun-failed-jobs", "Record human handoff", "ci-recovery-decision.json"],
+      "documentationTerms": [
+        "applies one flaky-infrastructure rerun only for a known transient signal",
+        "hands deterministic, unknown, or unavailable-log failures to humans",
+        "code from the failed ref"
+      ]
+    },
+    {
+      "id": "self-healing-policy",
+      "source": ".github/self-healing.json",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "\"mode\": \"containment\"",
+        "\"signal\": \"flaky-infrastructure-rerun\"",
+        "\"maxAttempts\": 1",
+        "\"terminalAction\": \"human_handoff\""
+      ],
+      "documentationTerms": [
+        "applies one flaky-infrastructure rerun only for a known transient signal",
+        "terminal outcome",
+        "hands deterministic, unknown, or unavailable-log failures to humans"
+      ]
+    },
+    {
+      "id": "agent-findings-audit",
+      "source": ".github/workflows/agent-findings-audit.md",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": ["bash: false", "cli-proxy: false", "max-turns: 40", "submit-findings-audit-report"],
+      "documentationTerms": [
+        "manually triggered GitHub Agentic Workflow",
+        "bounded turns and AI credits",
+        "read-only repository permissions"
+      ]
+    },
+    {
+      "id": "advisory-branch-policy",
+      "source": ".github/branch-protection.yml",
+      "documentation": "CONTRIBUTING.md",
+      "sourceTerms": [
+        "enforcement: advisory",
+        "codeOwnerReview: true",
+        "minimumApprovals: 1",
+        "- Validate",
+        "- Security"
+      ],
+      "documentationTerms": [
+        "advisory default-branch contract",
+        "Server-side enforcement remains",
+        "must not be inferred from this file"
+      ]
+    },
+    {
+      "id": "agent-repair-proposal",
+      "source": ".github/workflows/agent-repair-proposal.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "permissions:",
+        "contents: read",
+        "--available-tools view rg glob edit",
+        "agent-repair-contract.mjs finalize",
+        "Upload validated repair proposal"
+      ],
+      "documentationTerms": [
+        "explicit allowlist of existing files",
+        "no repository write permission",
+        "requires human review and manual application"
+      ]
+    },
+    {
+      "id": "copilot-code-review-policy",
+      "source": ".github/copilot-code-review.yml",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "\"mode\": \"read-only\"",
+        "\"copilotCliVersion\": \"1.0.83\"",
+        "\"maxAiCredits\": 30",
+        "\"allowedTools\": [\"view\", \"rg\", \"glob\"]"
+      ],
+      "documentationTerms": ["pins the model, CLI, AI credit limit", "read-only tool set", "review inputs", "digest"]
+    },
+    {
+      "id": "agent-improvement-lifecycle",
+      "source": "docs/agent-findings/learned-rules.json",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": [
+        "\"kind\": \"esp-agent-learned-rules\"",
+        "\"status\": \"active\"",
+        "\"sourceFindingIds\"",
+        "\"lastVerifiedAt\""
+      ],
+      "documentationTerms": [
+        "resolved findings with existing proof tests",
+        "candidate, active, or retired lifecycle state",
+        "stale dashboard metrics"
+      ]
+    },
+    {
+      "id": "governance-mcp-server",
+      "source": "scripts/esp-governance-mcp.mjs",
+      "documentation": "docs/architecture.md",
+      "sourceTerms": ["esp_governance_snapshot", "esp_validation_plan", "readOnlyHint: true", "inputSchema: {}"],
+      "documentationTerms": [
+        "ESP governance MCP server",
+        "fixed empty inputs",
+        "no shell, network",
+        "mutation capability"
+      ]
+    }
+  ]
+}

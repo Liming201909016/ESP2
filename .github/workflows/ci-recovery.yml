@@ -57,7 +57,7 @@ jobs:
             --log "$RUNNER_TEMP/failed.log" \
             --output "$RUNNER_TEMP/ci-recovery-decision.json" \
             --github-output "$GITHUB_OUTPUT"
-      - name: Request one failed-jobs rerun
+      - name: Request one flaky-infrastructure failed-jobs rerun
         if: steps.classify.outputs.rerun == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           gh api --method POST "repos/${{ github.repository }}/actions/runs/$RUN_ID/rerun-failed-jobs"
-          echo "Requested one failed-jobs rerun for workflow run $RUN_ID." >> "$GITHUB_STEP_SUMMARY"
+          echo "Requested one flaky-infrastructure failed-jobs rerun for workflow run $RUN_ID." >> "$GITHUB_STEP_SUMMARY"
       - name: Record human handoff
         if: steps.classify.outputs.rerun != 'true'
         run: echo "Failure was not classified as transient; no rerun was requested." >> "$GITHUB_STEP_SUMMARY"

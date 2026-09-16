@@ -1,4 +1,10 @@
 {
   "endOfLine": "auto",
-  "printWidth": 120
+  "printWidth": 120,
+  "overrides": [
+    {
+      "files": ".github/copilot-code-review.yml",
+      "options": { "parser": "json" }
+    }
+  ]
 }

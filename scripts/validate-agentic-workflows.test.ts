@@ -45,10 +45,17 @@ describe("agentic workflow contract", () => {
 
   it("rejects search instructions unsupported by the SDK allowlist", () => {
     const body = extractWorkflowBody(source).replace(
-      "Use only local file view operations on exact paths named by the ledger and validator. Do not search the repository,",
+      "Use only local file view operations on exact paths named by the findings, learned rules, and validators. Do not search the repository,",
       "Use only local file view and search operations.",
     );
     expect(() => validateFinalInstruction(body)).toThrow("read-only SDK capability");
+  });
+
+  it("requires learned-rule and dashboard inspection", () => {
+    const body = extractWorkflowBody(source);
+    expect(() => validateFinalInstruction(body.replace("dashboards/agent-improvement.json", "dashboard"))).toThrow(
+      "dashboard metrics",
+    );
   });
 
   it("permits exact referenced lock-file evidence", () => {
