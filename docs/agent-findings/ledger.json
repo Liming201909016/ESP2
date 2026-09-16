@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 30,
+  "nextSequence": 31,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -929,6 +929,42 @@
         "commitSha": "a601bc1935fd9bcbca57391d7636c5c5f3ef93e7",
         "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
         "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0030",
+      "fingerprint": "a68a2b710382285fef3d7a41fb8b3ec5a815b75c9a1ed98b10d5ef96917fbcf5",
+      "title": "SDK lock evidence overstates byte-exact hashing",
+      "severity": "low",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:01:39.452Z",
+      "lastSeenAt": "2026-09-16T02:01:39.452Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35046225286",
+          "targetSha": "110ce6a6152b72548293284517aea9a937d50bc2",
+          "observedAt": "2026-09-16T02:01:39.452Z",
+          "evidenceDigest": "d6cdcd1c20c0ac6eccf6c2abb61d573d20a39f7915c8ccf3e2aaefc98c6f193d"
+        }
+      ],
+      "dispositionReason": "Resolved by naming the control as a canonical JSON SHA-256 throughout workflow, validator, and ledger, with a format-invariance regression test.",
+      "proofOfFix": {
+        "commitSha": "a42b06fe3a23c29bc0d15022e9f41b4277c63cb8",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run agent-findings:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
