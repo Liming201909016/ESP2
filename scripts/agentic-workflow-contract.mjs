@@ -141,13 +141,27 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     pending.push(...Object.keys(entry.dependencies ?? {}), ...Object.keys(entry.optionalDependencies ?? {}));
   }
 
-  const reinstallCommand = "npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime";
   assert.match(
     workflowSource,
-    new RegExp(
-      `steps:\\s+- name: Prepare verified SDK cache[\\s\\S]*${expectedCanonicalLockSha256}[\\s\\S]*${reinstallCommand}[\\s\\S]*NPM_CONFIG_OFFLINE=true`,
-      "u",
-    ),
+    /ref: \$\{\{ github\.workflow_sha \}\}[\s\S]*name: trusted-sdk-runtime-\$\{\{ github\.run_id \}\}[\s\S]*agent:\s+needs: \[trusted_sdk_runtime\]/u,
+    "workflow must source SDK runtime material from the trusted workflow commit",
+  );
+  assert.match(
+    workflowSource,
+    /- name: Download trusted SDK runtime[\s\S]*path: \$\{\{ runner\.temp \}\}\/trusted-sdk-runtime/u,
+    "agent must download trusted SDK runtime material outside the target checkout",
+  );
+  assert.doesNotMatch(
+    workflowSource,
+    /(?:node -e|npm ci|ln -s)[^\n]*\.github\/aw\/copilot-sdk-runtime/u,
+    "runtime setup must not consume SDK material from the target checkout",
+  );
+  const reinstallCommand = 'npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"';
+  assert.ok(workflowSource.includes("- name: Prepare verified SDK cache"), "workflow must prepare the SDK cache");
+  assert.ok(
+    workflowSource.includes(expectedCanonicalLockSha256) &&
+      workflowSource.includes(reinstallCommand) &&
+      workflowSource.includes("NPM_CONFIG_OFFLINE=true"),
     "workflow must prepare a verified offline SDK cache",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
@@ -168,9 +182,8 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   const globalExclusionIndex = compiledWorkflow.indexOf(globalExclusion);
   const removeGeneratedIndex = compiledWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
   const sdkLink =
-    'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
-  const undiciLink =
-    'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici';
+    'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
+  const undiciLink = 'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici';
   const sdkLinkIndex = compiledWorkflow.indexOf(sdkLink);
   const undiciLinkIndex = compiledWorkflow.indexOf(undiciLink);
   requireOnce(globalExclusion, "global SDK exclusion");

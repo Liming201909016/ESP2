@@ -89,14 +89,12 @@ describe("agentic workflow contract", () => {
       "manifest dependencies changed",
     );
     const reorderedLock = lock
-      .replace("npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime", "")
+      .replace('npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"', "")
       .replace(
         "- name: Execute GitHub Copilot CLI",
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
       );
-    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow(
-      "resolution boundary",
-    );
+    expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow("exactly once");
     const onlineInstallLock = lock.replace('echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"', "true");
     expect(() => validateSdkInstallIntegrity(source, onlineInstallLock, sdkManifest, sdkLock)).toThrow(
       "offline SDK cache",
@@ -107,7 +105,7 @@ describe("agentic workflow contract", () => {
     );
     expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow("exactly once");
     const workspaceBypassLock = lock.replace(
-      'ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici',
+      'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici',
       "true",
     );
     expect(() => validateSdkInstallIntegrity(source, workspaceBypassLock, sdkManifest, sdkLock)).toThrow(
@@ -119,6 +117,13 @@ describe("agentic workflow contract", () => {
     );
     expect(() => validateSdkInstallIntegrity(source, lateInstallLock, sdkManifest, sdkLock)).toThrow(
       "must not be mutated",
+    );
+    const targetControlledSource = source.replace(
+      "process.env.RUNNER_TEMP+'/trusted-sdk-runtime/package-lock.json'",
+      "'.github/aw/copilot-sdk-runtime/package-lock.json'",
+    );
+    expect(() => validateSdkInstallIntegrity(targetControlledSource, lock, sdkManifest, sdkLock)).toThrow(
+      "target checkout",
     );
   });
 });

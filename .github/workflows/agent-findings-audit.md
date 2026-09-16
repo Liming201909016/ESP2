@@ -24,13 +24,40 @@ tools:
   bash: false
   cli-proxy: false
   github: false
+jobs:
+  trusted_sdk_runtime:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out trusted SDK runtime
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: .github/aw/copilot-sdk-runtime
+      - name: Upload trusted SDK runtime
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: trusted-sdk-runtime-${{ github.run_id }}
+          path: trusted/.github/aw/copilot-sdk-runtime
+          if-no-files-found: error
+          retention-days: 1
+  agent:
+    needs: [trusted_sdk_runtime]
 steps:
+  - name: Download trusted SDK runtime
+    uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+    with:
+      name: trusted-sdk-runtime-${{ github.run_id }}
+      path: ${{ runner.temp }}/trusted-sdk-runtime
   - name: Prepare verified SDK cache
     run: |
-      node -e "const fs=require('fs'),c=require('crypto'),p='.github/aw/copilot-sdk-runtime/package-lock.json';const actual=c.createHash('sha256').update(JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8')))).digest('hex');if(actual!=='0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a')throw new Error('isolated SDK canonical JSON digest mismatch')"
+      node -e "const fs=require('fs'),c=require('crypto'),p=process.env.RUNNER_TEMP+'/trusted-sdk-runtime/package-lock.json';const actual=c.createHash('sha256').update(JSON.stringify(JSON.parse(fs.readFileSync(p,'utf8')))).digest('hex');if(actual!=='0fba1533cc5c0d7e1ab6cef963525e5c4b5573a353e6c872f7893bd013e13b7a')throw new Error('isolated SDK canonical JSON digest mismatch')"
       rm -rf "$RUNNER_TEMP/esp-sdk-npm-cache"
       export npm_config_cache="$RUNNER_TEMP/esp-sdk-npm-cache"
-      npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime
+      npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"
       echo "NPM_CONFIG_CACHE=$RUNNER_TEMP/esp-sdk-npm-cache" >> "$GITHUB_ENV"
       echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"
 pre-agent-steps:
@@ -40,9 +67,9 @@ pre-agent-steps:
       test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"
       rm -rf node_modules/@github/copilot-sdk node_modules/undici
       mkdir -p node_modules/@github
-      ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk
-      ln -s "${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules/undici" node_modules/undici
-      echo "NODE_PATH=${GITHUB_WORKSPACE}/.github/aw/copilot-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
+      ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk
+      ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici
+      echo "NODE_PATH=$RUNNER_TEMP/trusted-sdk-runtime/node_modules${NODE_PATH:+:$NODE_PATH}" >> "$GITHUB_ENV"
 safe-outputs:
   report-failed-jobs: false
   report-failure-as-issue: false
