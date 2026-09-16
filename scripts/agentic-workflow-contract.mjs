@@ -23,6 +23,11 @@ export function validateFinalInstruction(workflowBody) {
     /Use only local file view operations on exact paths named by the ledger and validator\. Do not search the repository,/u,
     "findings audit must align its inspection instructions with the read-only SDK capability",
   );
+  assert.doesNotMatch(
+    workflowBody,
+    /Do not[^.]*inspect the generated workflow lock/u,
+    "findings audit must permit exact referenced lock-file evidence",
+  );
   assert.ok(
     normalizedWorkflowBody.endsWith(expectedFinalInstruction),
     "findings audit body must require the exposed report tool as its final action",

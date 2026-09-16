@@ -51,6 +51,18 @@ describe("agentic workflow contract", () => {
     expect(() => validateFinalInstruction(body)).toThrow("read-only SDK capability");
   });
 
+  it("permits exact referenced lock-file evidence", () => {
+    const body = extractWorkflowBody(source);
+    expect(body).toContain(
+      "The generated workflow lock may be viewed only when an exact ledger or validator reference",
+    );
+    const blockedBody = body.replace(
+      "Your final action MUST",
+      "Do not inspect the generated workflow lock.\n\nYour final action MUST",
+    );
+    expect(() => validateFinalInstruction(blockedBody)).toThrow("lock-file evidence");
+  });
+
   it("validates every compiled harness and rejects broader agent tools", () => {
     expect(() => validateCompiledReadOnlyTools(lock)).not.toThrow();
     const broadenedLock = lock.replace("copilot_sdk_driver.cjs", "copilot_sdk_driver.cjs shell(curl)");
