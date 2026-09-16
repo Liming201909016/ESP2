@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 26,
+  "nextSequence": 27,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -784,6 +784,42 @@
       "dispositionReason": "Resolved by verifying and hydrating the isolated lock into a clean dedicated npm cache before engine installation, then forcing the compiler-generated install to use that cache offline.",
       "proofOfFix": {
         "commitSha": "0665bbd4a4ddf2db2b017e29abc9c7cf6e46adf0",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0026",
+      "fingerprint": "3e5580e22a4a19eefa6c869d4671fb32b9e16eb77823e5c3879339c2f42092f0",
+      "title": "Audit prompt requires unsupported local search",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:40:20.682Z",
+      "lastSeenAt": "2026-09-16T01:40:20.682Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35044906780",
+          "targetSha": "abba23eeb4f00c66cc0692d7e16ffa425f2df87f",
+          "observedAt": "2026-09-16T01:40:20.682Z",
+          "evidenceDigest": "f4d7111489d6f7ef24f4a268c365ba4ab4bacbee134db9d64c2be294799742c3"
+        }
+      ],
+      "dispositionReason": "Resolved by constraining the prompt to exact-path local view operations and adding a regression that rejects unsupported search instructions.",
+      "proofOfFix": {
+        "commitSha": "1c3c5fd85ae3b3feef0760012435340f11750de5",
         "checks": [
           "gh aw compile agent-findings-audit --strict",
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
