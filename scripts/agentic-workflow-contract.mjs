@@ -148,7 +148,7 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   );
   assert.match(
     workflowSource,
-    /- name: Download trusted SDK runtime[\s\S]*path: \$\{\{ runner\.temp \}\}\/trusted-sdk-runtime/u,
+    /- name: Download trusted SDK runtime[\s\S]*path: \$\{\{ runner\.temp \}\}\/gh-aw\/trusted-sdk-runtime/u,
     "agent must download trusted SDK runtime material outside the target checkout",
   );
   assert.doesNotMatch(
@@ -156,7 +156,8 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
     /(?:node -e|npm ci|ln -s)[^\n]*\.github\/aw\/copilot-sdk-runtime/u,
     "runtime setup must not consume SDK material from the target checkout",
   );
-  const reinstallCommand = 'npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"';
+  const reinstallCommand =
+    'npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/gh-aw/trusted-sdk-runtime"';
   assert.ok(workflowSource.includes("- name: Prepare verified SDK runtime"), "workflow must prepare the SDK runtime");
   assert.ok(
     workflowSource.includes(expectedCanonicalLockSha256) &&
@@ -203,8 +204,8 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   const globalExclusionIndex = renderedWorkflow.indexOf(globalExclusion);
   const removeGeneratedIndex = renderedWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
   const sdkLink =
-    'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
-  const undiciLink = 'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici';
+    'ln -s "$RUNNER_TEMP/gh-aw/trusted-sdk-runtime/node_modules/@github/copilot-sdk" node_modules/@github/copilot-sdk';
+  const undiciLink = 'ln -s "$RUNNER_TEMP/gh-aw/trusted-sdk-runtime/node_modules/undici" node_modules/undici';
   const sdkLinkIndex = renderedWorkflow.indexOf(sdkLink);
   const undiciLinkIndex = renderedWorkflow.indexOf(undiciLink);
   requireOnce(globalExclusion, "global SDK exclusion");

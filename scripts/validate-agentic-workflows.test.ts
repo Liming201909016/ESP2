@@ -90,7 +90,7 @@ describe("agentic workflow contract", () => {
       "manifest dependencies changed",
     );
     const reorderedLock = renderedLock
-      .replace('npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/trusted-sdk-runtime"', "")
+      .replace('npm ci --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/gh-aw/trusted-sdk-runtime"', "")
       .replace(
         "- name: Execute GitHub Copilot CLI",
         "- name: Execute GitHub Copilot CLI\n        # reinstall moved too late\n        npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
@@ -127,7 +127,7 @@ describe("agentic workflow contract", () => {
     );
     expect(() => validateSdkInstallIntegrity(source, globalBypassLock, sdkManifest, sdkLock)).toThrow("exactly once");
     const workspaceBypassLock = renderedLock.replace(
-      'ln -s "$RUNNER_TEMP/trusted-sdk-runtime/node_modules/undici" node_modules/undici',
+      'ln -s "$RUNNER_TEMP/gh-aw/trusted-sdk-runtime/node_modules/undici" node_modules/undici',
       "true",
     );
     expect(() => validateSdkInstallIntegrity(source, workspaceBypassLock, sdkManifest, sdkLock)).toThrow(
@@ -141,7 +141,7 @@ describe("agentic workflow contract", () => {
       "must not be mutated",
     );
     const targetControlledSource = source.replace(
-      "process.env.RUNNER_TEMP+'/trusted-sdk-runtime/package-lock.json'",
+      "process.env.RUNNER_TEMP+'/gh-aw/trusted-sdk-runtime/package-lock.json'",
       "'.github/aw/copilot-sdk-runtime/package-lock.json'",
     );
     expect(() => validateSdkInstallIntegrity(targetControlledSource, lock, sdkManifest, sdkLock)).toThrow(
