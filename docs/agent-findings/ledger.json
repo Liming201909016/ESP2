@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 23,
+  "nextSequence": 25,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -687,6 +687,74 @@
           "npm test",
           "npm run lint",
           "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0023",
+      "fingerprint": "6b90f7be5b4171298e749c7b6b63e3865d4d552b88251429bfd4c3486073df42",
+      "title": "SDK resolution can prefer unverified module locations",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.lock.yml",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:26:34.411Z",
+      "lastSeenAt": "2026-09-16T01:26:34.411Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043970732",
+          "targetSha": "5c6a8f3775b1f4319696ffad3f38b97fb9e2a5c8",
+          "observedAt": "2026-09-16T01:26:34.411Z",
+          "evidenceDigest": "2951f015146822c7da81554d6134f7738474bc8794fedcafaa396237d418f86a"
+        }
+      ],
+      "dispositionReason": "Resolved by failing when global SDK packages exist, removing generated workspace SDK packages, and linking workspace resolution paths only to the verified isolated runtime.",
+      "proofOfFix": {
+        "commitSha": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0024",
+      "fingerprint": "d1aec3d5708be05fca77ef978074cc2e9d82c0123655578f6db29d432badf258",
+      "title": "Validator misses the SDK module-resolution boundary",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T01:26:34.411Z",
+      "lastSeenAt": "2026-09-16T01:26:34.411Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35043970732",
+          "targetSha": "5c6a8f3775b1f4319696ffad3f38b97fb9e2a5c8",
+          "observedAt": "2026-09-16T01:26:34.411Z",
+          "evidenceDigest": "5580616735dbf6db8bcd259452b3ca60ecf22bcfd909e7a148b33fc5204cce1a"
+        }
+      ],
+      "dispositionReason": "Resolved by validating global exclusion, generated-package removal, verified workspace links, and execution ordering with explicit bypass mutations.",
+      "proofOfFix": {
+        "commitSha": "17a5362088d8b0ad3b137dff22d9a8dd035c83c7",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test"
         ],
         "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
