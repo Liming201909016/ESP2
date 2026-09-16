@@ -30,6 +30,22 @@ function repositoryFile(source: Map<string, string>, path: string) {
 }
 
 describe("documentation drift contract", () => {
+  it("retains single-maintainer disclosure and non-approval branch gates", () => {
+    for (const [path, before, after] of [
+      [".github/branch-protection.yml", "resolveReviewThreads: true", "resolveReviewThreads: false"],
+      [".github/branch-protection.yml", "strictRequiredChecks: true", "strictRequiredChecks: false"],
+      [".github/branch-protection.yml", "protectDeletion: true", "protectDeletion: false"],
+      [".github/branch-protection.yml", "protectNonFastForward: true", "protectNonFastForward: false"],
+      [".github/branch-protection.yml", "minimumApprovals: 0", "minimumApprovals: 1"],
+      [".github/branch-protection.yml", "codeOwnerReview: false", "codeOwnerReview: true"],
+      ["CONTRIBUTING.md", "not an independent-review guarantee", "independent review guaranteed"],
+    ]) {
+      const changedFiles = new Map(files);
+      expect(repositoryFile(files, path)).toContain(before);
+      changedFiles.set(path, repositoryFile(files, path).replace(before, after));
+      expect(() => validateDocsDriftContract(contract, (name: string) => repositoryFile(changedFiles, name))).toThrow();
+    }
+  });
   it("accepts current workflow behavior and documentation", () => {
     expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(files, path))).not.toThrow();
   });
