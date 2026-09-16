@@ -13,4 +13,3 @@ pullRequests:
     - CodeQL
     - Secret scanning
     - remediation-proof / remediation-proof
-    - remediation-outcome
