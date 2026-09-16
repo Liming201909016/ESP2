@@ -135,14 +135,16 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   assert.match(
     workflowSource,
     new RegExp(
-      `pre-agent-steps:\\s+- name: Reinstall SDK from verified isolated lock[\\s\\S]*${expectedLockSha256}[\\s\\S]*${reinstallCommand}`,
+      `steps:\\s+- name: Prepare verified SDK cache[\\s\\S]*${expectedLockSha256}[\\s\\S]*${reinstallCommand}[\\s\\S]*NPM_CONFIG_OFFLINE=true`,
       "u",
     ),
-    "workflow must verify and reinstall the SDK from the isolated lock",
+    "workflow must prepare a verified offline SDK cache",
   );
   const generatedInstall = "npm install --ignore-scripts --no-save @github/copilot-sdk@1.0.11 undici@6.28.0";
   const installIndex = compiledWorkflow.indexOf(generatedInstall);
   const reinstallIndex = compiledWorkflow.indexOf(reinstallCommand);
+  const cleanCacheIndex = compiledWorkflow.indexOf('rm -rf "$RUNNER_TEMP/esp-sdk-npm-cache"');
+  const offlineIndex = compiledWorkflow.indexOf('echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"');
   const globalExclusion = 'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"';
   const globalExclusionIndex = compiledWorkflow.indexOf(globalExclusion);
   const removeGeneratedIndex = compiledWorkflow.indexOf("rm -rf node_modules/@github/copilot-sdk node_modules/undici");
@@ -155,12 +157,15 @@ export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sd
   const executeIndex = compiledWorkflow.indexOf("- name: Execute GitHub Copilot CLI");
   assert.ok(installIndex >= 0, "compiled workflow must retain exact generated SDK versions");
   assert.ok(
-    reinstallIndex > installIndex &&
-      globalExclusionIndex > reinstallIndex &&
+    cleanCacheIndex >= 0 &&
+      reinstallIndex > cleanCacheIndex &&
+      offlineIndex > reinstallIndex &&
+      installIndex > offlineIndex &&
+      globalExclusionIndex > installIndex &&
       removeGeneratedIndex > globalExclusionIndex &&
       sdkLinkIndex > removeGeneratedIndex &&
       undiciLinkIndex > sdkLinkIndex &&
       executeIndex > undiciLinkIndex,
-    "verified SDK resolution boundary must be established after install and before execution",
+    "verified offline SDK cache and resolution boundary must surround generated install",
   );
 }

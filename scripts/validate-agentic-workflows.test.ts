@@ -75,6 +75,10 @@ describe("agentic workflow contract", () => {
     expect(() => validateSdkInstallIntegrity(source, reorderedLock, sdkManifest, sdkLock)).toThrow(
       "resolution boundary",
     );
+    const onlineInstallLock = lock.replace('echo "NPM_CONFIG_OFFLINE=true" >> "$GITHUB_ENV"', "true");
+    expect(() => validateSdkInstallIntegrity(source, onlineInstallLock, sdkManifest, sdkLock)).toThrow(
+      "offline SDK cache",
+    );
     const globalBypassLock = lock.replace(
       'test ! -e "$global_root/@github/copilot-sdk" && test ! -e "$global_root/undici"',
       "true",
