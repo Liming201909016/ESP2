@@ -7,7 +7,7 @@ const root = process.cwd();
 const readJson = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const ledger = readJson("docs/agent-findings/ledger.json");
 const corpus = readJson("docs/agent-findings/learned-rules.json");
-const dashboard = readJson("dashboards/agent-improvement.json");
+const dashboard = readJson("dashboards/governed-learned-rule-proof-pairs.json");
 
 describe("agent improvement artifacts", () => {
   it("accepts the current learned-rule lifecycle and dashboard", () => {
@@ -39,5 +39,14 @@ describe("agent improvement artifacts", () => {
     expect(() =>
       validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, coveredFindingCount: 25 }, { root }),
     ).toThrow("covered count is stale");
+  });
+
+  it("rejects stale proof-pair and verified-control counts", () => {
+    expect(() =>
+      validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, proofPairCount: 25 }, { root }),
+    ).toThrow("proof-pair count is stale");
+    expect(() =>
+      validateAgentImprovementArtifacts(ledger, corpus, { ...dashboard, verifiedControlCount: 2 }, { root }),
+    ).toThrow("verified-control count is stale");
   });
 });

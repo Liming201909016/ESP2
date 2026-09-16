@@ -29,7 +29,7 @@ describe("ESP governance MCP server", () => {
     expect(snapshot.structuredContent).toMatchObject({
       recovery: { mode: "containment", maxAttempts: 1 },
       codeReview: { mode: "read-only", allowedTools: ["view", "rg", "glob"] },
-      documentationDrift: { contractCount: 8 },
+      documentationDrift: { contractCount: 9 },
     });
 
     const plan = await client.callTool({ name: "esp_validation_plan", arguments: {} });

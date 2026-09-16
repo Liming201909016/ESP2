@@ -124,6 +124,8 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
       "findingStatusCounts",
       "learnedRuleStatusCounts",
       "coveredFindingCount",
+      "proofPairCount",
+      "verifiedControlCount",
       "coveragePercent",
       "uncoveredFindingIds",
     ],
@@ -142,6 +144,10 @@ export function validateAgentImprovementArtifacts(ledger, corpus, dashboard, opt
   assert.deepEqual(dashboard.findingStatusCounts, findingStatusCounts, "Dashboard finding status counts are stale");
   assert.deepEqual(dashboard.learnedRuleStatusCounts, learnedRuleStatusCounts, "Dashboard rule counts are stale");
   assert.equal(dashboard.coveredFindingCount, coveredFindingIds.size, "Dashboard covered count is stale");
+  const proofPairCount = [...coveredFindingIds].filter((id) => findings.get(id)?.proofOfFix !== null).length;
+  const verifiedControlCount = corpus.rules.filter((rule) => rule.status === "active").length;
+  assert.equal(dashboard.proofPairCount, proofPairCount, "Dashboard proof-pair count is stale");
+  assert.equal(dashboard.verifiedControlCount, verifiedControlCount, "Dashboard verified-control count is stale");
   assert.equal(
     dashboard.coveragePercent,
     Math.round((coveredFindingIds.size / Math.max(ledger.findings.length, 1)) * 1000) / 10,
@@ -155,7 +161,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const root = resolve(import.meta.dirname, "..");
   const ledger = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/ledger.json"), "utf8"));
   const corpus = JSON.parse(readFileSync(resolve(root, "docs/agent-findings/learned-rules.json"), "utf8"));
-  const dashboard = JSON.parse(readFileSync(resolve(root, "dashboards/agent-improvement.json"), "utf8"));
+  const dashboard = JSON.parse(
+    readFileSync(resolve(root, "dashboards/governed-learned-rule-proof-pairs.json"), "utf8"),
+  );
   validateAgentImprovementArtifacts(ledger, corpus, dashboard, { root });
   console.log(
     `agent-improvement: ${corpus.rules.length} learned rules cover ${dashboard.coveredFindingCount} findings`,

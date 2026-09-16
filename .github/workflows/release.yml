@@ -112,7 +112,7 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Deploy and verify, restoring the baseline on confirmed failure
+      - name: Deploy, verify, and redeploy-last-good on confirmed failure
         env:
           ESP_CANDIDATE_RUN_ID: ${{ steps.provenance.outputs.candidate_run_id }}
           ESP_CANDIDATE_COMMIT: ${{ steps.provenance.outputs.candidate_commit }}

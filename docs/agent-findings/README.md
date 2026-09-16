@@ -11,12 +11,32 @@ changes this file automatically.
 3. A human rejects the candidate, accepts it with an owner, or adds a new occurrence to an existing fingerprint through
    a pull request.
 4. Resolve an accepted finding only with a commit, named checks, and existing regression-test paths.
-5. Promote a finding into a test, lint rule, contract, or instruction only after at least two distinct occurrences.
+5. Promote a recurring risk class into a test, lint rule, contract, or instruction only from multiple resolved findings
+   with existing proof tests.
 6. Risk acceptance requires an owner, reason, and expiration after the most recent occurrence.
 
 IDs use `ESP-AF-NNNN`. `nextSequence` must exceed every assigned ID. Fingerprints and evidence digests are lowercase
 SHA-256 values; they establish stable identity and integrity, not correctness. Run `npm run agent-findings:check` before
 submitting changes.
+
+## Learned Controls
+
+[`learned-rules.json`](learned-rules.json) is the governed learned-rule corpus. Rules move through explicit `candidate`,
+`active`, and `retired` states. Activation requires at least two distinct resolved source findings, an owner, a
+semantic control version, an existing control path, existing regression-test paths, and promotion/verification
+timestamps after the source evidence. Retirement records its timestamp and optional successor; source findings cannot
+be assigned to more than one learned rule.
+
+The current corpus contains three active controls derived from 26 of 34 resolved findings: least-privilege agentic
+workflows, immutable isolated SDK provenance, and findings claims bound to current proof. The deterministic
+[`governed-learned-rule-proof-pairs.json`](../../dashboards/governed-learned-rule-proof-pairs.json) dashboard reports
+lifecycle counts, verified finding-to-control proof pairs, source coverage, and every uncovered finding.
+`npm run agent-improvement:check` recomputes these metrics and blocks pull requests when
+promotion evidence, controls, tests, lifecycle ordering, or dashboard values drift.
+
+The weekly `Agent Findings Audit` consumes the ledger, learned rules, dashboard, source findings, and referenced proof.
+It emits a read-only discrepancy report; a human still decides every corpus or ledger change. This forms a governed
+finding-to-proof-to-control feedback loop without granting an agent repository write permission.
 
 The ledger contains no source bodies, model prompts, credentials, or raw provider errors. It is engineering evidence,
 not an authorization record or production vulnerability database.

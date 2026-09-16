@@ -90,8 +90,9 @@ npm run test:e2e
 ```
 
 [`release.yml`](../.github/workflows/release.yml) builds an immutable package and keeps deployment behind explicit
-repository configuration, environment review, provenance checks, and rollback validation. A source merge does not
-authorize a deployment.
+repository configuration, environment review, provenance checks, and rollback validation. Its `redeploy-last-good`
+path uses `deployWithRollback` to restore and verify the provenance-bound running baseline after a confirmed candidate
+failure. A source merge does not authorize a deployment.
 
 The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled,
 fails deterministically when SARIF contains findings or is missing, and retains the SARIF artifact for review instead of
@@ -112,7 +113,8 @@ The [Agent Findings Ledger](agent-findings/README.md) stores only human-reviewed
 Agent Review artifacts never update the ledger automatically; ledger changes use the normal pull-request validation and
 ownership path. The [learned-rule corpus](agent-findings/learned-rules.json) promotes a control only from multiple
 resolved findings with existing proof tests and explicit candidate, active, or retired lifecycle state. The deterministic
-[improvement dashboard](../dashboards/agent-improvement.json) reports finding status, active rules, source coverage, and
+[improvement dashboard](../dashboards/governed-learned-rule-proof-pairs.json) reports finding status, active rules,
+verified finding-to-control proof pairs, source coverage, and
 uncovered findings. `npm run agent-improvement:check` rejects unresolved promotion evidence, stale lifecycle ordering,
 missing controls or tests, duplicate source assignment, and stale dashboard metrics.
 
