@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 32,
+  "nextSequence": 33,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -992,6 +992,42 @@
       "dispositionReason": "Resolved by packaging SDK runtime files from github.workflow_sha in a separate trusted job, gating the agent on that artifact, and forbidding target-checkout runtime paths.",
       "proofOfFix": {
         "commitSha": "1d2ce1475106dadff9a8d11322b3624ec807cabf",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0032",
+      "fingerprint": "74d47c2df21ff188d7c19cf3d374dedf2de0938c1c23fb88057640f78a1a0808",
+      "title": "Target npm configuration can influence generated SDK resolution",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:30:28.179Z",
+      "lastSeenAt": "2026-09-16T02:30:28.179Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35048131435",
+          "targetSha": "2af77337b01bb236133099d0e01cdda2099bcb9a",
+          "observedAt": "2026-09-16T02:30:28.179Z",
+          "evidenceDigest": "a2dac36b64add7dab8228493c0ae12eaae2402dec97cf351d0ea3483f69e0020"
+        }
+      ],
+      "dispositionReason": "Resolved by directing the generated dry-run install to a trusted scratch prefix with empty user/global npmrc files, a fixed registry, disabled locks/workspaces/scripts, and explicit contract mutations.",
+      "proofOfFix": {
+        "commitSha": "0ffb3833a1f8865f674d5c10be93113825b95952",
         "checks": [
           "gh aw compile agent-findings-audit --strict",
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
