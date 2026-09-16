@@ -36,8 +36,10 @@ The current learned-rule corpus and dashboard use **schemaVersion 2**. The valid
 with `promotedAt` and its v1 dashboard without proof-pair fields, preserving its historical validation semantics without
 rewriting it. V1 and v2 inputs cannot be mixed or relabelled; new lifecycle records use `proposedAt` and `activatedAt`.
 No persisted historical ledger is migrated. The v2 dashboard lists each structural proof binding: finding ID, rule ID,
-control path/version, shared regression-test path and recorded proof commit. The test must be named by both the finding
-and the rule and directly import that control. Merely being resolved does not count as a proof pair. The current fixture
+control path/version, shared regression-test path and recorded proof commit. The same test-file path must appear in the
+finding's `proofOfFix.testPaths` and the rule's `control.testPaths`, and that file must directly import the control.
+This is a structural file-reference check, not a requirement that test titles contain finding or rule IDs; it does not
+prove that a particular assertion exercises each finding. Merely being resolved does not count as a proof pair. The current fixture
 has 29 covered findings, **26 structurally bound pairs and 2 fully bound active rules**; remaining coverage is not claimed
 as verified. Import/path checks establish traceable structure, not test execution or semantic correctness. Historical v1
 dashboards retain their old meaning and must not be described as v2 proof verification.
