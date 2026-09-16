@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyRecovery } from "./classify-ci-recovery.mjs";
+import { classifyRecovery, validateRecoveryPolicy } from "./classify-ci-recovery.mjs";
 
 const base = {
   workflow: "Validate",
@@ -11,6 +11,24 @@ const base = {
 };
 
 describe("CI recovery classification", () => {
+  it("rejects recovery policy expansion", () => {
+    const policy = {
+      schemaVersion: 1,
+      mode: "containment",
+      signal: "flaky-infrastructure-rerun",
+      workflows: ["Security", "Validate"],
+      eligibleClassification: "transient_runner_failure",
+      action: "rerun_failed_jobs",
+      maxAttempts: 1,
+      terminalAction: "human_handoff",
+      proofArtifacts: ["ci-recovery-decision.json", "ci-recovery-terminal.json"],
+    };
+    expect(() => validateRecoveryPolicy(policy)).not.toThrow();
+    expect(() => validateRecoveryPolicy({ ...policy, maxAttempts: 2 })).toThrow("one-attempt");
+    expect(() => validateRecoveryPolicy({ ...policy, action: "rerun_all_jobs" })).toThrow("action changed");
+    expect(() => validateRecoveryPolicy({ ...policy, signal: "generic-retry" })).toThrow("signal changed");
+  });
+
   it("reruns a known hosted-runner communication loss once", () => {
     const decision = classifyRecovery({ ...base, failedLog: "The hosted runner lost communication with the server." });
     expect(decision).toMatchObject({

@@ -20,6 +20,7 @@ const markdownFiles = [
   "HACKATHON-DEMO.md",
   "README.md",
   "SECURITY.md",
+  ".github/copilot-instructions.md",
   "scripts/AGENTS.md",
   "src/lib/esp/AGENTS.md",
 ];

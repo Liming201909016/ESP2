@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "esp-agent-learned-rules",
+  "nextSequence": 4,
+  "rules": [
+    {
+      "id": "ESP-LR-0001",
+      "status": "active",
+      "title": "Agentic workflows preserve least privilege",
+      "description": "Generated agent harnesses must not gain shell, edit, duplicate tool configuration, or additional invocation paths outside the reviewed contract.",
+      "sourceFindingIds": [
+        "ESP-AF-0002",
+        "ESP-AF-0003",
+        "ESP-AF-0005",
+        "ESP-AF-0013",
+        "ESP-AF-0014",
+        "ESP-AF-0015",
+        "ESP-AF-0016",
+        "ESP-AF-0021"
+      ],
+      "owner": "@Liming201909016",
+      "control": {
+        "kind": "contract",
+        "path": "scripts/agentic-workflow-contract.mjs",
+        "version": "1.0.0",
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
+      "retiredAt": null,
+      "supersededBy": null
+    },
+    {
+      "id": "ESP-LR-0002",
+      "status": "active",
+      "title": "Agent SDK runtime provenance is isolated and immutable",
+      "description": "Agent SDK resolution must remain bound to the verified isolated lock, registry, integrity closure, install order, and target-configuration exclusions.",
+      "sourceFindingIds": [
+        "ESP-AF-0018",
+        "ESP-AF-0020",
+        "ESP-AF-0022",
+        "ESP-AF-0023",
+        "ESP-AF-0024",
+        "ESP-AF-0025",
+        "ESP-AF-0028",
+        "ESP-AF-0030",
+        "ESP-AF-0031",
+        "ESP-AF-0032",
+        "ESP-AF-0033",
+        "ESP-AF-0034"
+      ],
+      "owner": "@Liming201909016",
+      "control": {
+        "kind": "contract",
+        "path": "scripts/agentic-workflow-contract.mjs",
+        "version": "1.0.0",
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
+      "retiredAt": null,
+      "supersededBy": null
+    },
+    {
+      "id": "ESP-LR-0003",
+      "status": "active",
+      "title": "Findings claims remain bound to current proof",
+      "description": "Ledger entries must reference existing regression tests and describe the currently enforced control rather than superseded transport or validation behavior.",
+      "sourceFindingIds": ["ESP-AF-0008", "ESP-AF-0010", "ESP-AF-0011", "ESP-AF-0017", "ESP-AF-0019", "ESP-AF-0029"],
+      "owner": "@Liming201909016",
+      "control": {
+        "kind": "contract",
+        "path": "scripts/validate-agent-findings.mjs",
+        "version": "1.0.0",
+        "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedAt": "2026-09-16T03:00:00.000Z",
+      "lastVerifiedAt": "2026-09-16T04:30:00.000Z",
+      "retiredAt": null,
+      "supersededBy": null
+    }
+  ]
+}

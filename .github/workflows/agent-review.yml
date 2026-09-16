@@ -64,6 +64,7 @@ jobs:
           path: trusted
           persist-credentials: false
           sparse-checkout: |
+            .github/copilot-code-review.yml
             .github/agents/esp-reviewer.agent.md
             docs/specs/esp-engineering-contract-v1.md
             scripts/agent-review-contract.mjs
@@ -98,7 +99,7 @@ jobs:
         run: |
           set -euo pipefail
           prompt="$(cat "$GITHUB_WORKSPACE/target/.agent-review-context/review-prompt.txt")"
-          copilot \
+          copilot -p "$prompt" \
             -C "$GITHUB_WORKSPACE/target" \
             --model gpt-5.4 \
             --no-custom-instructions \
@@ -112,7 +113,6 @@ jobs:
             --output-format json \
             --usage-output-file "$RUNNER_TEMP/agent-review-usage.json" \
             --max-ai-credits 30 \
-            -p "$prompt" \
             --available-tools view rg glob > "$RUNNER_TEMP/copilot-events.jsonl"
 
       - name: Validate and finalize review artifact
@@ -124,6 +124,7 @@ jobs:
           [[ "$cli_version" == "1.0.83" ]]
           node trusted/scripts/agent-review-contract.mjs finalize \
             --context "$GITHUB_WORKSPACE/target/.agent-review-context/review-context.json" \
+            --policy "$GITHUB_WORKSPACE/trusted/.github/copilot-code-review.yml" \
             --event-stream "$RUNNER_TEMP/copilot-events.jsonl" \
             --usage "$RUNNER_TEMP/agent-review-usage.json" \
             --workflow-run-id "$WORKFLOW_RUN_ID" \

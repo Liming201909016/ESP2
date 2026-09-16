@@ -15,4 +15,16 @@ describe("repository documentation contract", () => {
       validateArchitectureValidationSequence(architecture.replace("npm run agent-findings:check", "")),
     ).toThrow("agent-findings:check");
   });
+
+  it("rejects a missing learned-rule and dashboard check", () => {
+    expect(() =>
+      validateArchitectureValidationSequence(architecture.replaceAll("npm run agent-improvement:check", "")),
+    ).toThrow("agent-improvement:check");
+  });
+
+  it("rejects a missing documentation drift gate", () => {
+    expect(() => validateArchitectureValidationSequence(architecture.replace("npm run docs:drift", ""))).toThrow(
+      "docs:drift",
+    );
+  });
 });

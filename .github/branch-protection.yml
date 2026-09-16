@@ -1,0 +1,12 @@
+schemaVersion: 1
+defaultBranch: main
+enforcement: advisory
+pullRequests:
+  required: true
+  codeOwnerReview: true
+  minimumApprovals: 1
+  requiredChecks:
+    - Validate
+    - Security
+limitations:
+  - Server-side branch protection is not observable in the current repository plan.

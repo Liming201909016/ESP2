@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "mode": "containment",
+  "signal": "flaky-infrastructure-rerun",
+  "workflows": ["Security", "Validate"],
+  "eligibleClassification": "transient_runner_failure",
+  "action": "rerun_failed_jobs",
+  "maxAttempts": 1,
+  "terminalAction": "human_handoff",
+  "proofArtifacts": ["ci-recovery-decision.json", "ci-recovery-terminal.json"]
+}
