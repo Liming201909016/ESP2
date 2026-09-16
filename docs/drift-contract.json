@@ -46,12 +46,31 @@
       "sourceTerms": [
         "enforcement: active",
         "rulesetId: 23527101",
-        "codeOwnerReview: true",
-        "minimumApprovals: 1",
+        "governanceMode: single-maintainer-hackathon",
+        "independentReview: false",
+        "codeOwnerReview: false",
+        "minimumApprovals: 0",
+        "required: true",
+        "resolveReviewThreads: true",
+        "strictRequiredChecks: true",
+        "protectDeletion: true",
+        "protectNonFastForward: true",
         "- application",
+        "- infrastructure",
+        "- agentic-workflows",
+        "- CodeQL",
+        "- Secret scanning",
         "- remediation-proof / remediation-proof"
       ],
-      "documentationTerms": ["active default-branch contract", "Ruleset `23527101`", "no configured actor can bypass"]
+      "documentationTerms": [
+        "active default-branch contract",
+        "Ruleset `23527101`",
+        "no configured actor can bypass",
+        "single-maintainer Hackathon governance",
+        "not an independent-review guarantee",
+        "Required approving reviews are **0**",
+        "before production adoption"
+      ]
     },
     {
       "id": "agent-repair-proposal",

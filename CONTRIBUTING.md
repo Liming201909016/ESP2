@@ -47,11 +47,33 @@ modifying files. Run `npm run hooks:install` once per clone to enable it.
 - Record the commands run and any skipped checks in the pull request.
 - Identify security, data, permission, migration, and rollback implications.
 - Disclose AI-agent contributions and review their changes and evidence before approval.
-- Obtain the review requested by `CODEOWNERS`.
+- Record the maintainer's self-review of the exact head commit before merging; do not present it as independent approval.
 
 `.github/branch-protection.yml` records the active default-branch contract. Ruleset `23527101` requires pull requests,
-one approval, CODEOWNERS review, validation, security, and closed-loop remediation proof checks. The public repository
+resolved review threads, validation, security, and closed-loop remediation proof checks. The public repository
 exposes server-side enforcement to API verification; no configured actor can bypass the active ruleset.
+
+### Single-maintainer Hackathon mode
+
+On September 16, 2026, the project owner explicitly authorized **single-maintainer Hackathon governance** because
+`Liming201909016` is the only maintainer. Required approving reviews are **0** and required CODEOWNER approval is
+**disabled**. `CODEOWNERS` remains an ownership record, not an independent-review guarantee. This is a standing,
+documented project mode, not a temporary bypass to merge a particular PR. It weakens independent review and may affect
+external readiness assessments; no unchanged evaluation score or production suitability is claimed.
+
+GitHub continues to enforce PR-based changes, resolution of review discussions, all six required status checks,
+up-to-date branch checks, prevention of force pushes and branch deletion, and an empty bypass list. Copilot review
+remains enabled but does not replace a human's judgment. An author may merge their own PR only once the applicable
+server-side gates are satisfied; closing a discussion without addressing the issue is not an acceptable substitute.
+
+Before merging, the maintainer must leave a self-review record naming the reviewed head SHA, validation and security
+results, disposition of review findings, and rollback or residual risks. This is a process obligation, not a new
+GitHub-enforced approval check. AI assistance must be disclosed and must not submit an approval or self-review on the
+maintainer's behalf. Pending PRs still need this review; the policy change does not approve, merge or resolve them.
+
+Review this mode after the hackathon, when another qualified maintainer joins, or before production adoption. Restoring
+independent review requires a separately reviewed policy update: add eligible ownership, restore at least one approval
+and required CODEOWNER review, and verify the live ruleset. There is no automatic expiry or silent toggle-back.
 
 Agent policy exceptions use the `Agent policy exception` issue form. A request must name an owner, exact scope, UTC
 expiry, justification, compensating controls, and rollback proof. It remains inactive until a CODEOWNER approves it and
