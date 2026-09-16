@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 20,
+  "nextSequence": 22,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -586,6 +586,74 @@
         "commitSha": "0b22febd090b1a27fc8e6fdc6ed1812f90965423",
         "checks": ["npm run agent-findings:check", "npm run docs:check", "npm run format:check"],
         "testPaths": ["scripts/validate-agent-findings.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0020",
+      "fingerprint": "9e2c38b9e91435bba3b5bff4bedb51c28ed6eb206fc1bea7272bd1e2e93c0990",
+      "title": "SDK reinstall trusts an unconstrained repository lock",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:47:55.818Z",
+      "lastSeenAt": "2026-09-15T16:47:55.818Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34997076776",
+          "targetSha": "39934e78de67aba51659ee213d1060f6dc32d1a9",
+          "observedAt": "2026-09-15T16:47:55.818Z",
+          "evidenceDigest": "96efac64575e63c055dad71ab57257a9eb2026d53d8caa97cbde07bb5c5fad54"
+        }
+      ],
+      "dispositionReason": "Resolved by moving SDK dependencies into an isolated lock, verifying its complete file SHA-256 before hydration, and validating every closure entry's version, registry path, integrity, and dependency edges.",
+      "proofOfFix": {
+        "commitSha": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d",
+        "checks": [
+          "npm ci --ignore-scripts --no-audit --no-fund --prefix .github/aw/copilot-sdk-runtime",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run build"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0021",
+      "fingerprint": "801a6d402269263885a91bcb8ea61623d28173b3d9b8bda9740cd7d04904198d",
+      "title": "Validator accepts duplicate SDK tool configurations",
+      "severity": "medium",
+      "area": "agentic-workflows",
+      "path": "scripts/agentic-workflow-contract.mjs",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-15T16:47:55.818Z",
+      "lastSeenAt": "2026-09-15T16:47:55.818Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "34997076776",
+          "targetSha": "39934e78de67aba51659ee213d1060f6dc32d1a9",
+          "observedAt": "2026-09-15T16:47:55.818Z",
+          "evidenceDigest": "41583ff37a1f50289c7ece4e8a73d6430cfd176ca185a22753ea539b23e499f1"
+        }
+      ],
+      "dispositionReason": "Resolved by requiring exactly one SDK tool configuration, binding it to the agent job, and adding a duplicate-config mutation test.",
+      "proofOfFix": {
+        "commitSha": "c8798d7b3fa947fc7267ff78320c154c2a8fc27d",
+        "checks": [
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm run lint"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
       },
       "promotedControl": null,
       "riskExpiresAt": null
