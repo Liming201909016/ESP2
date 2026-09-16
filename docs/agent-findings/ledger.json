@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "esp-agent-findings-ledger",
-  "nextSequence": 33,
+  "nextSequence": 34,
   "findings": [
     {
       "id": "ESP-AF-0001",
@@ -1028,6 +1028,42 @@
       "dispositionReason": "Resolved by directing the generated dry-run install to a trusted scratch prefix with empty user/global npmrc files, a fixed registry, disabled locks/workspaces/scripts, and explicit contract mutations.",
       "proofOfFix": {
         "commitSha": "0ffb3833a1f8865f674d5c10be93113825b95952",
+        "checks": [
+          "gh aw compile agent-findings-audit --strict",
+          "npx vitest run scripts/validate-agentic-workflows.test.ts",
+          "npm run agentic-workflows:check",
+          "npm test",
+          "npm run lint",
+          "npm run format:check"
+        ],
+        "testPaths": ["scripts/validate-agentic-workflows.test.ts"]
+      },
+      "promotedControl": null,
+      "riskExpiresAt": null
+    },
+    {
+      "id": "ESP-AF-0033",
+      "fingerprint": "3b3eebae81018820725ea4d51e427abf2241d0402f63ebc0e47f6d76c8d7486f",
+      "title": "Project npmrc can bypass generated SDK dry-run isolation",
+      "severity": "high",
+      "area": "agentic-workflows",
+      "path": ".github/workflows/agent-findings-audit.md",
+      "owner": "@Liming201909016",
+      "status": "resolved",
+      "firstSeenAt": "2026-09-16T02:37:32.118Z",
+      "lastSeenAt": "2026-09-16T02:37:32.118Z",
+      "recurrenceCount": 1,
+      "occurrences": [
+        {
+          "reviewRunId": "35048631821",
+          "targetSha": "0ffb3833a1f8865f674d5c10be93113825b95952",
+          "observedAt": "2026-09-16T02:37:32.118Z",
+          "evidenceDigest": "b3f5a58759a15d5fd8a616700a6587b4e7eaa8e0b60ad4bbb0709c7371146e03"
+        }
+      ],
+      "dispositionReason": "Resolved by stashing target .npmrc without reading it during generated resolution, restoring it before audit, and validating stash/install/restore ordering with a bypass mutation.",
+      "proofOfFix": {
+        "commitSha": "2d4a0c72331411d1a8fcb660d1792c6a0851a0b2",
         "checks": [
           "gh aw compile agent-findings-audit --strict",
           "npx vitest run scripts/validate-agentic-workflows.test.ts",
