@@ -56,11 +56,11 @@ describe("documentation drift contract", () => {
     );
   });
 
-  it("rejects an advisory branch policy presented as server-enforced", () => {
+  it("rejects active branch enforcement presented as advisory", () => {
     const changedFiles = new Map(files);
     changedFiles.set(
       "CONTRIBUTING.md",
-      repositoryFile(files, "CONTRIBUTING.md").replace("Server-side enforcement remains", "Server-side enforcement is"),
+      repositoryFile(files, "CONTRIBUTING.md").replace("active default-branch contract", "advisory contract"),
     );
     expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changedFiles, path))).toThrow(
       "documentation drifted",

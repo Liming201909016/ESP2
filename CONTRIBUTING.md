@@ -49,8 +49,8 @@ modifying files. Run `npm run hooks:install` once per clone to enable it.
 - Disclose AI-agent contributions and review their changes and evidence before approval.
 - Obtain the review requested by `CODEOWNERS`.
 
-`.github/branch-protection.yml` records the advisory default-branch contract: pull requests, one approval,
-CODEOWNERS review, and the `Validate` and `Security` checks are required. Server-side enforcement remains
-unobservable under the current repository plan and must not be inferred from this file.
+`.github/branch-protection.yml` records the active default-branch contract. Ruleset `23527101` requires pull requests,
+one approval, CODEOWNERS review, validation, security, and closed-loop remediation proof checks. The public repository
+exposes server-side enforcement to API verification; no configured actor can bypass the active ruleset.
 
 Cloud deployments, infrastructure changes, identity changes, data migrations, and live model evaluations require explicit approval. A merged source change does not by itself authorize those operations.
