@@ -76,6 +76,8 @@ describe("governance Skill catalog", () => {
     const counts = () =>
       [...view.container.querySelectorAll(".catalog-summary > span > strong")].map((element) => element.textContent);
     await waitFor(() => expect(counts()).toEqual(["9", "7", "2"]));
+    expect(screen.getAllByText("Implementation bound").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Connected")).toBeNull();
     expect(fetchMock).toHaveBeenCalledTimes(2);
     fireEvent.click(screen.getByRole("tab", { name: "Repository governance (2)" }));
     fireEvent.click(screen.getByRole("button", { name: "Run Skill: Get repository validation plan" }));
@@ -113,6 +115,8 @@ describe("governance Skill catalog", () => {
       </LocaleProvider>,
     );
     const run = await screen.findByRole("button", { name: "Run Skill: Get repository validation plan" });
+    expect(screen.getByRole("complementary", { name: "Source evidence" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Governance result" }).textContent).toContain("No execution result yet");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     fireEvent.click(run);
     fireEvent.click(run);
@@ -126,6 +130,8 @@ describe("governance Skill catalog", () => {
       await delayed;
     });
     expect(await screen.findByText(governanceText("en-US", "commands"))).toBeTruthy();
+    expect(screen.queryByText(/Tool not probed/)).toBeNull();
+    expect(screen.queryByText("No execution result yet")).toBeNull();
     const original = view.container.querySelector("pre")!.textContent;
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "zh-CN" } });
     expect(screen.getByText(governanceText("zh-CN", "snapshot"))).toBeTruthy();

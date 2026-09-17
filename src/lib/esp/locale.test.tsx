@@ -162,7 +162,8 @@ describe("locale foundation", () => {
     for (const skill of skillRegistry) {
       expect(presentedSkillName(skill, "en-US")).not.toMatch(/[\u4e00-\u9fff]/);
       expect(presentedSkillDescription(skill, "en-US")).not.toMatch(/[\u4e00-\u9fff]/);
-      expect(presentedSkillName(skill, "zh-CN")).toBe(skill.name);
+      expect(presentedSkillName(skill, "zh-CN")).toMatch(/[\u4e00-\u9fff]/);
+      expect(presentedSkillName({ ...skill, version: "unknown" }, "zh-CN")).toBe(skill.name);
       expect(presentedSkillName({ ...skill, version: "unknown" }, "en-US")).toBe(skill.name);
       expect(presentedSkillDescription({ ...skill, description: "Unknown original" }, "en-US")).toBe("Unknown original");
     }
@@ -239,8 +240,10 @@ describe("locale foundation", () => {
   it("has identical complete nonempty dictionary keys", () => {
     expect(Object.keys(messages["en-US"]).sort()).toEqual(Object.keys(messages["zh-CN"]).sort());
     for (const dictionary of Object.values(messages)) expect(Object.values(dictionary).every((value) => value.trim().length > 0)).toBe(true);
-    expect(translate("en-US", "security")).toBe("Security Review");
-    expect(translate("zh-CN", "security")).toBe("安全审查");
+    expect(translate("en-US", "security")).toBe("Software Review");
+    expect(translate("zh-CN", "security")).toBe("软件引入审查");
+    expect(translate("en-US", "records")).toBe("IT Tickets");
+    expect(translate("zh-CN", "approvals")).toBe("工单策略与审批");
   });
   it("builds a bounded non-authorizing preference cookie", () => {
     expect(localePreferenceCookie("zh-CN", true)).toBe("esp-locale=zh-CN; Path=/; Max-Age=31536000; SameSite=Lax; Secure");

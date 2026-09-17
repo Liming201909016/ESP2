@@ -4,7 +4,10 @@
 
 Do not disclose suspected vulnerabilities, credentials, private endpoints, customer data, or exploit details in a public issue.
 
-Report the finding privately to the repository owner, `@Liming201909016`, or use GitHub private vulnerability reporting when it is enabled for the repository. Include:
+Use **Security > Report a vulnerability** when GitHub private vulnerability reporting is enabled. Otherwise, contact
+the repository owner, `@Liming201909016`, through an established private channel. If no private channel is known, a
+contact-only issue may request one; include no affected component, vulnerability details, credentials or customer data.
+Wait for a private route before sending the report. In the private report, include:
 
 - the affected component and revision;
 - reproduction steps with secrets and personal data removed;

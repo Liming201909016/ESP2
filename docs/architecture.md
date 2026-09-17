@@ -8,8 +8,9 @@ invariants are versioned in the [ESP Engineering Contract v1](specs/esp-engineer
 
 ESP accepts an employee intent, selects an eligible governed Skill, invokes its fixed Plugin binding, and returns a
 validated result with evidence and audit metadata. The current consumers are the Web application and bounded CLI/HTTP
-tools. Microsoft 365 Copilot, Copilot Studio, MCP, and external systems are target integrations, not current runtime
-dependencies.
+tools. Repository governance also uses an implemented Web-to-MCP runtime with two fixed packaged-snapshot tools,
+separate from the seven business Skills and their two Plugin bindings. Microsoft 365 Copilot, Copilot Studio,
+review-domain MCP Skills and external business-system adapters remain target integrations.
 
 ```mermaid
 flowchart LR
@@ -100,9 +101,10 @@ candidate failure, redeploy the last-known-good baseline, and verify rollback. T
 outcomes as a run artifact. The ruleset directly requires the proof job, and the required `application` job cannot start
 until this proof job succeeds. A source merge does not authorize a deployment.
 
-The private repository plan does not provide GitHub Code Scanning storage. CodeQL therefore runs with upload disabled,
-fails deterministically when SARIF contains findings or is missing, and retains the SARIF artifact for review instead of
-relying on the Security tab.
+CodeQL currently runs with upload disabled, fails deterministically when SARIF contains findings or is missing, and
+retains the SARIF artifact for review instead of relying on the Security tab. This artifact-only configuration originated
+under the former private repository plan and remains configured after the repository became public; it is not a claim
+about current GitHub plan entitlements.
 
 [`codeblend-ai-readiness-evaluation.yml`](../.github/workflows/codeblend-ai-readiness-evaluation.yml) runs the vendored
 CodeBlend evaluator only through manual dispatch. It uploads the generated reports and does not create issues, edit
@@ -194,9 +196,10 @@ outside this checksum protection. Standalone packaging can explicitly include a 
 neither packaging command deploys it.
 
 The adjacent MCP tests exercise real stdio calls, invalid targets/tools, malformed results, an unresponsive child process,
-standalone server/client startup outside the checkout, and corrupted artifacts. Windows execution is verified locally;
-Linux execution and actual Azure hosting still require their own acceptance. CodeBlend report retrieval and paid job
-dispatch remain separate work and are not implemented by these two tools.
+standalone server/client startup outside the checkout, and corrupted artifacts. Windows execution is verified locally.
+The September 16 Azure acceptance below separately verifies both tools through the Linux Web runtime and durable audit
+storage; it does not establish portability to every host. CodeBlend report retrieval and paid job dispatch remain
+separate work and are not implemented by these two tools.
 
 ### Governed Web invocation
 
@@ -252,13 +255,46 @@ API integration tests use real packaged MCP processes and a synthetic audit writ
 acceptance. UI tests cover permission denial, missing package, audit failure, duplicate-click prevention, locale stability
 and audit navigation.
 
+### Cross-platform governance packaging
+
+The Web runtime keeps `@modelcontextprotocol/sdk` and `@azure/storage-blob` in `serverExternalPackages` so Node loads
+their platform-dependent code at runtime. A Windows-built Turbopack bundle previously eliminated the non-Windows
+branch of the MCP dependency `cross-spawn`; the resulting Web code could select `cmd.exe` on Linux. Successful
+standalone MCP CLI execution or Windows-only API unit tests did not detect that build/runtime mismatch. Do not remove
+the external-package boundary without revalidating the final deployment artifact.
+
+The [production governance regression](../tests/e2e/governance-runtime.e2e.ts) starts the real Next standalone server,
+submits both HTTP Skill requests, invokes actual packaged MCP child processes, and compares results and provenance.
+It simulates the Linux platform and extensionless Node executable at the process boundary while executing the child
+with the local Node binary. A test-only module hook replaces Blob upload with temporary audit records; it never adds a
+product flag that bypasses audit, and the server inherits no cloud credentials. This regression fails with the previous
+inlined MCP dependency and passes with native runtime loading. It is not a substitute for real Linux/Azure acceptance.
+
+The first September 16 DEV attempt failed governance invocation and left an audited failure. Reverting to release
+`6421747f` then made audit reads fail because its strict permission schema did not recognize `governance.read`.
+Recovery first retained compatible release `1bfb94fa` with governance disabled. A subsequent explicitly approved release,
+`b0dde1fc-7a5c-4d9d-997a-f80f370b081b`, deployed native runtime loading and enabled the two governance tools. Both Linux
+Web invocations returned the exact packaged results and recorded audit starts/outcomes; those audits survived restart.
+See the [final verification](../artifacts/azure-governance-dev-fix-20260916-150911/final-verification.json) and
+[restart verification](../artifacts/azure-governance-dev-fix-20260916-150911/post-restart-verification.json), which are
+operator-held local evidence, not files available in a fresh checkout. The deployed package used local source changes;
+later local UI/demo changes are not covered by that release.
+
+The known compatible governance-disabled fallback is `1bfb94fa`, not `6421747f`. Older packages that cannot parse stored
+audit records are not safe rollback targets: retain a compatible release, or review a compatibility repair before
+rollback. Do not delete, rewrite or silently ignore historical audit evidence to make a rollback look successful.
+Changing access, package settings or deployed code remains a separately authorized operation.
+
+### Agent policy exceptions
+
 Agent policy exceptions start with the structured
 [`Agent policy exception`](../.github/ISSUE_TEMPLATE/agent-exception.yml) issue form and lifecycle labels from
 [`.github/labels.yml`](../.github/labels.yml). The scheduled
 [`Agent Exception Audit`](../.github/workflows/agent-exception-audit.yml) reads open requests, validates accountable
 ownership and canonical UTC expiry, and classifies each request as pending, active, expired, or malformed. It uploads a
-machine-readable report with `mutationAllowed: false`; only a CODEOWNER can approve, renew, close, or change an
-exception, and expired or malformed requests fail closed. Approval evidence comes from unedited individual
+machine-readable report with `mutationAllowed: false`. Human policy requires CODEOWNER review of exception changes;
+the audit classification does not grant, revoke or override runtime authorization. Expired or malformed requests fail closed
+in this classification and cannot be marked active. Approval evidence comes from unedited individual
 default-CODEOWNER comments bound to the exact issue body digest; the label
 alone is never sufficient. The default-branch collector flattens all issue and comment pages, recognizes the issue-form
 title even if labels are missing, and isolates null or empty bodies as malformed rather than aborting other requests.

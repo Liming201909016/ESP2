@@ -1,11 +1,11 @@
 import type { Locale } from "./locale";
 
 const messages = {
-  businessSkills: ["Business Skills", "业务 Skill"],
-  catalogGroups: ["Skill catalog groups", "Skill 目录分组"],
-  businessRefresh: ["Refresh business Skills", "刷新业务 Skill"],
+  businessSkills: ["Business Skills", "业务技能"],
+  catalogGroups: ["Skill catalog groups", "技能目录分组"],
+  businessRefresh: ["Refresh business Skills", "刷新业务技能"],
   title: ["Repository governance", "仓库治理"],
-  inspect: ["Inspect repository governance", "检查仓库治理"],
+  inspect: ["Read governance snapshot", "读取仓库治理快照"],
   plan: ["Get repository validation plan", "获取仓库验证计划"],
   refresh: ["Refresh governance catalog", "刷新治理目录"],
   run: ["Run Skill", "运行技能"],
@@ -19,7 +19,7 @@ const messages = {
     "未收到有效响应，读取可能已执行，未自动重试。",
   ],
   not_configured: ["Trusted runtime package not configured", "未配置可信运行包"],
-  manifest_verified: ["Package manifest verified · Tool not probed", "运行包清单已验证 · 工具未探测"],
+  manifest_verified: ["Package manifest verified", "运行包清单已验证"],
   packageUnavailable: ["Trusted runtime package unavailable", "可信运行包不可用"],
   skill: ["Skill", "技能"],
   permission: ["Required permission", "所需权限"],
@@ -36,6 +36,8 @@ const messages = {
   review: ["Code review mode", "代码审查模式"],
   contracts: ["Documentation contracts checked at collection", "采集时检查的文档契约数"],
   result: ["Governance result", "治理结果"],
+  provenance: ["Source evidence", "来源证据"],
+  notRun: ["No execution result yet", "尚无执行结果"],
 } as const;
 export type GovernanceTextKey = keyof typeof messages;
 export function governanceText(locale: Locale, key: GovernanceTextKey) {

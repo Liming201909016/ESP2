@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createSecurityReview } from "../lib/esp/security-review";
+import { createSecurityReview, decideSecurityReview } from "../lib/esp/security-review";
 import { translate } from "../lib/esp/locale";
 import { LocaleProvider } from "./locale-provider";
 import { SecurityReviewPanel } from "./security-review-panel";
@@ -21,6 +21,25 @@ function historyIds() { return screen.queryAllByRole("button", { name: /sr-[abc]
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("security review request isolation", () => {
+  it("focuses linked follow-up materials without submitting a new review", async () => {
+    const prior = { ...records[0], record: decideSecurityReview(records[0].record, "request_information", "Please provide scope evidence.", "owner", "22222222-2222-4222-8222-222222222222") };
+    const fetchMock = vi.fn(async (path: string) => path.includes("catalog=true") ? json({ backend: "blob" }) : path.includes("?id=") ? json(prior) : json({ records: [prior], nextCursor: null }));
+    vi.stubGlobal("fetch", fetchMock);
+    const view = render(panel(prior.record.id));
+    const prepare = await screen.findByRole("button", { name: translate("en-US", "reviewResubmit") });
+    const form = view.container.querySelector("form")!;
+    const scroll = vi.fn();
+    form.scrollIntoView = scroll;
+    const count = fetchMock.mock.calls.length;
+    fireEvent.click(prepare);
+    const materials = screen.getByRole("combobox", { name: translate("en-US", "reviewCase") });
+    expect(document.activeElement).toBe(materials);
+    expect((materials as HTMLSelectElement).value).toBe("complete");
+    expect(scroll).toHaveBeenCalledWith({ block: "start" });
+    expect(form.textContent).toContain(prior.record.id);
+    expect(screen.getByRole("button", { name: translate("en-US", "reviewCreate") })).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(count);
+  });
   it("ignores a late initial detail and binds decision input to the selected record", async () => {
     const late = deferredResponse();
     const commands: Record<string, unknown>[] = [];

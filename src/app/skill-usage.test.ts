@@ -182,7 +182,7 @@ describe("independent read result rendering", () => {
     const markup = renderToStaticMarkup(createElement(ParallelReadResults, { result: parsed, busy: false, onOpenAudit: vi.fn(), onContinue: vi.fn() }));
     expect(markup).toContain("SIM: Beijing hotel limit 600 CNY.");
     expect(markup).toContain("/knowledge/dev-travel-approval");
-    expect(markup).toContain("任务 1：差旅与报销查询");
+    expect(markup).toContain("任务 1：差旅费用与预算查询");
     expect(markup).toContain("任务 2：人事制度查询");
     expect(markup).toContain("核验未通过");
     expect(markup).toContain("单独处理此项");

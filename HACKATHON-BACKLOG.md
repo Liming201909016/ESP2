@@ -2,29 +2,34 @@
 
 Planning baseline: 2026-09-14. The project owner confirmed on 2026-09-15 that ESP is an internal Hackathon 2026 project. This is the project's delivery plan, not an official event requirement or judging rubric. Submission dates, time limits, eligibility, required assets and disclosure/sharing requirements must be confirmed with the organizers. This context does not change repository visibility or DEV application access controls.
 
-Evaluation notice received via the project owner: final AI Readiness evaluation is **Monday, September 21, 2026**. At least one repository must be accessible for scanning. For GitHub EMU the specified reader is `arechen_microsoft`; for Azure DevOps it is `arechen@microsoft.com`. Scanner access to the final submitted commit must be verified; keep repository visibility unchanged unless separately approved. CodeBlend is installed and its manual workflow has completed successfully on earlier commits; this does not establish an evaluation score for the current worktree. Exact cutoff/time zone and other event requirements remain unconfirmed. See the [evaluation preparation checklist](README.md#ai-readiness-evaluation---september-21).
+Evaluation notice received via the project owner: final AI Readiness evaluation is **Monday, September 21, 2026**. At least one repository must be accessible for scanning. For GitHub EMU the specified reader is `arechen_microsoft`; for Azure DevOps it is `arechen@microsoft.com`. Scanner access to the final submitted commit must be verified. The owner separately authorized public visibility for ESP2; no transfer to another repository has been performed. The September 17 complete CodeBlend run includes uncommitted work and reports AI-Ready **no**; its exact scores, model panel and scope are retained in the [evaluation preparation checklist](README.md#ai-readiness-evaluation---september-21), not assigned to later revisions. Exact cutoff/time zone and other event requirements remain unconfirmed.
 
 ## Governance Skill Delivery - September 16
 
-The local Skill Catalog now counts **seven business Skills plus two repository-governance Skills** when the caller has
+The Skill Catalog counts **seven business Skills plus two repository-governance Skills** when the caller has
 `governance.read`. The governance tab uses the explicit `/api/governance` endpoint; these two Skills are not automatic
 intent-routing entries and do not run CodeBlend. The endpoint validates identity, a fixed ESP target and a hash-pinned
 MCP package, requires audit start before the read, and returns original results with snapshot provenance and audit links.
-Real packaged MCP calls have been exercised through API tests with a synthetic audit writer. Browser checks preserve
-results across tabs/locales and cover missing permissions and unavailable dependencies.
+Real packaged MCP calls have been exercised through API tests with a synthetic audit writer and through the Linux Web
+runtime of the explicitly approved September 16 DEV release `b0dde1fc-7a5c-4d9d-997a-f80f370b081b`. Both real calls
+returned the packaged results and recorded durable audit pairs that survived restart. The failed earlier audit remains
+preserved; no business records were changed. See [final verification](artifacts/azure-governance-dev-fix-20260916-150911/final-verification.json)
+and [restart verification](artifacts/azure-governance-dev-fix-20260916-150911/post-restart-verification.json).
 
-Remaining delivery gates, in order:
+The governance source increment is in `main` at `97447203d8ba2260775da31a954589884fa5ca19`; the deployment also contains
+local native-runtime fixes. Subsequent UI/layout and offline demo-material changes remain local. Review requirements
+follow the explicit [single-maintainer policy](CONTRIBUTING.md#single-maintainer-hackathon-mode), not the superseded
+independent-approval policy.
 
-1. Submit and review the governance Web increment after its MCP execution-layer dependency (PR #12); retain CODEOWNER
-	approval and required checks. Do not bypass branch rules to merge either change.
-2. With explicit operator authorization, connect durable audit storage and grant only the intended DEV users
-	`governance.read`; configure the approved runtime directory and manifest SHA-256.
-3. Verify both actual API calls, result-to-audit navigation, denied access and restart behavior on the identified release.
-	The current local no-storage site deliberately returns `AUDIT_START_FAILED`; it is not successful live audit acceptance.
-4. Add provenance-checked CodeBlend report retrieval before enabling separately authorized paid evaluation dispatch.
+Remaining delivery gates:
 
-No Azure deployment, identity grant or cloud audit write is implied by this source increment. The wider C/D/F work below
-remains open; two governance tools do not complete the five-stage review-capability integration.
+1. Review and merge the remaining local runtime/UI/demo changes through the applicable PR gates and recorded maintainer self-review.
+2. Freeze and separately authorize any newer deployment; do not assume local UI changes are already on the verified cloud release.
+3. Add provenance-checked CodeBlend report retrieval before enabling separately authorized paid evaluation dispatch.
+
+A fresh local site without configured audit storage still returns `AUDIT_START_FAILED` and must not bypass audit.
+The September 16 authorization was bounded to that DEV release; it does not authorize future deployments, grants or
+model jobs. The wider C/D/F work remains open; two governance tools do not complete five-stage review-capability integration.
 
 ## Outcome And Scope
 
@@ -48,6 +53,7 @@ Status legend: **Done** = demonstrated within the stated scope; **Partial** = wo
 | Area | Status | Evidence / remaining boundary |
 | --- | --- | --- |
 | Existing knowledge and ticket runtime | Done in Azure DEV | Seven static Skills, two Plugins, bounded parallel reads, workflow 1.0.3; not a generalized capability marketplace |
+| Repository governance | Done for bounded DEV verification | Two separate `governance.read` Skills call a hash-pinned MCP package; real Linux Web results and durable audits verified. Snapshot/plan only, not live evaluation or five review-domain Skills |
 | Knowledge quality | Partial | Last deployed run: 57/58; QA-041 unsupported numeric evidence remains. Demo 4/4 and VPN passed; no claim of universal reliability |
 | Individual ticket confirmation | Done in tested scope | Bound preview, idempotent persisted receipt, concurrent/replay checks; not exactly-once future external effects |
 | Security Review scenario | Partial, Azure DEV deployed | Four fixed simulation branches, deterministic controls, human decision, linked resubmission, history and bilingual report; global capability integration remains D |
@@ -56,9 +62,9 @@ Status legend: **Done** = demonstrated within the stated scope; **Partial** = wo
 | Review persistence | Done for bounded DEV verification | Four live Blob reviews and 12 audit pairs unchanged after app restart, including reports/ETags; concurrent identical submission reused one record. Not WORM or universal durability proof |
 | Human accountability | Partial | Reasons and actor IDs retained; requester/reviewer deliberately share DEV identity |
 | English support | Partial overall, presentation deployed | B01-B07 deployed: employee/management/demo controls, runtime labels, review evidence and reports; original content retained. Live review switching sends zero requests. B08 complete visual/accessibility acceptance remains |
-| Validation | Done for current bounded release | 1127 tests / 70 files, lint/build/data/package checks; live health/readiness, four review branches, concurrent submission, bilingual reports and restart comparisons passed. Model-quality suite not rerun; broader G02/B08 remain |
+| Validation | Dated bounded results | September 15 review baseline: 1127 tests / 70 files. September 16 runtime fix: 1229 / 87 and two E2E tests; later local UI/demo: 1230 / 88 and three E2E tests. Live governance/restart checks are separate; model-quality suite not rerun, broader G02/B08 remain |
 
-The deployed release is `6421747f-c475-4d2a-9239-d3b16efed4d6`, build `fOzUgq-Cvo9wUrUhmoBau`, deployed with explicit authorization on 2026-09-15. [Manifest](artifacts/azure-workspaces-review-20260915/manifest.json), [runtime checks](artifacts/azure-workspaces-review-20260915/runtime-verification.json), [four-branch checks](artifacts/azure-workspaces-review-20260915/review-verification.json) and [restart comparisons](artifacts/azure-workspaces-review-20260915/restart-verification.json). Previous release `9d70309a-340e-41db-9d72-0d5f275ef7b7` is retained for rollback. The stopped private PostgreSQL server was started with separate user confirmation; running charges resume, without network/SKU changes. No model call, source publication or migration occurred.
+The last verified DEV release is `b0dde1fc-7a5c-4d9d-997a-f80f370b081b`, build `Ij6a1lXGooM3H4zDpqVXL`, deployed with explicit authorization on 2026-09-16. Its [manifest](artifacts/azure-governance-dev-fix-20260916-150911/manifest.json) records a manual local-source package, not CI provenance. See the [current release summary](README.md#current-azure-dev-release) for the pinned governance manifest and verification scope. The compatible governance-disabled fallback is `1bfb94fa`; older `6421747f` cannot parse the new audit permission and is not a safe rollback target. Existing business records remained unchanged, with no model call, publication or migration during governance acceptance. These links are operator-held local artifacts, not available in a fresh clone.
 
 ## H0 - Hackathon Deliverables
 
@@ -67,7 +73,7 @@ The deployed release is `6421747f-c475-4d2a-9239-d3b16efed4d6`, build `fOzUgq-Cv
 | ID | Task | Status | Acceptance / dependencies |
 | --- | --- | --- | --- |
 | H0-A01 | Confirm event requirements and delivery schedule | Partial, evaluation date supplied | AI Readiness final evaluation September 21, 2026; at least one scanner-readable repo required. EMU/ADO reader identities recorded above. Verify ESP2 type/access and exact cutoff/time zone; other rules, eligibility and submission assets remain unconfirmed |
-| H0-A02 | Freeze the primary demo story | Done | [Version 1.0.0 English story](HACKATHON-DEMO.md) covers intent, evidence, human decision, report and honest current/target reuse proof; event timing remains A01 |
+| H0-A02 | Freeze the primary demo story | Done for the draft scope | [Version 1.1.0 story](HACKATHON-DEMO.md) includes English scenes and a Chinese rehearsal script, with current/target reuse distinguished; final event timing remains A01 |
 | H0-A03 | Define the MVP acceptance matrix | Partial | [SR-01 through SR-16 and release gates](HACKATHON-DEMO.md) drafted; proposed warm latency budgets and bounded run protocol still need agreement |
 | H0-A04 | Assign delivery and capability owners | Decision | User explicitly keeps owners unassigned for now; no real role assignment or responsibility inferred |
 
@@ -82,7 +88,7 @@ The deployed release is `6421747f-c475-4d2a-9239-d3b16efed4d6`, build `fOzUgq-Cv
 | H0-B05 | Support English review discovery and follow-ups | Done locally, bounded grammar | [Discovery rules](src/lib/esp/security-review.ts) accept full English review/assessment requests and fixed Chinese equivalents. Negation, extra actions/objects and decision-only text are rejected; discovery and direct start share the same guard. Structured English decisions and linked information follow-ups tested with required ID/ETag/reason and unchanged prior evidence. This is not general conversational understanding |
 | H0-B06 | Provide English-readable synthetic evidence | Done locally | [Versioned presentation](src/lib/esp/security-review-presentation.ts) covers all five primary-demo excerpts, including high-risk/conflict variants. Exact original/ID/document/field/value/version matching; labelled English representations alongside unchanged originals; unknown inputs return no translation. Four-case tests verify no mutation |
 | H0-B07 | Localize reports and decision history | Done locally | [Standalone bilingual HTML report](src/lib/esp/security-review-report.ts), HTML download, print CSS and original JSON through the same owner-checked GET. Localized UTC dates, findings/evaluation/version labels and labelled system-entry representation; original human reasons/evidence/IDs retained. Four-branch, escaping, permission and unchanged-JSON tests pass; wider visual acceptance remains B08 |
-| H0-B08 | Validate both languages and accessibility | Partial | Review/report, mocked knowledge/approval policy/detail and ticket history checked at 1440/390/320 without stable DOM overflow. Ticket/approval drafts, confirmation/ETag/selection IDs survive locale switches with zero requests. Ticket history has keyboard selection buttons; failed reads do not claim empty lists. Full visual/keyboard/contrast and real cloud acceptance remain open; screenshot edge-cropping remains unresolved |
+| H0-B08 | Validate both languages and accessibility | Partial | Review/report and selected business flows checked at 1440/390/320. Later local Playwright checks add six English/Chinese governance screenshots with no overflow and no locale/resize replay. Standalone screenshots are usable; integrated-browser capture remains unreliable. Full keyboard/contrast, all-view coverage and newer UI cloud acceptance remain open |
 
 Internationalization is not a bulk translation of JSON evidence. Any bilingual source-pack/index migration is a separately planned publication change, with matching canonical digests and rollback data.
 
@@ -97,7 +103,7 @@ Internationalization is not a bulk translation of JSON evidence. Any bilingual s
 | H0-C05 | Separate request creation from request details | Todo | One common detail shell: overview, next action, evidence/findings, workflow/decisions, report/evaluation and audit. Selecting history does not leave a misleading new-request form as the primary view |
 | H0-C06 | Group technical management surfaces | Partial, operations group deployed | Existing technical pages grouped under Capability Operations; unified Capability Center/Knowledge & Sources tabs, separate Evaluation & Improvement and Runtime & Audit remain |
 | H0-C07 | Move fixture controls into Demo Center | Todo | Demo scenario selection launches the normal employee flow. Employee screen does not permanently require selecting complete/missing/high-risk fixtures; fixture choice remains explicit and traceable |
-| H0-C08 | Simplify workbench and mobile navigation | Partial, labelled menu deployed | Collapsible labelled mobile navigation replaces the icon wall; environment/shared-identity warnings retained, 1440/800/390/320 checked. Business-focused detail composition and execution drawer remain |
+| H0-C08 | Simplify workbench and mobile navigation | Partial, deployed menu plus local polish | Labelled menu is deployed. Later local changes replace example buttons with a non-executing selector and improve governance/evidence columns and narrow-screen wrapping; Playwright verifies no replay. These UI changes await a new release; common business details and execution drawer remain |
 
 ### D. Governed Capability Integration
 
@@ -142,7 +148,7 @@ The five proposed review capabilities are Intake, Evidence Extraction, Control C
 | H0-G02 | Define and execute a release-quality suite | Partial | Security branches + English intents + existing knowledge baseline/challenge v2 + parallel/VPN/ticket regressions; same release/config/data, full failures retained, no retry-until-green |
 | H0-G03 | Assess repeatability and latency | Todo | Agree a bounded repeat-run protocol and cost budget in advance; report per-case variation, refusal/incorrect-answer/transport separation and observed p50/p95. One green run is not a reliability guarantee |
 | H0-G04 | Perform targeted human adjudication | Todo | Review main-demo output and sampled edge cases for entity/condition/unit/time-scope correctness; explain deterministic checks versus LLM evaluation and provisional thresholds |
-| H0-G05 | Deploy the review increment to Azure DEV | Done, authorized manual release | Release 6421747f deployed from verified local-source package; previous 9d70309a ZIP retained. Healthy dependencies, private Blob review/audit storage, no memory mode/seed/migration. Not CI provenance or automatic deployment |
+| H0-G05 | Deploy the review increment to Azure DEV | Done, authorized manual releases | Initial review acceptance was 6421747f on September 15; last verified release b0dde1fc also enables repository governance. Compatible disabled-governance fallback is 1bfb94fa, not audit-incompatible 6421747f. No CI provenance or automatic deployment claim |
 | H0-G06 | Verify cloud durability and concurrency | Done for bounded synthetic scope | Four labelled synthetic reviews, three blocked approvals, 12 recorded review audits, identical concurrent submission reused. Reports/records/ETags/audits identical after restart; four records only, unrelated data untouched. Shared DEV identity and no WORM claims retained |
 | H0-G07 | Rehearse recoverable demonstration failures | Todo | Missing materials, denied action, dependency unavailable, expired/stale client state and uncertain write have clear English outcomes; no fabricated success or automatic business retry |
 | H0-G08 | Freeze the demonstrated release | Todo | Exact build/release/data/rule versions, startup/readiness checks, artifact hashes, retained rollback materials and rehearsed operator steps; no last-minute silent data changes |
@@ -151,8 +157,8 @@ The five proposed review capabilities are Intake, Evidence Extraction, Control C
 
 | ID | Task | Status | Acceptance / dependencies |
 | --- | --- | --- | --- |
-| H0-H01 | Prepare English pitch and architecture diagram | Todo | Explain problem, capability-centric distinction, architecture and demonstrated value without unsupported product/market claims; verify external Microsoft/competitor references separately |
-| H0-H02 | Prepare an English live-demo runbook | Todo | Exact inputs, expected states, human actions, evidence links and reusable capability comparison; timings fit confirmed event limits; show one success and one governance boundary |
+| H0-H01 | Prepare English pitch and architecture diagram | Partial | English opening/scenes/closing and target architecture exist; final timed pitch, frozen-release claims and external-reference review remain |
+| H0-H02 | Prepare an English live-demo runbook | Partial | English scenes, fixed supported inputs and Chinese rehearsal variants exist; final allotted time and recorded rehearsal on the frozen release remain |
 | H0-H03 | Record the required video and screenshots | Todo | Actual demonstrated build, readable English UI, synthetic-data notice, no secrets; backup recording labelled as recorded, not passed off as live |
 | H0-H04 | Prepare submission and judge-access materials | Todo | English summary, setup/access steps, architecture, demo link, evaluation results and known limitations; verify permission to share repository/artifacts before publication |
 | H0-H05 | Make business value measurable | Todo | Separate measured prototype evidence (shared implementations, two consumers, traced decisions) from estimated future savings; do not invent ROI, adoption or production scale |

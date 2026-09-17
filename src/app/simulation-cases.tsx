@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, FlaskConical, Play, RotateCcw, Search } from "lucide-react";
+import { ArrowRight, ExternalLink, FlaskConical, Play, RotateCcw, Search, ShieldCheck } from "lucide-react";
 import { simulationCases, simulationCategories, type SimulationCase } from "../lib/esp/simulation-cases";
 import { EnterpriseRecordLibrary, type EnterpriseRecordActions } from "./enterprise-records";
 import { enterpriseAsOf } from "../lib/esp/enterprise-records";
@@ -17,6 +17,7 @@ type Props = {
   pending: boolean;
   onRunRequest: (query: string) => void;
   onOpenAudit: (id: string) => void;
+  onOpenReview?: () => void;
 } & EnterpriseRecordActions;
 
 const outcomes: Record<SimulationCase["expected"], DemoTextKey> = {
@@ -25,7 +26,7 @@ const outcomes: Record<SimulationCase["expected"], DemoTextKey> = {
   correction_or_no_evidence: "correction_or_no_evidence",
 };
 
-export function SimulationCaseLibrary({ selectedId, onSelect, onRun, pending, onQuery, onPrepare, onOpenRecords, onRunRequest, onOpenAudit }: Props) {
+export function SimulationCaseLibrary({ selectedId, onSelect, onRun, pending, onQuery, onPrepare, onOpenRecords, onRunRequest, onOpenAudit, onOpenReview }: Props) {
   const { locale } = useLocale();
   const text = (key: DemoTextKey) => demoText(locale, key);
   const [view, setView] = useState<"cases" | "records" | "demo" | "workflow">("cases");
@@ -46,6 +47,15 @@ export function SimulationCaseLibrary({ selectedId, onSelect, onRun, pending, on
         <div><p className="eyebrow">SIMULATION LIBRARY</p><h1>{text("library")}</h1></div>
         <span className="sample-label"><FlaskConical size={14} /> {text("synthetic")}</span>
       </section>
+      {onOpenReview && <section className="featured-review" aria-label={text("featured")}>
+        <div className="featured-review-heading">
+          <div><p className="eyebrow">{text("featured")}</p><h2><ShieldCheck size={22} />{text("softwareReview")}</h2><p>Docker Desktop · <code>SIM-SW-202609-0031</code></p></div>
+          <button className="refresh-button" type="button" disabled={pending} onClick={onOpenReview}>{text("openReview")}<ArrowRight size={16} /></button>
+        </div>
+        <ol className="review-milestones" aria-label={text("reviewSteps")}>
+          {(["intakeStep", "evidenceStep", "followupStep", "decisionStep", "reportStep"] as const).map((key) => <li key={key}>{text(key)}</li>)}
+        </ol>
+      </section>}
       <div className="simulation-summary">
         <div><strong>澄川数科</strong><span>{text("snapshot")} {enterpriseAsOf}</span></div>
         <span>{simulationCases.length.toLocaleString(locale)} {text("caseCount")} · {Object.keys(simulationCategories).length.toLocaleString(locale)} {text("domainCount")}</span>
@@ -67,7 +77,7 @@ export function SimulationCaseLibrary({ selectedId, onSelect, onRun, pending, on
         <span className="case-count" role="status">{visibleCases.length} / {simulationCases.length}</span>
       </div>
       <div className="case-layout">
-        <section aria-label={text("caseList")} className="case-table-wrap">
+        <section aria-label={text("caseList")} className="case-table-wrap" tabIndex={0}>
           <table className="case-table">
             <caption className="sr-only">{text("caseCaption")}</caption>
             <thead><tr><th scope="col">{text("case")}</th><th scope="col">{text("domain")}</th><th scope="col">{text("expectation")}</th></tr></thead>

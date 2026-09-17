@@ -135,112 +135,123 @@ export function GovernanceSkills({
         </p>
       )}
       {(loading || pending) && <p role="status">{text(pending ? "running" : "loading")}</p>}
-      {catalog && (
-        <>
-          <p className="catalog-updated">
-            {text(catalog.packageStatus === "unavailable" ? "packageUnavailable" : catalog.packageStatus)}
-          </p>
-          <table className="catalog-table">
-            <caption className="sr-only">{text("title")}</caption>
-            <thead>
-              <tr>
-                <th>{text("skill")}</th>
-                <th>{text("permission")}</th>
-                <th>{text("actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {catalog.skills.map((skill) => (
-                <tr key={skill.id}>
-                  <td>
-                    <strong>{text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}</strong>
-                    <code>
-                      {skill.id} · {skill.version}
-                    </code>
-                  </td>
-                  <td>
-                    <code>{skill.permission}</code>
-                  </td>
-                  <td>
-                    <button
-                      className="icon-button"
-                      type="button"
-                      disabled={blocked || catalog.packageStatus !== "manifest_verified"}
-                      onClick={() => void run(skill.id)}
-                      aria-label={`${text("run")}: ${text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}`}
-                      title={`${text("run")}: ${text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}`}
-                    >
-                      <Play size={15} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
-      {provenance && (
-        <>
-          <p>{text("snapshot")}</p>
-          <dl className="catalog-metadata">
-            <div>
-              <dt>{text("commit")}</dt>
-              <dd>
-                <code>{provenance.sourceCommit}</code>
-              </dd>
-            </div>
-            <div>
-              <dt>{text("collected")}</dt>
-              <dd>
-                <time dateTime={provenance.collectedAt}>{new Date(provenance.collectedAt).toLocaleString(locale)}</time>
-              </dd>
-            </div>
-            <div>
-              <dt>{text("digest")}</dt>
-              <dd>
-                <code>{provenance.inputDigest}</code>
-              </dd>
-            </div>
-          </dl>
-          <p className="catalog-updated">{text(provenance.dirtyWorktree ? "dirty" : "clean")}</p>
-        </>
-      )}
-      <AuditFeedback receipt={audit} onOpen={onOpenAudit} />
-      {result && (
-        <div aria-label={text("result")}>
-          {result.skillId === "get-repository-validation-plan" ? (
+      <div className="governance-layout">
+        <div className="governance-tools">
+          {catalog && (
             <>
-              <h3>{text("commands")}</h3>
-              <ol>
-                {result.result.commands.map((command, index) => (
-                  <li key={`${index}-${command}`}>
-                    <code>{command}</code>
-                  </li>
-                ))}
-              </ol>
+              <p className="catalog-updated">
+                {text(catalog.packageStatus === "unavailable" ? "packageUnavailable" : catalog.packageStatus)}
+              </p>
+              <table className="catalog-table">
+                <caption className="sr-only">{text("title")}</caption>
+                <thead>
+                  <tr>
+                    <th>{text("skill")}</th>
+                    <th>{text("permission")}</th>
+                    <th>{text("actions")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {catalog.skills.map((skill) => (
+                    <tr key={skill.id}>
+                      <td>
+                        <strong>{text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}</strong>
+                        <code>
+                          {skill.id} · {skill.version}
+                        </code>
+                      </td>
+                      <td>
+                        <code>{skill.permission}</code>
+                      </td>
+                      <td>
+                        <button
+                          className="icon-button"
+                          type="button"
+                          disabled={blocked || catalog.packageStatus !== "manifest_verified"}
+                          onClick={() => void run(skill.id)}
+                          aria-label={`${text("run")}: ${text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}`}
+                          title={`${text("run")}: ${text(skill.id === "inspect-repository-governance" ? "inspect" : "plan")}`}
+                        >
+                          <Play size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </>
-          ) : (
+          )}
+        </div>
+        {provenance && (
+          <aside className="governance-provenance" aria-label={text("provenance")}>
+            <h3>{text("provenance")}</h3>
+            <p>{text("snapshot")}</p>
             <dl className="catalog-metadata">
               <div>
-                <dt>{text("recovery")}</dt>
-                <dd>{result.result.recovery.mode}</dd>
+                <dt>{text("commit")}</dt>
+                <dd>
+                  <code>{provenance.sourceCommit}</code>
+                </dd>
               </div>
               <div>
-                <dt>{text("review")}</dt>
-                <dd>{result.result.codeReview.mode}</dd>
+                <dt>{text("collected")}</dt>
+                <dd>
+                  <time dateTime={provenance.collectedAt}>
+                    {new Date(provenance.collectedAt).toLocaleString(locale)}
+                  </time>
+                </dd>
               </div>
               <div>
-                <dt>{text("contracts")}</dt>
-                <dd>{result.result.documentationDrift.contractCount}</dd>
+                <dt>{text("digest")}</dt>
+                <dd>
+                  <code>{provenance.inputDigest}</code>
+                </dd>
               </div>
             </dl>
+            <p className="catalog-updated">{text(provenance.dirtyWorktree ? "dirty" : "clean")}</p>
+          </aside>
+        )}
+        <section className="governance-result" aria-label={text("result")} aria-busy={pending}>
+          <h3>{text("result")}</h3>
+          <AuditFeedback receipt={audit} onOpen={onOpenAudit} />
+          {!result && !pending && !error && <p className="governance-empty">{text("notRun")}</p>}
+          {result && (
+            <div>
+              {result.skillId === "get-repository-validation-plan" ? (
+                <>
+                  <h3>{text("commands")}</h3>
+                  <ol>
+                    {result.result.commands.map((command, index) => (
+                      <li key={`${index}-${command}`}>
+                        <code>{command}</code>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              ) : (
+                <dl className="catalog-metadata">
+                  <div>
+                    <dt>{text("recovery")}</dt>
+                    <dd>{result.result.recovery.mode}</dd>
+                  </div>
+                  <div>
+                    <dt>{text("review")}</dt>
+                    <dd>{result.result.codeReview.mode}</dd>
+                  </div>
+                  <div>
+                    <dt>{text("contracts")}</dt>
+                    <dd>{result.result.documentationDrift.contractCount}</dd>
+                  </div>
+                </dl>
+              )}
+              <details className="catalog-schema">
+                <summary>{text("json")}</summary>
+                <pre>{JSON.stringify(result, null, 2)}</pre>
+              </details>
+            </div>
           )}
-          <details className="catalog-schema">
-            <summary>{text("json")}</summary>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
-          </details>
-        </div>
-      )}
+        </section>
+      </div>
     </section>
   );
 }
