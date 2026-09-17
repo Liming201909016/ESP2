@@ -46,6 +46,7 @@ export function validateFinalInstruction(workflowBody) {
 }
 
 export function validateCompiledReadOnlyTools(compiledWorkflow) {
+  compiledWorkflow = compiledWorkflow.replaceAll("\r\n", "\n");
   const harnessLines = compiledWorkflow.split(/\r?\n/u).filter((line) => line.includes("copilot_harness.cjs"));
   assert.equal(harnessLines.length, 2, "compiled workflow must contain exactly one agent and one detector harness");
   const sdkHarness = harnessLines.find((line) => line.includes("copilot_sdk_driver.cjs"));
@@ -108,6 +109,7 @@ export function validateCompiledReadOnlyTools(compiledWorkflow) {
 }
 
 export function validateSdkInstallIntegrity(workflowSource, compiledWorkflow, sdkManifest, sdkLock) {
+  compiledWorkflow = compiledWorkflow.replaceAll("\r\n", "\n");
   const runtimeDependencies = {
     "@github/copilot-sdk": "1.0.11",
     undici: "6.28.0",

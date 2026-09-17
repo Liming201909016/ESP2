@@ -8,14 +8,21 @@ import {
   validateSdkInstallIntegrity,
 } from "./agentic-workflow-contract.mjs";
 
-const source = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.md"), "utf8");
-const lock = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.lock.yml"), "utf8");
+const sourceText = readFileSync(resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.md"), "utf8");
+const lockText = readFileSync(
+  resolve(import.meta.dirname, "../.github/workflows/agent-findings-audit.lock.yml"),
+  "utf8",
+);
 const sdkRuntimePath = resolve(import.meta.dirname, "../.github/aw/copilot-sdk-runtime");
 const sdkManifest = JSON.parse(readFileSync(resolve(sdkRuntimePath, "package.json"), "utf8"));
 const sdkLockText = readFileSync(resolve(sdkRuntimePath, "package-lock.json"), "utf8");
 const sdkLock = JSON.parse(sdkLockText);
 
-describe("agentic workflow contract", () => {
+describe.each(["LF", "CRLF"])("agentic workflow contract (%s)", (lineEnding) => {
+  const newline = lineEnding === "CRLF" ? "\r\n" : "\n";
+  const source = sourceText.replace(/\r?\n/gu, newline);
+  const lock = lockText.replace(/\r?\n/gu, newline);
+
   it("accepts a Markdown thematic break inside the workflow body", () => {
     const sourceWithThematicBreak = source.replace("# Agent Findings Audit", "# Agent Findings Audit\n\n---");
     const body = extractWorkflowBody(sourceWithThematicBreak);

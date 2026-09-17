@@ -30,6 +30,7 @@ export function SecurityReviewPanel({ onOpenAudit, initialId, initialQuery }: { 
   const [audit, setAudit] = useState<AuditReceipt | null>(null);
   const [localAudit, setLocalAudit] = useState<string | null>(null);
   const submission = useRef<string | null>(null); const busy = useRef(false);
+  const requestForm = useRef<HTMLFormElement | null>(null);
   const detailRevision = useRef(0);
   const listRequest = useRef<AbortController | null>(null);
   const [listLoading, setListLoading] = useState(false);
@@ -110,7 +111,7 @@ export function SecurityReviewPanel({ onOpenAudit, initialId, initialQuery }: { 
   return <>
     <section className="workspace-heading"><div><p className="eyebrow">SECURITY REVIEW</p><h1>{t("reviewTitle")}</h1></div><ShieldCheck size={26} /></section>
     <p className="catalog-updated">Docker Desktop · SIM-SW-202609-0031 · {t("reviewScope")} · {t(backend === "memory" ? "reviewMemory" : backend === "blob" ? "reviewBlob" : "unknown")}</p>
-    <form className="security-review-request" onSubmit={(event) => { event.preventDefault(); void action({ action: "discover", query }); }}>
+    <form ref={requestForm} className="security-review-request" onSubmit={(event) => { event.preventDefault(); void action({ action: "discover", query }); }}>
       <label htmlFor="security-intent">{t("reviewQuery")}</label>
       <div className="security-review-command"><input id="security-intent" value={query} maxLength={2000} disabled={pending} onChange={(event) => { setQuery(event.target.value); setDiscovered(false); submission.current = null; }} /><button className="refresh-button" disabled={pending || query.trim().length < 3}><Search size={16} />{t("reviewDiscover")}</button></div>
       <label htmlFor="security-case">{t("reviewCase")}</label><select id="security-case" value={caseId} disabled={pending} onChange={(event) => { setCaseId(event.target.value as typeof caseId); submission.current = null; }}>{reviewCases.map((entry) => <option key={entry.id} value={entry.id}>{t(`reviewCase_${entry.id}`)}</option>)}</select>
@@ -141,7 +142,11 @@ export function SecurityReviewPanel({ onOpenAudit, initialId, initialQuery }: { 
           })}</article>;
         })}
         <h3>{t("reviewDecision")}</h3>{selected.record.status === "awaiting_decision" ? <div className="security-review-decision"><label htmlFor="security-reason">{t("reviewReason")}</label><textarea id="security-reason" value={reason} maxLength={1000} disabled={pending} onChange={(event) => setDecisionDraft({ id: selected.record.id, etag: selected.etag, text: event.target.value })} /><div className="security-review-command">{([{ action: "approve", label: "reviewApprove", icon: Check }, { action: "reject", label: "reviewReject", icon: X }, { action: "request_information", label: "reviewRequestInformation", icon: FileSearch }] as const).map(({ action: decision, label, icon: Icon }) => <button className="refresh-button" key={decision} disabled={pending || reason.trim().length < 3 || decision === "approve" && !selected.record.evaluation.controlsPassed} onClick={() => void action({ action: decision, id: selected.record.id, etag: selected.etag, reason })}><Icon size={16} />{t(label)}</button>)}</div></div> : <p>{t("reviewDecisionRecorded")}</p>}
-        {selected.record.status === "needs_information" && <button className="refresh-button" onClick={() => { setPreviousReviewId(selected.record.id); setDiscovered(true); submission.current = null; setCaseId("complete"); }}><FileSearch size={16} />{t("reviewResubmit")}</button>}
+        {selected.record.status === "needs_information" && <button className="refresh-button" onClick={() => {
+          setPreviousReviewId(selected.record.id); setDiscovered(true); submission.current = null; setCaseId("complete");
+          requestForm.current?.scrollIntoView({ block: "start" });
+          requestForm.current?.querySelector("select")?.focus({ preventScroll: true });
+        }}><FileSearch size={16} />{t("reviewResubmit")}</button>}
         <h3>{t("reviewExecutionHistory")}</h3><ul className="security-review-history">{selected.record.stages.map((stage) => <li key={stage.skillId}>{stage.skillId} · {stage.version} · {stage.operationId} · {t("reviewCompleted")}</li>)}{selected.record.history.map((event, index) => <li key={index}><strong>{t(`reviewStatus_${event.action}`)}</strong> · <time dateTime={event.at}>{new Date(event.at).toLocaleString(locale)}</time> · {event.actor}<p><small>{t("reviewOriginalReason")}: </small>{event.reason}</p><code>{event.requestId}</code></li>)}</ul>
       </> : <div className="records-empty"><FileSearch size={24} /><span>{t("reviewSelect")}</span></div>}</div>
     </section>

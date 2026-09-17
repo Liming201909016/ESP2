@@ -210,7 +210,7 @@ export function SkillCatalogView({ selectedId, onSelect, onTry, onOpenCase, exec
     <div className="catalog-page">
       <section className="workspace-heading">
         <div><p className="eyebrow">SKILL REGISTRY</p><h1>{t("catalog")}</h1></div>
-        <button className="refresh-button" type="button" onClick={refresh} disabled={pending}><RefreshCw size={15} />{pending ? t("loading") : governanceText(locale, "businessRefresh")}</button>
+        {group === "business" && <button className="icon-button" type="button" onClick={refresh} disabled={pending} title={governanceText(locale, "businessRefresh")} aria-label={governanceText(locale, "businessRefresh")}><RefreshCw size={18} /></button>}
       </section>
       <div className="catalog-summary">
         <span><strong>{catalog && governanceCount !== null ? (skills.length + governanceCount).toLocaleString(locale) : "--"}</strong> {t("visibleSkills")}</span>

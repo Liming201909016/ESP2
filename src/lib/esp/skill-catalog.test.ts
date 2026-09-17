@@ -8,7 +8,7 @@ import { knowledgeDocuments } from "./knowledge-corpus";
 import { z } from "zod";
 import { skillRegistry } from "./registry";
 import { routeSkill } from "./router";
-import { presentedInputLabel, skillSearchText } from "./skill-presentation";
+import { presentedInputLabel, presentedSkillName, presentedSkillDescription, skillSearchText } from "./skill-presentation";
 
 describe("skill catalog definitions", () => {
   it("returns the current registered versions without changing the registry", () => {
@@ -48,10 +48,22 @@ describe("skill catalog definitions", () => {
 
 describe("executable catalog metadata", () => {
   const permissions = ["knowledge.read", "tickets.read", "tickets.create"] as const;
+  it("uses bounded display aliases without changing registered names, versions or descriptions", () => {
+    const before = structuredClone(skillRegistry);
+    const expected = ["人事制度与台账查询", "差旅费用与预算查询", "采购流程与订单查询", "信息安全规范查询", "软件目录与许可查询", "工单状态查询", "创建 IT 工单"];
+    expect(skillRegistry.map((skill) => presentedSkillName(skill, "zh-CN"))).toEqual(expected);
+    expect(presentedSkillDescription(skillRegistry[1], "zh-CN")).toContain("不执行付款");
+    for (const skill of skillRegistry) {
+      expect(presentedSkillName({ ...skill, name: "Changed metadata" }, "zh-CN")).toBe("Changed metadata");
+      expect(presentedSkillDescription({ ...skill, description: "Changed metadata" }, "zh-CN")).toBe("Changed metadata");
+      expect(presentedSkillDescription({ ...skill, version: "9.0.0" }, "zh-CN")).toBe(skill.description);
+    }
+    expect(skillRegistry).toEqual(before);
+  });
   it("searches English and original names without a locale-dependent result set", () => {
     const catalog = getSkillCatalog([...permissions]);
     const before = JSON.stringify(catalog);
-    for (const query of ["HR Policy Lookup", "人事制度查询", "search-company-policy"]) {
+    for (const query of ["HR Policy & Records Lookup", "人事制度与台账查询", "人事制度查询", "search-company-policy"]) {
       expect(catalog.filter((entry) => skillSearchText(entry).includes(query.toLowerCase())).map((entry) => entry.id)).toEqual(["search-company-policy"]);
     }
     expect(catalog.filter((entry) => skillSearchText(entry).includes("tickets.create")).map((entry) => entry.id)).toEqual(["create-it-ticket"]);

@@ -2,6 +2,89 @@
   "schemaVersion": 1,
   "contracts": [
     {
+      "id": "readme-governance-boundary",
+      "source": "src/lib/esp/governance-contracts.ts",
+      "documentation": "README.md",
+      "documentationHeading": "Implemented vs. Planned",
+      "sourceTerms": [
+        "inspect-repository-governance",
+        "get-repository-validation-plan",
+        "governance.read",
+        "packaged_snapshot"
+      ],
+      "documentationTerms": [
+        "Seven business Skills plus two separate repository-governance Skills",
+        "inspect-repository-governance",
+        "get-repository-validation-plan",
+        "governance.read",
+        "packaged_snapshot",
+        "without executing them"
+      ]
+    },
+    {
+      "id": "readme-mcp-status",
+      "source": ".vscode/mcp.json",
+      "documentation": "README.md",
+      "documentationHeading": "Relationship to MCP and Agent Platforms",
+      "sourceTerms": ["stdio", "src/mcp/esp-governance-server.ts"],
+      "documentationTerms": [
+        "implemented",
+        "repository-governance execution package",
+        "audit-before-invocation",
+        "not an authorization or audit boundary",
+        "Microsoft 365 Copilot integration remain planned"
+      ],
+      "forbiddenDocumentationTerms": ["No MCP adapter is currently implemented here"]
+    },
+    {
+      "id": "readme-ticket-confirmation",
+      "source": "src/lib/esp/ticket-confirmation.ts",
+      "documentation": "README.md",
+      "documentationHeading": "API",
+      "sourceTerms": ["CONFIRMATION_REQUIRED", "CONFIRMATION_EXPIRED", "receiptReused: true"],
+      "documentationTerms": [
+        "submissionId",
+        "confirmation.id",
+        "confirmationId:",
+        "alone cannot create a ticket",
+        "already completed exact receipt can still be recovered"
+      ]
+    },
+    {
+      "id": "agent-validation-guide",
+      "source": "scripts/repository-docs-contract.mjs",
+      "documentation": "AGENTS.md",
+      "documentationHeading": "Validation",
+      "sourceTerms": [
+        "requiredValidationCommands",
+        "npm run docs:drift",
+        "npm run remediation:check",
+        "npm run test:e2e"
+      ],
+      "documentationTerms": ["complete local validation sequence", "CONTRIBUTING.md#validation", "dated history"]
+    },
+    {
+      "id": "contributor-hook-bootstrap",
+      "source": "scripts/setup.mjs",
+      "documentation": "CONTRIBUTING.md",
+      "documentationHeading": "Validation",
+      "sourceTerms": ["hooks:install", "spawnSync"],
+      "documentationTerms": ["npm run setup` installs", "npm run check:fast", "without modifying files"]
+    },
+    {
+      "id": "review-dispatch-provenance",
+      "source": ".github/workflows/agent-review.yml",
+      "documentation": "docs/agent-findings/README.md",
+      "documentationHeading": "Review Workflow",
+      "sourceTerms": ["ref: ${{ github.sha }}", "persist-credentials: false"],
+      "documentationTerms": [
+        "dispatch revision",
+        "github.sha",
+        "does not independently pin",
+        "Target code is never executed"
+      ]
+    },
+    {
       "id": "ci-recovery",
       "source": ".github/workflows/ci-recovery.yml",
       "documentation": "docs/architecture.md",

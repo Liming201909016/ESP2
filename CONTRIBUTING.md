@@ -37,13 +37,31 @@ npm run test:e2e
 The end-to-end test runs against the production build. Install Chromium once with
 `npx playwright install chromium`, and run `npm run build` before `npm run test:e2e` locally.
 
+The ordered command list is maintained in [the documentation contract](scripts/repository-docs-contract.mjs) and
+checked against this guide, the architecture guide and the engineering contract. Workflow changes additionally require
+`npm run agentic-workflows:check` and the pinned strict gh-aw compilation used by CI; infrastructure validation follows
+[Validate](.github/workflows/validate.yml) without deploying resources.
+
+`npm run docs:check` discovers all Git-tracked and non-ignored untracked Markdown/MDX files, including new directories,
+agent entrypoints and workflow descriptions. It parses local Markdown links and images, including reference-style links,
+and checks their targets, npm script names, required entrypoints
+and the ordered validation guides. Deleted optional documents are excluded, but references to them still fail. Ignored
+local artifact links are counted separately and are not evidence of fresh-checkout or public availability. External URLs
+and heading fragments are not fetched or verified by this check.
+
+`npm run docs:drift` checks explicit source-to-documentation behavior contracts, including current-section boundaries
+for capability and API guarantees so historical prose cannot satisfy them. These deterministic checks block PRs
+when covered claims drift; they are not a semantic review of every sentence or proof of current cloud configuration.
+Describe current code, last verified deployment and dated evaluation results separately. Retain historical failures,
+source revisions, dirty-worktree disclosures and model-panel qualifications instead of rewriting old results.
+
 The formatter gate currently covers shared configuration, governance documents, and workflows. Existing application and
 script formatting debt should be normalized in focused changes before those paths are added to the gate.
 
 Tests should demonstrate the changed behavior and a meaningful failure case. Do not weaken factual, permission, audit, or confirmation checks to make a test pass.
 
-The optional Lefthook pre-commit hook runs `npm run check:fast`. It checks lint and the bounded formatter scope without
-modifying files. Run `npm run hooks:install` once per clone to enable it.
+`npm run setup` installs the Lefthook pre-commit hook, which runs `npm run check:fast` to check lint and the bounded
+formatter scope without modifying files. To install or reinstall the hook separately, run `npm run hooks:install`.
 
 ## Pull requests
 
@@ -80,8 +98,9 @@ independent review requires a separately reviewed policy update: add eligible ow
 and required CODEOWNER review, and verify the live ruleset. There is no automatic expiry or silent toggle-back.
 
 Agent policy exceptions use the `Agent policy exception` issue form. A request must name an owner, exact scope, UTC
-expiry, justification, compensating controls, and rollback proof. It remains inactive until a CODEOWNER approves it and
-fails closed at expiry; exceptions never authorize deployment, identity, migration, cloud, or production data changes.
+expiry, justification, compensating controls, and rollback proof. The read-only audit marks well-formed requests with
+verified approval `active` only before expiry; these classifications neither grant nor revoke runtime authorization.
+Exceptions never authorize deployment, identity, migration, cloud, or production data changes.
 
 Exception approval requires both the `exception-approved` label and an unedited comment from an individual default
 CODEOWNER: `/approve-agent-exception sha256:<approvalDigest>`. The collector computes `approvalDigest` over the issue

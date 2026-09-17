@@ -1,45 +1,35 @@
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, extname, relative, resolve } from "node:path";
-import { validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, relative, resolve } from "node:path";
+import { repositoryMarkdownPaths, validateArchitectureValidationSequence } from "./repository-docs-contract.mjs";
+import { documentationLinkTargets } from "./docs-drift-contract.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const artifactRoot = resolve(root, "artifacts");
 const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-const architecture = readFileSync(resolve(root, "docs", "architecture.md"), "utf8");
-validateArchitectureValidationSequence(architecture);
+for (const path of ["CONTRIBUTING.md", "docs/architecture.md", "docs/specs/esp-engineering-contract-v1.md"]) {
+  validateArchitectureValidationSequence(readFileSync(resolve(root, path), "utf8"), path);
+}
 assert.match(
   readFileSync(resolve(root, ".gitignore"), "utf8"),
   /^\/artifacts\/$/m,
   "Local evidence artifacts must remain ignored",
 );
-const markdownFiles = [
-  "AGENTS.md",
-  "CONTRIBUTING.md",
-  "HACKATHON-BACKLOG.md",
-  "HACKATHON-DEMO.md",
-  "README.md",
-  "SECURITY.md",
-  ".github/copilot-instructions.md",
-  "scripts/AGENTS.md",
-  "src/lib/esp/AGENTS.md",
-];
-
-function collectMarkdown(directory) {
-  if (!existsSync(directory)) return [];
-  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const path = resolve(directory, entry.name);
-    return entry.isDirectory() ? collectMarkdown(path) : extname(entry.name) === ".md" ? [path] : [];
-  });
-}
-
-for (const path of collectMarkdown(resolve(root, "docs"))) {
-  markdownFiles.push(path.slice(root.length + 1).replaceAll("\\", "/"));
-}
-
-for (const path of collectMarkdown(resolve(root, ".github/agents"))) {
-  markdownFiles.push(path.slice(root.length + 1).replaceAll("\\", "/"));
-}
+assert.equal(
+  readFileSync(resolve(root, "CLAUDE.md"), "utf8").trim(),
+  "@AGENTS.md",
+  "CLAUDE.md must delegate to AGENTS.md",
+);
+const markdownFiles = repositoryMarkdownPaths(
+  execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "*.md", "*.mdx"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+    .split("\0")
+    .filter(Boolean),
+  (path) => existsSync(resolve(root, path)),
+);
 
 const checkedLinks = [];
 const localEvidenceLinks = [];
@@ -50,10 +40,21 @@ for (const file of markdownFiles) {
   assert.ok(existsSync(absoluteFile) && statSync(absoluteFile).isFile(), `Missing documentation file: ${file}`);
   const content = readFileSync(absoluteFile, "utf8");
 
-  for (const match of content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
-    const target = match[1].split("#", 1)[0];
+  for (const link of documentationLinkTargets(content)) {
+    const target = link.split("#", 1)[0];
     if (!target || /^[a-z][a-z\d+.-]*:/i.test(target)) continue;
-    const resolvedTarget = resolve(dirname(absoluteFile), decodeURIComponent(target));
+    const decodedTarget = decodeURIComponent(target);
+    const resolvedTarget = decodedTarget.startsWith("/")
+      ? resolve(root, `.${decodedTarget}`)
+      : resolve(dirname(absoluteFile), decodedTarget);
+    const repositoryPath = relative(root, resolvedTarget);
+    assert.ok(
+      repositoryPath !== ".." &&
+        !repositoryPath.startsWith(`..\\`) &&
+        !repositoryPath.startsWith("../") &&
+        !/^(?:[A-Za-z]:)?[\\/]/.test(repositoryPath),
+      `${file}: link target escapes repository: ${target}`,
+    );
     const artifactPath = relative(artifactRoot, resolvedTarget);
     if (artifactPath === "" || (!artifactPath.startsWith("..") && !/^(?:[A-Za-z]:)?[\\/]/.test(artifactPath))) {
       localEvidenceLinks.push(`${file}:${target}`);

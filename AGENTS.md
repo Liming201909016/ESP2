@@ -15,10 +15,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Treat `src/app` as transport and presentation; keep permission, confirmation, evidence, audit, and persistence rules in `src/lib/esp`.
 - Preserve stable IDs, exact source excerpts, Zod contract validation, audit-before-mutation, and explicit confirmation or approval boundaries.
 - Use synthetic data only. Cloud, identity, infrastructure, migration, deployment, and live-model operations require explicit authorization.
-- See `docs/architecture.md` and `CONTRIBUTING.md` for boundaries and validation.
+- See [architecture](docs/architecture.md) and [contribution guidance](CONTRIBUTING.md) for boundaries and validation.
 
 ## Validation
 
 - Add or update a discriminating test beside the owning module or route.
-- Run the narrowest relevant test first, then `npm run data:check`, `npm run docs:check`, `npm test`, `npm run lint`, `npm run format:check`, and `npm run build` before declaring a repository-wide change complete.
+- Run the narrowest relevant test first, then the complete local validation sequence in [CONTRIBUTING.md](CONTRIBUTING.md#validation) before declaring a repository-wide change complete.
+- Keep current capability, evaluation, and deployment claims separate from dated history; preserve the original evidence and disclose unverified scope.
 - Do not weaken factual, permission, audit, confirmation, or idempotency checks to make tests pass.

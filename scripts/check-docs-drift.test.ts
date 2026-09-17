@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { validateDocsDriftContract } from "./docs-drift-contract.mjs";
+import { documentationLinkTargets, validateDocsDriftContract } from "./docs-drift-contract.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 type DocsDriftContract = {
@@ -12,6 +12,8 @@ type DocsDriftContract = {
     documentation: string;
     sourceTerms: string[];
     documentationTerms: string[];
+    documentationHeading?: string;
+    forbiddenDocumentationTerms?: string[];
   }>;
 };
 
@@ -30,6 +32,70 @@ function repositoryFile(source: Map<string, string>, path: string) {
 }
 
 describe("documentation drift contract", () => {
+  it("parses inline, reference and image links without treating code examples as links", () => {
+    const content = [
+      "[API](<docs/API guide.md#usage>) and [setup][guide].",
+      "![State](public/state.png)",
+      "[guide]: CONTRIBUTING.md",
+      "```markdown",
+      "[example](does-not-exist.md)",
+      "```",
+    ].join("\n\n");
+    expect(documentationLinkTargets(content)).toEqual([
+      "docs/API guide.md#usage",
+      "CONTRIBUTING.md",
+      "public/state.png",
+    ]);
+  });
+
+  it("does not let historical prose or fenced headings satisfy a current-section contract", () => {
+    const scopedContract = {
+      schemaVersion: 1,
+      contracts: [
+        {
+          id: "current-scope",
+          source: "source.mjs",
+          documentation: "guide.md",
+          documentationHeading: "Current",
+          sourceTerms: ["fixed behavior"],
+          documentationTerms: ["verified current claim"],
+        },
+      ],
+    };
+    const validate = (content: string) =>
+      validateDocsDriftContract(scopedContract, (path: string) => (path === "source.mjs" ? "fixed behavior" : content));
+    expect(() => validate("## Current\nverified current claim\n\n## History\nOld claim.")).not.toThrow();
+    expect(() =>
+      validate(
+        [
+          "```markdown\n## Current\nverified current claim\n```",
+          "## Current\nNo current evidence.",
+          "## History\nverified current claim",
+        ].join("\n\n"),
+      ),
+    ).toThrow("documentation drifted");
+    expect(() => validate("## History\nverified current claim")).toThrow("identify one section");
+    expect(() => validate("## Current\nverified current claim\n\n## Current\nDuplicate.")).toThrow(
+      "identify one section",
+    );
+  });
+
+  it("rejects contradictory MCP status and missing current confirmation instructions", () => {
+    for (const [before, after] of [
+      [
+        "MCP alone is not an authorization or audit boundary",
+        "No MCP adapter is currently implemented here. MCP alone is not an authorization or audit boundary",
+      ],
+      ['confirmationId: "<returned confirmation.id>"', "confirmed: true"],
+    ]) {
+      const changed = new Map(files);
+      const readme = repositoryFile(files, "README.md");
+      expect(readme).toContain(before);
+      changed.set("README.md", readme.replace(before, after));
+      expect(() => validateDocsDriftContract(contract, (path: string) => repositoryFile(changed, path))).toThrow();
+    }
+  });
+
   it("retains single-maintainer disclosure and non-approval branch gates", () => {
     for (const [path, before, after] of [
       [".github/branch-protection.yml", "resolveReviewThreads: true", "resolveReviewThreads: false"],

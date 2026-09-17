@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, startTransition, useEffect, useRef, useState } from "react";
+import { FormEvent, type ReactNode, startTransition, useEffect, useRef, useState } from "react";
 import {
   Activity,
+  ArrowLeft,
   ArrowUp,
   BookOpenText,
   Boxes,
@@ -119,6 +120,12 @@ export function WorkspaceNavigation({ activeView, onSelect }: { activeView: View
   </details>;
 }
 
+function RetainedWorkspace({ active, children }: { active: boolean; children: ReactNode }) {
+  const [visited, setVisited] = useState(active);
+  if (active && !visited) setVisited(true);
+  return visited || active ? <div hidden={!active}>{children}</div> : null;
+}
+
 export function Workbench() {
   const { locale, t } = useLocale();
   const [catalogRuntime, setCatalogRuntime] = useState<CatalogResponse | null>(null);
@@ -144,6 +151,8 @@ export function Workbench() {
   const [activeView, setActiveView] = useState<View>("workbench");
   const [securityReviewId, setSecurityReviewId] = useState<string | null>(null);
   const [securityReviewQuery, setSecurityReviewQuery] = useState<string | undefined>();
+  const [reviewSession, setReviewSession] = useState(0);
+  const [auditReturnView, setAuditReturnView] = useState<View | null>(null);
   const [tickets, setTickets] = useState<TicketRecord[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [recordsPending, setRecordsPending] = useState(false);
@@ -249,7 +258,7 @@ export function Workbench() {
     setApprovalParent(audit ?? null); setApprovalId(id); setActiveView("approvals");
   }
 
-  function openAudit(id: string) { setAuditId(id); setActiveView("audit"); }
+  function openAudit(id: string) { setAuditReturnView(activeView); setAuditId(id); setActiveView("audit"); }
 
   function openKnowledgeDocument(id: string, audit?: AuditReceipt) {
     setKnowledgeDocumentId(id); setKnowledgeParent(audit ?? null); setActiveView("knowledge");
@@ -347,7 +356,7 @@ export function Workbench() {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (discoverSecurityReview(query)) { setSecurityReviewId(null); setSecurityReviewQuery(query); setActiveView("security"); return; }
+    if (discoverSecurityReview(query)) { setSecurityReviewId(null); setSecurityReviewQuery(query); setReviewSession((value) => value + 1); setActiveView("security"); return; }
     void routeRequest();
   }
 
@@ -390,13 +399,20 @@ export function Workbench() {
       </aside>
 
       <main className="workspace">
+        <RetainedWorkspace active={activeView === "security"}>
+          <SecurityReviewPanel key={reviewSession} onOpenAudit={openAudit} initialId={securityReviewId} initialQuery={securityReviewQuery} />
+        </RetainedWorkspace>
+        <RetainedWorkspace active={activeView === "catalog"}>
+          <SkillCatalogView selectedId={catalogSkillId} onSelect={setCatalogSkillId} onTry={tryCatalogSkill} onOpenCase={openCatalogCase} executionPending={pending} onOpenAudit={openAudit} />
+        </RetainedWorkspace>
         {activeView === "connectors" ? (
           <BlobConnectorView selectedId={connectorSourceId} onSelect={setConnectorSourceId} onOpenDocument={openKnowledgeDocument} onOpenAudit={openAudit} />
         ) : activeView === "audit" ? (
+          <>
+          {auditReturnView && auditReturnView !== "audit" && <button type="button" className="refresh-button" onClick={() => selectView(auditReturnView)}><ArrowLeft size={16} />{t("returnToWorkspace")} · {t(auditReturnView)}</button>}
           <AuditLedgerView selectedId={auditId} onSelect={setAuditId} onReference={openAuditReference} />
-        ) : activeView === "security" ? (
-          <SecurityReviewPanel onOpenAudit={openAudit} initialId={securityReviewId} initialQuery={securityReviewQuery} />
-        ) : activeView === "approvals" ? (
+          </>
+        ) : activeView === "security" || activeView === "catalog" ? null : activeView === "approvals" ? (
           <PolicyApprovalsView selectedId={approvalId} onSelect={setApprovalId} onQueryTicket={queryTicket} executionPending={pending} initialAudit={approvalParent} onOpenAudit={openAudit} onPrepare={(requestQuery, parameters) => {
             updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery, { selectedSkillId: "create-it-ticket", parameters });
           }} />
@@ -404,14 +420,12 @@ export function Workbench() {
           <PluginCatalogView selectedId={pluginId} onSelect={setPluginId} onReview={reviewPluginPreview} executionPending={pending} onOpenAudit={openAudit} />
         ) : activeView === "knowledge" ? (
           <KnowledgeLibraryView selectedId={knowledgeDocumentId} onSelect={setKnowledgeDocumentId} onTest={tryCatalogSkill} onOpenAudit={openAudit} initialAudit={knowledgeParent} onOpenConnector={openConnectorSource} />
-        ) : activeView === "catalog" ? (
-          <SkillCatalogView selectedId={catalogSkillId} onSelect={setCatalogSkillId} onTry={tryCatalogSkill} onOpenCase={openCatalogCase} executionPending={pending} onOpenAudit={openAudit} />
         ) : activeView === "cases" ? (
-          <SimulationCaseLibrary selectedId={simulationCaseId} onSelect={setSimulationCaseId} onRun={runSimulation} pending={pending} onOpenAudit={openAudit} onRunRequest={(requestQuery) => { if (pending) return; updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery); }} onQuery={tryCatalogSkill} onOpenRecords={() => selectView("records")} onPrepare={(requestQuery, parameters) => { updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery, { selectedSkillId: "create-it-ticket", parameters }); }} />
+          <SimulationCaseLibrary selectedId={simulationCaseId} onSelect={setSimulationCaseId} onRun={runSimulation} pending={pending} onOpenAudit={openAudit} onOpenReview={() => selectView("security")} onRunRequest={(requestQuery) => { if (pending) return; updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery); }} onQuery={tryCatalogSkill} onOpenRecords={() => selectView("records")} onPrepare={(requestQuery, parameters) => { updateQuery(requestQuery); setActiveView("workbench"); void routeRequest(false, requestQuery, { selectedSkillId: "create-it-ticket", parameters }); }} />
         ) : activeView === "records" ? (
           <>
             <section className="workspace-heading">
-              <div><p className="eyebrow">EXECUTION LEDGER</p><h1>{t("records")}</h1></div>
+              <div><p className="eyebrow">IT SERVICE DESK</p><h1>{t("records")}</h1></div>
               <button className="refresh-button" type="button" onClick={() => void loadTickets()} disabled={recordsPending}>
                 <RefreshCw size={15} />{t(recordsPending ? "loading" : "refresh")}
               </button>
@@ -480,13 +494,15 @@ export function Workbench() {
               <div className="composer-label"><span>{t("businessRequest")}</span><span>{query.length} / 2000</span></div>
               <textarea value={query} onChange={(event) => updateQuery(event.target.value)} maxLength={2000} rows={4} aria-label={t("businessRequest")} disabled={pending} />
               <div className="composer-footer">
-                <div className="example-list">
-                  {examples.map((example) => (
-                    <button type="button" key={example} onClick={() => updateQuery(t(example))} disabled={pending}>{t(example)}</button>
-                  ))}
-                </div>
+                <label className="request-example">
+                  <span>{t("requestExample")}</span>
+                  <select value="" disabled={pending} onChange={(event) => { if (event.target.value) updateQuery(event.target.value); }}>
+                    <option value="">{t("chooseRequestExample")}</option>
+                    {examples.map((example) => <option key={example} value={t(example)}>{t(example)}</option>)}
+                  </select>
+                </label>
                 <button className="route-button" type="submit" disabled={pending || !query.trim()}>
-                  {t(pending ? "processing" : "discoverSkills")}<ArrowUp size={17} />
+                  {t(pending ? "processing" : discoverSecurityReview(query) ? "openSoftwareReview" : "processRequest")}<ArrowUp size={17} />
                 </button>
               </div>
             </form>

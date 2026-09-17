@@ -38,17 +38,20 @@ The evaluation notice supplied by the project owner schedules the final evaluati
 | Repository | https://github.com/Liming201909016/ESP2 |
 | Scan branch | `main`; supply its exact commit SHA when submitting to the organizers |
 | Final evaluation | September 21, 2026; exact submission cutoff/time zone still requires confirmation |
-| Repository visibility | Kept unchanged; anonymous lookup returned 404, which does not establish repository type or reviewer access |
-| Reviewer access | Not verified. Successful owner Git access does not prove the scanner can read this repository |
-| CodeBlend evaluation | Not run: the evaluator is not installed on the current workstation; no AI Readiness score is claimed |
-| Code verification | The review-race and audit-reference fixes below have regression coverage; application tests are not a substitute for the CodeBlend evaluation |
+| Repository visibility | Public, last verified through GitHub on September 16; no repository transfer has been performed |
+| Reviewer access | The September 17 evaluation collected GitHub API evidence successfully; organizer access to the final submitted revision still requires verification |
+| CodeBlend evaluation | September 17: **81.1 composite**, **87.6 Substrate (L5)**, **75.0 Operation (Agent-Integrated)**; **AI-Ready: no** |
+| Evaluated version | `main` at `97447203d8ba2260775da31a954589884fa5ca19` plus 15 uncommitted paths; this is not a clean-commit or deployment score |
+| Code verification | CodeBlend inspection and model judging do not rerun the application test/build gates or establish live application correctness |
+
+The complete, uncached evaluation used the default panel `gpt-6-astra`, `gemini-3.8-flash`, and `grok-4.6`, with one judging round and a 90-day GitHub evidence window. All seven stages succeeded. Operator-held run `20260917-092334+0800` contains the Markdown/JSON reports and nine CSV exports; those files are outside this checkout, not public evidence downloads. **AI-Ready requires both axes to reach 80**, not merely the composite score. The earlier 82.9 result used a different selected panel and revision; it is historical, not an equal-conditions comparison or a guarantee for a different repository. Subsequent documentation and code changes are not covered by either score.
 
 The notice recommends public repositories for easy access, **GitHub EMU Read access for `arechen_microsoft`**, or **Azure DevOps Read access for `arechen@microsoft.com`**. Do not apply the EMU account instructions to an unverified repository type. For a non-EMU private GitHub repository, confirm the appropriate scanner identity with the organizers. Do not make this internal project public merely to simplify scanning without approval.
 
 Before final submission:
 
 1. Confirm the repository type and sharing policy, then verify that the designated scanning identity can read the repository and target commit.
-2. Obtain CodeBlend from its authorized source, review its data-handling requirements, and run the evaluator against the intended scan version. Use the output to select targeted improvements rather than optimize for an invented score.
+2. Use the bundled [CodeBlend evaluation skill](.agents/skills/codeblend-ai-composite/SKILL.md), review its data-handling requirements, and evaluate the intended scan version. Record the actual model panel and any uncommitted content; do not present an older worktree result as the final submission score.
 3. Send the organizers the repository URL, branch and full commit SHA (`git rev-parse HEAD`), plus any actual evaluation results and unresolved access issues. Re-evaluate if subsequent changes alter the submitted version.
 
 The Azure demo URL is supplementary, not a replacement for source access. GitHub CLI authorization and reviewer-access verification remain separate from Git push authentication. No repository visibility, collaborator access or automated deployment setting is changed by this documentation update.
@@ -153,7 +156,7 @@ These are proposed responsibilities, not roles already assigned to this project.
 
 ## Target Architecture
 
-The diagram describes the **intended architecture**, not a list of completed integrations. Microsoft 365 Copilot, Copilot Studio, Teams, MCP and external business-system adapters are prospective integration points. The current implementation uses Web and CLI/HTTP consumers with a fixed set of capabilities and adapters.
+The diagram describes the **intended architecture**, not a list of completed integrations. Microsoft 365 Copilot, Copilot Studio, Teams and external business-system adapters remain prospective integration points. Current consumers include Web and CLI/HTTP tools. Repository governance also has an implemented stdio MCP server/client, standalone execution package and governed Web invocation path; this does not expose the Security Review stages as independent MCP Skills.
 
 ```mermaid
 flowchart TB
@@ -182,7 +185,7 @@ flowchart TB
 ESP is not intended to replace an agent authoring or runtime platform. It focuses on the discovery, governance, evaluation, ownership and reuse of the capabilities those experiences consume.
 
 - **Agent platforms:** create and operate consumer experiences. Copilot Studio is a potential integration point for ESP, not a dependency already connected to this prototype.
-- **MCP:** can provide a tool/resource interoperability mechanism for an adapter. It does not, by itself, establish ESP's business authorization, evidence requirements or human approval rules. No MCP adapter is currently implemented here.
+- **MCP:** provides interoperability for the implemented [repository-governance execution package](docs/architecture.md#governance-execution-package). Its two fixed read-only tools return a packaged governance snapshot or validation plan, not a fresh CodeBlend evaluation. The Web API separately enforces identity, `governance.read`, package integrity and audit-before-invocation. MCP alone is not an authorization or audit boundary; review-domain MCP Skills and Microsoft 365 Copilot integration remain planned.
 - **ESP:** explores how capabilities can be operated as reusable enterprise products across consumers, rather than hidden implementation details inside individual agents.
 
 ## Hackathon MVP: Security Review
@@ -212,23 +215,27 @@ The review domain defines five capability stages: **Intake, Evidence Extraction,
 
 | Area | Implemented in the prototype | Remaining target |
 | --- | --- | --- |
-| Consumer experience | English-default Web UI, Chinese switch, CLI using the same review HTTP API | Actual Copilot consumer and cross-consumer confirmation flow |
-| Discovery | Permission-filtered seven-Skill catalog; bounded intent routing; fixed review discovery | Unified discovery of independently governed review capabilities |
-| Execution | Two global Plugins, bounded parallel reads, fixed ticket-guidance workflow and review workflow | Global review adapter registration and independent capability reuse |
+| Consumer experience | English-default Web UI, Chinese switch, shared review HTTP/CLI service, explicit Web-to-MCP repository governance | Actual Microsoft 365 Copilot consumer and cross-consumer confirmation flow |
+| Discovery | Seven business Skills plus two separate repository-governance Skills; bounded business routing and fixed review discovery | Unified discovery of independently governed review capabilities; governance is not selected through `/api/route` |
+| Execution | Two business Plugins, bounded parallel reads, fixed ticket-guidance/review workflows, dedicated packaged governance MCP adapter | Global review adapter registration and independent review-capability reuse |
 | Governance | Permission checks, input validation, ticket confirmation/approval, review decisions and audit-before-mutation | Production identity separation and broader lifecycle governance |
 | Evidence and reports | Source-grounded knowledge answers, original review evidence, version labels, bilingual reports | Broader ingestion and retained-version evolution across capabilities |
 | Evaluation | Deterministic review controls, knowledge evaluators and evaluation/import/proposal UI | Trusted continuous evaluation and approved improvement promotion |
 | Persistence | Azure Blob review/audit records and PostgreSQL business state; bounded restart/concurrency verification | Wider reliability, retention and operational acceptance |
 | Navigation | Employee Workspace, Capability Operations and Demo Center menu groups | Unified My Requests/My Tasks and complete workspace experiences |
 
+The two governance Skills are `inspect-repository-governance` and `get-repository-validation-plan`, both in a separate catalog behind `governance.read`. Their `packaged_snapshot` output describes collection-time source and provenance, not the latest remote repository. Running the validation-plan Skill returns commands without executing them. The [governed API contract and configuration](docs/architecture.md#governed-web-invocation) describe the required pinned package and durable audit storage.
+
 ### Verification and Boundaries
 
-The deployed September 15 build passed **1127 tests across 70 files**, lint, build/types and data consistency checks. Live verification exercised four synthetic review branches, blocked three invalid approvals and confirmed identical review records, reports, ETags and 12 audit pairs after an application restart. Concurrent identical submissions reused one review. These results establish a bounded demonstration, not a production reliability guarantee.
+The September 15 Security Review baseline passed **1127 tests across 70 files**, lint, build/types and data consistency checks. That release's live verification exercised four synthetic review branches, blocked three invalid approvals and confirmed identical review records, reports, ETags and 12 audit pairs after restart. Concurrent identical submissions reused one review. These are dated, bounded results, not a production reliability guarantee.
+
+The [latest verified Azure DEV release](#current-azure-dev-release), `b0dde1fc-7a5c-4d9d-997a-f80f370b081b` on September 16, also completed both repository-governance Skills through the Linux Web runtime with durable audits that survived restart. The newer local UI and offline demo-material changes were not included in that deployment. Neither release verification is an AI-readiness score or a new knowledge-model quality evaluation.
 
 - The DEV requester and reviewer share an identity. Review approval grants no real installation, licensing, purchase or production permission.
 - Original source text, business records and human reasons are preserved; bilingual controls do not imply that all underlying content has been translated.
-- The current reuse proof is the shared Web/CLI review service, not independent global Skill reuse or completed Copilot integration.
-- "Evaluate continuously" and independent capability evolution are design goals. Automatic model evaluation schedules, training and improvement publication are not enabled.
+- Security Review reuse is through its shared Web/CLI workflow, not five independent globally registered Skills. The separate repository-governance MCP path does not establish completed Microsoft 365 Copilot integration.
+- "Evaluate continuously" and independent business-capability evolution remain design goals. Business model-quality evaluation schedules, training and improvement publication are not enabled. Repository engineering separately includes scheduled read-only findings audits and deterministic learned-rule checks; these do not publish business capabilities.
 - The historical knowledge evaluation remains **57/58**, with **QA-041 unresolved**. It was not rerun for the latest deployment and is not a new-release score.
 - Full accessibility, independent version evolution and broader release-quality acceptance remain open. Audit storage is not claimed to be WORM.
 
@@ -343,13 +350,7 @@ node scripts/dev-security-review.mjs
 
 Open **http://127.0.0.1:3100/** and select **Security Review**. The local launcher uses fixed synthetic evidence and development-only memory storage for reviews and their audit records. This review flow does not require a model or cloud credentials. Restarting the local process clears its reviews. Other knowledge, ticket and management operations require their configured backends; the launcher does not provision those services.
 
-```bash
-npm test -- --silent
-npm run lint
-npm run format:check
-npm run build
-npm run data:check
-```
+Before submitting changes, run the narrowest relevant test followed by the [complete validation sequence](CONTRIBUTING.md#validation). For the development bootstrap that also installs the local pre-commit hook, use `npm run setup` instead of the demo's dependency-only `npm ci` step. The [governance setup](docs/architecture.md#governed-web-invocation) is separate: the review-memory launcher does not grant `governance.read` or provide governance audit storage.
 
 The production-mode server rejects memory review storage. Cloud use requires the explicitly configured Azure environment, approved identity/access settings and durable services. Never put credentials or real enterprise records into the repository.
 
@@ -382,15 +383,28 @@ This is the direction of the platform, not the scale demonstrated by the prototy
 
 The notes below retain implementation and deployment history. Artifact links under the ignored local artifacts directory refer to operator-held verification files and are not available in a fresh GitHub checkout. They are not public evidence downloads. The current deployment summary and its limitations remain readable below without those files.
 
-## Review Correctness Fixes - Not Deployed
+## Review Correctness Fixes (Implementation History)
 
 The review panel now rejects superseded detail responses and binds decision drafts to the selected review ID and ETag. History pagination has a synchronous in-flight guard, request cancellation, stale-response rejection and ID deduplication. Refresh and pagination controls reflect their own loading state. Three DOM interaction regressions reuse the existing review generator to exercise delayed details, repeated pagination and a late page arriving after a target change; Testing Library and Happy DOM are development-only dependencies.
 
 Failed review decisions now retain a `security_review` reference in the audit result after reading the target through the current owner's store. The audit start is still persisted before that read or any decision. Error responses may include minimal `reviewRecord` metadata (`id`, `policyVersion`) for this verified target; missing or foreign targets do not receive this reference. Existing historical audit entries are not modified or backfilled.
 
-Validation: **1131 tests / 71 files**, full lint and production build/types passed during implementation. These fixes are included in the source update for evaluation preparation but are not included in the deployed release below. Historical audit records are not backfilled. Publishing the source is not a deployment or an AI Readiness evaluation.
+Validation: **1131 tests / 71 files**, full lint and production build/types passed during implementation. These fixes were absent from the September 15 baseline; that historical limitation is not the current release inventory. Historical audit records are not backfilled. Publishing source is not by itself a deployment or an AI Readiness evaluation.
 
 ## Current Azure DEV Release
+
+Last verified on **2026-09-16 at 15:19:42Z** at **https://app-esp-dev-ygxkqw7r.azurewebsites.net/**: release **`b0dde1fc-7a5c-4d9d-997a-f80f370b081b`**, build `Ij6a1lXGooM3H4zDpqVXL`, deployment `73a157ab-c799-4bfd-9bfc-fecfeacb4815`. This is a user-authorized `sourceCommit=local`, `buildRunId=null` manual release, not a clean CI-provenance deployment. Its governance snapshot records base commit `97447203d8ba2260775da31a954589884fa5ca19` with local changes; newer local UI and offline demo-material changes are not included.
+
+- [Release manifest](artifacts/azure-governance-dev-fix-20260916-150911/manifest.json): ZIP SHA-256 `07fa6fc1a971eb55df98aaf936b88741b77539cf6dd38df460ed1a9d7a62e02a`, 18,515,009 bytes, data `2026.09-sim-v4`, state schema 1.
+- [Final verification](artifacts/azure-governance-dev-fix-20260916-150911/final-verification.json): governance enabled with an explicitly approved DEV `governance.read` grant and pinned runtime. Manifest SHA-256 is `e352a2453b18fa135cd858baa5c24cd0b06ad4ce8c89c30d19a76e9bbee9f8e4`; all other settings remained unchanged.
+- Both actual Linux Web-to-MCP calls returned the packaged snapshot/plan with matching provenance and recorded read-only audit starts/outcomes. [Restart verification](artifacts/azure-governance-dev-fix-20260916-150911/post-restart-verification.json) retained those audits, the earlier failed audit, and unchanged business records: 16 tickets, 11 approvals and four reviews. Invalid extra command input was rejected. No model or CodeBlend evaluation ran during this acceptance.
+- The known compatible governance-disabled fallback is release `1bfb94fa-099c-42ae-b95a-2243e891f996`. Older `6421747f` cannot parse new `governance.read` audit records and is not a safe rollback target. Do not remove or rewrite audit history to make an older package appear compatible. Any rollback or settings change still requires explicit approval.
+
+The preceding local runtime-fix gate passed **1229 tests / 87 files** and two production E2E tests. Later local UI/demo work passed **1230 tests / 88 files** and three E2E tests; these are separate dated checks, not a new deployment or a model-quality result. A Windows E2E teardown diagnostic was observed despite successful exit status and remains a tooling limitation. The current documentation revision does not rerun or replace those historical results.
+
+### Previous Azure DEV Release (September 15)
+
+The following release and rollback notes describe the September 15 acceptance window only. The compatibility restriction above supersedes the old rollback baseline.
 
 User-authorized manual deployment on **2026-09-15** is complete at **https://app-esp-dev-ygxkqw7r.azurewebsites.net/**. Release **`6421747f-c475-4d2a-9239-d3b16efed4d6`**, build `fOzUgq-Cvo9wUrUhmoBau`, deployment `7ed1fb44-68c4-4210-871c-cccd2b1340a6` completed at `2026-09-15T02:38:44Z`. This includes Security Review, the bilingual presentation increments and the first grouped-navigation increment. It is a `sourceCommit=local` manual package, not a CI-provenance release or automatic deployment activation.
 
@@ -1558,20 +1572,27 @@ Exclude only `/api/health` from App Service Authentication so monitoring remains
 
 ## API
 
+These are current source contracts; the dated implementation notes above retain their original deployment scope. Use the [current release summary](#current-azure-dev-release) to identify the last verified cloud package. Runtime state depends on the configured backend and caller permissions.
+
 - `GET /api/health`: service and registry readiness.
 - `GET /api/readiness`: cached, coalesced dependency reads returning 200 ready or 503 degraded, with safe statuses/durations only; the model is explicitly not probed.
-- `GET /api/release`: build-checked packaged release metadata with no-store; 404 for unregistered local/legacy builds and 503 for mismatched or invalid metadata. Not yet deployed by the local-only release-automation increment.
-- `POST /api/route`: governed skill routing and execution. Initial body: `{ "query": "...", "confirmed": false }`. The response includes `intent.source` and extracted `intent.parameters`. Ticket follow-up body: `{ "query": "...", "selectedSkillId": "create-it-ticket", "parameters": { "description": "Laptop cannot start", "impact": "individual", "device": "SIM-LT-0042" }, "confirmed": false }`. Set `confirmed` to `true` after reviewing the completed input to persist under `audit/tickets/` and return the receipt.
+- `GET /api/release`: build-checked packaged release metadata with no-store; 404 for unregistered local/legacy builds and 503 for mismatched or invalid metadata. It identifies a package, not CI provenance or a completed quality evaluation by itself.
+- `POST /api/route`: governed skill routing and execution. Initial body: `{ "query": "...", "confirmed": false }`. The response includes `intent.source` and extracted `intent.parameters`. Individual ticket preview: `{ "query": "...", "selectedSkillId": "create-it-ticket", "parameters": { "description": "Laptop cannot start", "impact": "individual", "device": "SIM-LT-0042" }, "submissionId": "<uuid>", "confirmed": false }`. Retain the UUID and returned `confirmation.id`. After explicit human confirmation, resend the bound query/parameters with `confirmed: true` and `confirmationId: "<returned confirmation.id>"`. Missing or changed confirmation is rejected; `confirmed: true` alone cannot create a ticket. Expired confirmation cannot create a new ticket, but an already completed exact receipt can still be recovered. Receipts use the configured Blob/PostgreSQL backend, and uncertain results require recovery of the same receipt rather than a new submission.
 - `POST /api/route` with an explicit independent multi-topic read request can return `route.status: "parallel"` and `parallel.tasks`; callers must inspect each task, not infer all-task success from HTTP 200.
 - `POST /api/route` with `query: "ticket status ESP-YYYYMMDD-XXXXXXXX"` reads that record for the current subject; no write confirmation is required.
 - `GET /api/tickets`: owner-filtered execution records.
-- `GET /api/audit?cursor=...&traceId=...&reference=...`: current-owner/current-permission audit page; optional `reference` is `approval:ID`, `ticket:ID`, `document:ID`, `source:ID`, `connector:ID` or `connector_source:ID`.
+- `GET /api/audit?cursor=...&traceId=...&reference=...`: current-owner/current-permission audit page; supported references include `approval:ID`, `ticket:ID`, `document:ID`, `source:ID`, `connector:ID`, `connector_source:ID` and `security_review:ID`.
 - `GET /api/audit/{auditId}`: one accessible immutable start/result pair; missing result is `null`. No audit modification/deletion routes exist.
 - `GET /api/policies`: permission-filtered fixed DEV impact rules and explicit shared reviewer availability.
 - `GET /api/approvals?cursor=...`: one owner-filtered approval page and continuation token.
 - `GET /api/approvals/{approvalId}`: immutable input, current state, ETag, event history and available actions.
 - `POST /api/approvals/{approvalId}`: strict `{ "action": "approve" | "reject" | "cancel" | "execute" | "reconcile", "etag": "...", "reason": "..." }`; rejection requires a reason. No new ticket inputs or caller identity are accepted. Approval APIs return `Cache-Control: private, no-store`.
 - `GET /api/skills`: read-only permission-filtered catalog with inputs, result types, cases, source metadata and a retrieval timestamp; responses use `Cache-Control: private, no-store`.
+- `GET /api/governance`: separate two-Skill repository-governance catalog and packaged provenance; requires authenticated subject and `governance.read`. `manifest_verified` is not an execution or health result.
+- `POST /api/governance`: strict `{ "repositoryId": "esp", "skillId": "inspect-repository-governance" | "get-repository-validation-plan" }`; requires a pinned package and persisted audit start before read-only invocation. Commands, paths and caller identities are rejected. Results are `packaged_snapshot`, not live CodeBlend scores; a validation plan is not executed.
+- `GET /api/security-reviews`: owner-scoped review list, `?catalog=true` for fixed domain definitions, or `?id=sr-...` for a review; HTML/JSON report downloads preserve original evidence and decisions.
+- `POST /api/security-reviews`: explicit `discover`, `start`, `approve`, `reject` or `request_information` commands. Start requires a submission UUID; decisions require the record ID, ETag and human reason. Discovery creates no review, and approval cannot override failed controls.
+- `GET /api/workflows` and `POST /api/workflows`: fixed permission-checked ticket-guidance workflow catalog and explicit execution; missing upstream data skips the dependent step. These are not arbitrary caller-supplied plans.
 - `GET /api/plugins`: permission-filtered built-in plugin operations, actual input/output schemas and configuration-presence metadata; no runtime dependency calls.
 - `POST /api/plugins/{pluginId}/trial`: actual read invocation or non-executing write preview, including outcome, request ID, timing and trace. Plugin API responses use `Cache-Control: private, no-store`.
 - `GET /api/knowledge?cursor=...`: built-ins, one bounded imported-document page, and DEV management availability.
