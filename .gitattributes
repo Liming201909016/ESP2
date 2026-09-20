@@ -1,1 +1,2 @@
 .github/workflows/*.lock.yml linguist-generated=true
+.agents/skills/codeblend-ai-composite/** text=auto eol=lf
