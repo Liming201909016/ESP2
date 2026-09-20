@@ -37,7 +37,7 @@
     "test:state": "node scripts/evaluate-state.mjs",
     "test:connectors": "node scripts/evaluate-connectors.mjs",
     "data:build": "node scripts/generate-enterprise-data.mjs",
-    "data:check": "node scripts/generate-enterprise-data.mjs --check",
+    "data:check": "node --test scripts/generate-enterprise-data.node-test.mjs && node scripts/generate-enterprise-data.mjs --check",
     "test:enterprise": "node scripts/evaluate-enterprise-data.mjs",
     "test:monitoring": "node scripts/evaluate-monitoring.mjs",
     "release:verify": "node scripts/release-package.mjs verify",

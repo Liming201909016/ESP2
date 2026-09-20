@@ -119,7 +119,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const content = `${JSON.stringify(pack, null, 2)}\n`;
   const target = new URL("../src/data/enterprise-pack.json", import.meta.url);
   if (process.argv.includes("--check")) {
-    if (await readFile(target, "utf8") !== content) throw new Error("Enterprise pack is stale; run npm run data:build");
+    if ((await readFile(target, "utf8")).replaceAll("\r\n", "\n") !== content) throw new Error("Enterprise pack is stale; run npm run data:build");
   } else await writeFile(target, content);
   console.log(`Enterprise pack ${process.argv.includes("--check") ? "verified" : "generated"}: ${pack.records.length} linked views, ${pack.documents.length} knowledge documents`);
 }
